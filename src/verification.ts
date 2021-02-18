@@ -1,8 +1,30 @@
 "use strict";
 
+import { EHashAlgorithms } from './models';
+import { sha256 } from 'js-sha256';
+import { sha512 } from 'js-sha512';
+
 export class UbirchVerification {
   constructor() {
     return this;
+  }
+
+  public createHash(json: string, hashAlgorithm: EHashAlgorithms = EHashAlgorithms.SHA256): string {
+    let transIdAB: ArrayBuffer;
+
+    switch (hashAlgorithm) {
+      case EHashAlgorithms.SHA256: {
+        transIdAB = sha256.arrayBuffer(json);
+        break;
+      }
+      case EHashAlgorithms.SHA512: {
+        transIdAB = sha512.arrayBuffer(json);
+        break;
+      }
+    }
+    const transId: string = btoa(new Uint8Array(transIdAB).reduce((data, byte) => data + String.fromCharCode(byte), ''));
+
+    return transId;
   }
 
   public formatJSON(json: string, sort: boolean = true): string {
