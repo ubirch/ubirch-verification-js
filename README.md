@@ -10,7 +10,7 @@ JavaScript package to verify that data has been anchored in blockchains through 
 
 `npm install`
 
-`npm run test:mocha`
+`npm run test`
 
 `npm run build` This will bundle a js file for the browser.
 

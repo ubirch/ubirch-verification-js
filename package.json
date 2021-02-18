@@ -4,7 +4,7 @@
   "description": "JavaScript package to verify that data has been anchored in blockchains through the ubirch system",
   "main": "verification.ts",
   "scripts": {
-    "test": "echo 'no tests defined'",
+    "test": "jest",
     "serve:local": "webpack serve --env STAGE=local",
     "serve": "webpack serve --env STAGE=prod",
     "build:local": "webpack --env STAGE=local",
