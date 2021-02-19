@@ -51,6 +51,16 @@ describe("Verification", () => {
       assert.strictEqual(result,'{"a":"\\n","g":"äöüÄÖÜß","p":"!§$%&/()=?*+#_-:.;","r":"®"}', `${jsonString} -> ${result}`);
     });
 
+    it('should throw an error if the json is malformed', () => {
+      const verifier = new UbirchVerification();
+      const jsonString = '"a":"-1"';
+      try {
+        const result = verifier.formatJSON(jsonString, true);
+        assert.fail('formatJSON did not throw an error');
+      } catch (e) {
+        assert.strictEqual(typeof e === 'object', true, e.message);
+      }
+    });
   });
 
   describe("createHash", () => {
@@ -68,5 +78,6 @@ describe("Verification", () => {
       const result = verifier.createHash(trimmedAndSortedJson, EHashAlgorithms.SHA512);
       assert.strictEqual(result,'l5y7KYeeAmASU76WhTsOfy4+L/o+r1LHg1Uqv/rClxgivyveUAJo/WCwZTsfBaK54zg4MKs08serUXKuFQgu+A==', `${trimmedAndSortedJson} -> ${result}`);
     });
+
   });
 });

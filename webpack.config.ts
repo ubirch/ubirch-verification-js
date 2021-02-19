@@ -17,7 +17,8 @@ module.exports = function (env) {
       extensions: ['.js', '.ts'],
       fallback: {
         "js-sha256": require.resolve("js-sha256"),
-        "js-sha512": require.resolve("js-sha512")
+        "js-sha512": require.resolve("js-sha512"),
+        "i18next": require.resolve("i18next")
       }
     },
     devtool: 'inline-source-map',
