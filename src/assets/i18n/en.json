@@ -1,3 +1,17 @@
 {
-  "JSON_MALFORMED.info":  "Building internal JSON format from input string failed"
+  "MISSING_ACCESS_TOKEN": "You need to provide an accessToken to verify data",
+  "START_VERIFICATION_CALL": "",
+  "START_CHECKING_RESPONSE": "",
+  "PROCESSING_VERIFICATION_CALL": "...verification pending....",
+  "VERIFICATION_SUCCESSFUL": "Verification Successful!",
+  "NO_BLXTX_FOUND": "",
+  "BLXTX_FOUND_SUCCESS": "",
+  "SUCCESS_INFO": "For more information about anchoring click the ubirch icon to open verification details in ubirch console or click the blockchain icons to open corresponding blockchain explorer",
+  "VERIFICATION_FAILED.headline": "Verification Failed!",
+  "VERIFICATION_FAILED_EMPTY_RESPONSE": "Verification Failed!! Empty certificate or missing seal",
+  "VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE": "Verification Failed!! Empty certificate or missing seal",
+  "FAIL_INFO": "No blockchain anchor for given data",
+  "JSON_MALFORMED":  "Building internal JSON format from input string failed",
+  "CERTIFICATE_ACCESS_DENIED": "403: not authorized",
+  "UNKNOWN_ERROR": "An unexpected error occurred....!"
 }

@@ -1,3 +1,17 @@
 {
-  "JSON_MALFORMED.info": "Das Erzeugen des internen JSON Datenformats aus dem eingegebenen String ist fehlgeschlagen"
+  "MISSING_ACCESS_TOKEN": "Fehler beim Erstellen der Ubirch(Form)Verification Instanz auf der Seite: es wurde kein `accessToken` zum Verifizieren der Daten angegeben",
+  "START_VERIFICATION_CALL": "",
+  "START_CHECKING_RESPONSE": "",
+  "PROCESSING_VERIFICATION_CALL": "...Verifikation wird durchgeführt....",
+  "VERIFICATION_SUCCESSFUL": "Verifikation erfolgreich!",
+  "NO_BLXTX_FOUND": "",
+  "BLXTX_FOUND_SUCCESS": "",
+  "SUCCESS_INFO": "Für zusätzliche Informationen zur Verankerung klicken Sie auf das ubirch Icon um die Details der Verifikation in der ubirch Konsole anzuzeigen oder auf die Blockchain Icons um den jeweiligen Blockchain-Explorer zu öffnen",
+  "VERIFICATION_FAILED.headline": "Verifikation fehlgeschlagen!",
+  "VERIFICATION_FAILED_EMPTY_RESPONSE": "Verifikation fehlgeschlagen!! Zertifikat ist leer oder enthält kein Siegel",
+  "VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE": "Verifikation fehlgeschlagen!! Zertifikat ist leer oder enthält kein Siegel",
+  "FAIL_INFO": "Zu den eingegebenen Daten gibt es keine Blockchain-Verankerung",
+  "JSON_MALFORMED": "Das Erzeugen des internen JSON Datenformats aus dem eingegebenen String ist fehlgeschlagen",
+  "CERTIFICATE_ACCESS_DENIED": "403 - nicht authorisiert",
+  "UNKNOWN_ERROR": "Problem!!! Ein unerwarteter Fehler ist aufgetreten....!"
 }
