@@ -31,7 +31,7 @@ i18Next.init({
   }
 });
 
-const VERSION = 'v2/';
+const VERSION = '/v2';
 
 export class UbirchVerification {
   private stage: EStages = EStages.prod;
@@ -71,6 +71,19 @@ export class UbirchVerification {
     return transId;
   }
 
+  public verifyHash(hash: string): Promise<void | IUbirchVerificationResponse> {
+
+      return this.sendVerificationRequest(hash)
+        .then((response: any) => {
+          try {
+            const verificationResponse: IUbirchVerificationResponse = this.checkResponse(response, hash);
+            Promise.resolve(verificationResponse);
+          } catch (err) {
+            Promise.reject(err.code)
+          }
+        });
+  }
+
   public formatJSON(json: string, sort: boolean = true): string {
     try {
       const object: object = JSON.parse(json);
@@ -105,46 +118,53 @@ export class UbirchVerification {
     this.log(info);
   }
 
-  private sendVerificationRequest(hash: string): void {
-    const xhttp: XMLHttpRequest = new XMLHttpRequest();
+  public sendVerificationRequest(hash: string): Promise<any> {
     const self = this;
+    const verificationUrl = environment.verify_api_url[this.stage] + VERSION + environment.verify_api_path;
 
-    xhttp.onreadystatechange = function() {
-      if (this.readyState < 4) {
-        self.handleInfo(EInfo.PROCESSING_VERIFICATION_CALL);
-      } else {
-        switch (this.status) {
-          case 200: {
-            self.checkResponse(this.responseText, hash);
-            break;
-          }
-          case 404: {
-            self.handleError(EError.CERTIFICATE_ID_CANNOT_BE_FOUND, hash);
-            break;
-          }
-          case 403: {
-            self.handleError(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE, hash);
-            break;
-          }
-          default: {
-            self.handleError(EError.UNKNOWN_ERROR, hash);
-            break;
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', verificationUrl, true);
+
+      xhr.onload = function () {
+        if (this.readyState < 4) {
+          self.handleInfo(EInfo.PROCESSING_VERIFICATION_CALL);
+        } else {
+          switch (this.status) {
+            case 200: {
+              resolve(xhr.response);
+              break;
+            }
+            case 404: {
+              reject(EError.CERTIFICATE_ID_CANNOT_BE_FOUND);
+              break;
+            }
+            case 403: {
+              reject(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
+              break;
+            }
+            default: {
+              reject(EError.UNKNOWN_ERROR);
+              break;
+            }
           }
         }
       }
-    };
+      xhr.onerror = function () {
+        reject(EError.VERIFICATION_UNAVAILABLE);
+      };
 
-    const verificationUrl = environment.verify_api_url[this.stage] + VERSION + environment.verify_api_path;
+      self.handleInfo(EInfo.START_VERIFICATION_CALL, hash);
 
-    this.handleInfo(EInfo.START_VERIFICATION_CALL, hash);
+      xhr.setRequestHeader('Content-type', 'text/plain');
+      xhr.setRequestHeader('authorization', 'bearer ' + self.accessToken);
+      xhr.send(hash);
 
-    xhttp.open('POST', verificationUrl, true);
-    xhttp.setRequestHeader('Content-type', 'text/plain');
-    xhttp.setRequestHeader('authorization', 'bearer ' + this.accessToken);
-    xhttp.send(hash);
+    });
   }
 
-  private checkResponse(result: string, hash: string): void {
+  private checkResponse(result: string, hash: string): IUbirchVerificationResponse {
+
     this.handleInfo(EInfo.START_CHECKING_RESPONSE, hash);
     // Success IF
     // 1. HTTP Status 200 -> if this fkt is called and result isn't empty
@@ -179,6 +199,8 @@ export class UbirchVerification {
     }
 
     this.handleInfo(EInfo.BLXTX_FOUND_SUCCESS, hash);
+
+    return resultObj;
 
     // show it for each item in array
     // blockchainTX.forEach((item, index) => {

@@ -1,11 +1,12 @@
 "use strict";
 
-import { EError, EHashAlgorithms, IUbirchVerificationConfig } from './models';
+import { EHashAlgorithms, EStages, IUbirchVerificationConfig, IUbirchVerificationResponse } from './models';
 import { UbirchVerification } from './verification';
 
 const defaultSettings: IUbirchVerificationConfig = {
   algorithm: EHashAlgorithms.SHA256,
-  accessToken: 'dummy_test_token'
+  accessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiZDYzZWNjMDMtZjVhNy00ZDQzLTkxZDAtYTMwZDAzNGQ4ZGEzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2MTk4MjA2MzAsImlhdCI6MTYxMjQzNTI4MCwianRpIjoiOGJkMzExZDItZGEyYi00ZWJhLWExMmMtODYxYjRiYWU2MjliIiwidGFyZ2V0X2lkZW50aXRpZXMiOiIqIiwicm9sZSI6InZlcmlmaWVyIiwic2NvcGUiOiJ2ZXIiLCJwdXJwb3NlIjoiVWJpcmNoIERlZmF1bHQgVG9rZW4iLCJvcmlnaW5fZG9tYWlucyI6W119.tDovGseqjwaJZNX0ZtoGmZVvkcdVltR1nXYYAFpF4DHGAQ8MiRAfeJIYL0TNHsqBt_-60fw2j65neje_ThJ7Eg",
+  stage: EStages.dev
 }
 
 describe("Verification", () => {
@@ -77,5 +78,43 @@ describe("Verification", () => {
       expect(result).toEqual('l5y7KYeeAmASU76WhTsOfy4+L/o+r1LHg1Uqv/rClxgivyveUAJo/WCwZTsfBaK54zg4MKs08serUXKuFQgu+A==');
     });
 
+  });
+
+  describe('sendVerificationRequest', () => {
+
+    test('should send the hash to the backend', () => {
+
+      const verifier = new UbirchVerification(defaultSettings);
+      const testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
+      const responseJSON: string = '{"anchors":{"upper_blockchains":[]},"prev":"","upp":"upp-must-not-be-null"}';
+      const responseInstance: IUbirchVerificationResponse = JSON.parse(responseJSON);
+
+      const spy = jest.spyOn(UbirchVerification.prototype, 'sendVerificationRequest')
+        .mockImplementation(_ => Promise.resolve(responseJSON));
+
+      verifier.verifyHash(testhash_verifiable).then(resonse => {
+        expect(spy).toHaveBeenCalled();
+        console.log("Response: " + resonse);
+        expect(resonse).toEqual(responseInstance);
+      });
+
+      spy.mockRestore();
+
+    });
+    test('should fail with VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE if no upp is returned', () => {
+
+      const verifier = new UbirchVerification(defaultSettings);
+      const testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
+      const responseJSON: string = '{"anchors":{"upper_blockchains":[]},"prev":"","upp":""}';
+      const responseInstance: IUbirchVerificationResponse = JSON.parse(responseJSON);
+
+      const spy = jest.spyOn(UbirchVerification.prototype, 'sendVerificationRequest')
+        .mockImplementation(_ => Promise.resolve(responseJSON));
+
+      verifier.verifyHash(testhash_verifiable).catch(e => expect(e.code).toMatch('VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE'));
+
+      spy.mockRestore();
+
+    });
   });
 });

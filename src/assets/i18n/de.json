@@ -10,6 +10,8 @@
   "VERIFICATION_FAILED.headline": "Verifikation fehlgeschlagen!",
   "VERIFICATION_FAILED_EMPTY_RESPONSE": "Verifikation fehlgeschlagen!! Zertifikat ist leer oder enthält kein Siegel",
   "VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE": "Verifikation fehlgeschlagen!! Zertifikat ist leer oder enthält kein Siegel",
+  "VERIFICATION_CURRENTLY_UNAVAILABLE": "Verifikationsdienst ist vorübergehend nicht verfügbar!",
+  "VERIFICATION_UNAVAILABLE": "Verifikationsdienst ist nicht verfügbar!",
   "FAIL_INFO": "Zu den eingegebenen Daten gibt es keine Blockchain-Verankerung",
   "JSON_MALFORMED": "Das Erzeugen des internen JSON Datenformats aus dem eingegebenen String ist fehlgeschlagen",
   "CERTIFICATE_ACCESS_DENIED": "403 - nicht authorisiert",

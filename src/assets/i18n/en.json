@@ -9,6 +9,8 @@
   "SUCCESS_INFO": "For more information about anchoring click the ubirch icon to open verification details in ubirch console or click the blockchain icons to open corresponding blockchain explorer",
   "VERIFICATION_FAILED.headline": "Verification Failed!",
   "VERIFICATION_FAILED_EMPTY_RESPONSE": "Verification Failed!! Empty certificate or missing seal",
+  "VERIFICATION_CURRENTLY_UNAVAILABLE": "Verification service is currently unavailable!",
+  "VERIFICATION_UNAVAILABLE": "Verification service is not available!",
   "VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE": "Verification Failed!! Empty certificate or missing seal",
   "FAIL_INFO": "No blockchain anchor for given data",
   "JSON_MALFORMED":  "Building internal JSON format from input string failed",
