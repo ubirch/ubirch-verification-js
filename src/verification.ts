@@ -118,7 +118,7 @@ export class UbirchVerification {
     this.log(info);
   }
 
-  public sendVerificationRequest(hash: string): Promise<any> {
+  protected sendVerificationRequest(hash: string): Promise<any> {
     const self = this;
     const verificationUrl = environment.verify_api_url[this.stage] + VERSION + environment.verify_api_path;
 
