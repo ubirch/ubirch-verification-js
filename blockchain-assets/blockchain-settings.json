@@ -1,0 +1,70 @@
+{
+  "ubirchIcons": {
+    "seal": "ubirch_verify_right.png",
+    "no_seal": "ubirch_verify_notyet.png",
+    "seal_error": "ubirch_verify_wrong.png"
+  },
+  "assetPath": "blockchain-assets/blockchain-icons/",
+  "blockchainSettings": {
+    "ethereum-classic": {
+      "nodeIcon": "Ethereum_Classic_verify_right.png",
+      "explorerUrl": {
+        "testnet": {
+          "url": "https://kottiexplorer.ethernode.io/search?q="
+        },
+        "mainnet": {
+          "url": "https://blockscout.com/etc/mainnet/search?q="
+        }
+      }
+    },
+    "ethereum": {
+      "nodeIcon": "Ethereum_verify_right.png",
+      "explorerUrl": {
+        "testnet": {
+          "url": "https://rinkeby.etherscan.io/tx/"
+        },
+        "mainnet": {
+          "url": "https://etherscan.io/tx/"
+        }
+      }
+    },
+    "iota": {
+      "nodeIcon": "IOTA_verify_right.png",
+      "explorerUrl": {
+        "testnet": {
+          "url": "https://comnet.thetangle.org/transaction/"
+        },
+        "mainnet": {
+          "url": "https://thetangle.org/transaction/"
+        }
+      }
+    },
+    "gov-digital": {
+      "nodeIcon": "GovDigital_Icon_verify_right.png",
+      "explorerUrl": {
+        "mainnet": {
+          "url": "http://bcp-govdigi01.tir.budru.de/tx/"
+        }
+      }
+    },
+    "bloxberg": {
+      "nodeIcon": "bloxberg_verify_right.png",
+      "explorerUrl": {
+        "testnet": {
+          "url": "https://blockexplorer.bloxberg.org/tx/"
+        },
+        "mainnet": {
+          "url": "https://blockexplorer.bloxberg.org/tx/"
+        }
+      }
+    },
+    "regioit": {
+      "nodeIcon": "GovDigital_Icon_verify_right.png",
+      "explorerUrl": {
+        "bdr": {
+          "url": "http://bcp-govdigi01.tir.budru.de/tx/"
+        }
+      }
+    }
+  }
+}

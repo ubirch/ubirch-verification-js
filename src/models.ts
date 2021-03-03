@@ -15,13 +15,27 @@ export enum EStages {
   prod = 'prod',
 }
 
+export enum EVerificationState {
+  VERIFICATION_PENDING = 'VERIFICATION_PENDING',
+  VERIFICATION_FAILED = 'VERIFICATION_FAILED',
+  VERIFICATION_PARTLY_SUCCESSFUL = 'VERIFICATION_PARTLY_SUCCESSFUL',
+  VERIFICATION_SUCCESSFUL = 'VERIFICATION_SUCCESSFUL',
+}
+
+export enum EUppStates {
+  created = 'created',
+  anchored = 'anchored'
+}
+
 export enum EInfo {
   START_VERIFICATION_CALL = 'START_VERIFICATION_CALL',
   PROCESSING_VERIFICATION_CALL = 'PROCESSING_VERIFICATION_CALL',
   START_CHECKING_RESPONSE = 'START_CHECKING_RESPONSE',
-  VERIFICATION_SUCCESSFUL = 'VERIFICATION_SUCCESSFUL',
+  RESPONSE_JSON_PARSED_SUCCESSFUL = 'RESPONSE_JSON_PARSED_SUCCESSFUL',
+  UPP_HAS_BEEN_FOUND = 'UPP_CREATED',
   NO_BLXTX_FOUND = 'NO_BLXTX_FOUND',
-  BLXTX_FOUND_SUCCESS = 'BLXTX_FOUND_SUCCESS'
+  BLXTXS_FOUND_SUCCESS = 'BLXTXS_FOUND_SUCCESS',
+  WARNING_EMPTY_BLXTX_FOUND = 'WARNING_EMPTY_BLXTX_FOUND'
 }
 
 export enum EError {
@@ -37,7 +51,7 @@ export enum EError {
   // LOCATION_MALFORMED = 'LOCATION_MALFORMED',
   // MANDATORY_FIELD_MISSING = 'MANDATORY_FIELD_MISSING',
   // FILLING_FORM_WITH_PARAMS_FAILED = 'FILLING_FORM_WITH_PARAMS_FAILED',
-  // JSON_PARSE_FAILED = 'JSON_PARSE_FAILED',
+   JSON_PARSE_FAILED = 'JSON_PARSE_FAILED',
    JSON_MALFORMED = 'JSON_MALFORMED',
   // CANNOT_ACCESS_FORM_FIELD = 'CANNOT_ACCESS_FORM_FIELD',
   // MISSING_PROPERTY_IN_UBRICH_VERIFICATION_INSTANCIATION = 'MISSING_PROPERTY_IN_UBRICH_VERIFICATION_INSTANCIATION',
@@ -46,6 +60,7 @@ export enum EError {
   // PARAM_ID_MAPPING_MISSMATCH = 'PARAM_ID_MAPPING_MISSMATCH',
    MISSING_ACCESS_TOKEN = 'MISSING_ACCESS_TOKEN',
    CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE = 'CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE',
+   INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
    UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }
 
@@ -56,7 +71,7 @@ export interface IUbirchError {
 
 export interface IUbirchInfo {
   message: string;
-  code: EInfo;
+  code: EInfo | EVerificationState;
 }
 
 export interface IUbirchVerificationConfig {
@@ -83,13 +98,66 @@ export interface IUbirchVerificationEnvConfig {
 
 export interface IUbirchVerificationResponse {
   anchors: {
-    upper_blockchains: IUbirchVerificationAnchor[]
+    upper_blockchains: IUbirchBlockchainAnchorRAW[]
   };
   prev: any; // @todo define type
   upp: string;
 }
 
-export interface IUbirchVerificationAnchor {
+export interface IUbirchBlockchainAnchorRAW {
   label: string;
-  properties: any;
+  properties: IUbirchBlockchainAnchorProperties;
+}
+
+export interface IUbirchBlockchainAnchorProperties {
+  blockchain: string;
+  created: string;
+  hash: string;
+  message: string;
+  network_info: string;
+  network_type: string;
+  prev_hash: string;
+  public_chain: string;
+  status: string;
+  timestamp: string;
+  txid: string;
+}
+
+export interface IUbirchVerificationResult {
+  hash: string;
+  upp: IUbirchUpp;
+  anchors: IUbirchBlockchainAnchor[];
+  verificationState: EVerificationState;
+  failReason?: EError;
+}
+
+export interface IUbirchUpp {
+  upp: string;
+  state: EUppStates;
+}
+
+export interface IUbirchBlockchainAnchor {
+  raw: IUbirchBlockchainAnchorProperties;
+  txid: string;
+  networkInfo: string;
+  networkType: string;
+  timestamp: string;
+  iconUrl: string;
+  blxTxExplorerUrl: string;
+  label: string;
+}
+
+export interface IUbirchBlockchain {
+  nodeIcon: string;
+  explorerUrl: IUbirchBlockhainTransidCheckUrl;
+}
+
+export interface IUbirchBlockhainTransidCheckUrl {
+  bdr?: IUbirchBlockchainNet;
+  testnet?: IUbirchBlockchainNet;
+  mainnet?: IUbirchBlockchainNet;
+}
+
+export interface IUbirchBlockchainNet {
+  url: string;
 }

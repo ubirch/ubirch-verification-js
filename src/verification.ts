@@ -3,10 +3,29 @@
 import * as i18next from 'i18next';
 import { sha256 } from 'js-sha256';
 import { sha512 } from 'js-sha512';
+import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import * as de from './assets/i18n/de.json';
 import * as en from './assets/i18n/en.json';
 import environment from './environment';
-import { EError, EHashAlgorithms, EInfo, ELanguages, EStages, IUbirchError, IUbirchInfo, IUbirchVerificationConfig, IUbirchVerificationResponse } from './models';
+import {
+  EError,
+  EHashAlgorithms,
+  EInfo,
+  ELanguages,
+  EStages,
+  EUppStates,
+  EVerificationState,
+  IUbirchBlockchain,
+  IUbirchBlockchainAnchor,
+  IUbirchBlockchainAnchorProperties,
+  IUbirchBlockchainAnchorRAW,
+  IUbirchError,
+  IUbirchInfo,
+  IUbirchUpp,
+  IUbirchVerificationConfig,
+  IUbirchVerificationResponse,
+  IUbirchVerificationResult,
+} from './models';
 
 const i18Next: i18next.i18n = i18next as any as i18next.i18n;
 
@@ -71,17 +90,70 @@ export class UbirchVerification {
     return transId;
   }
 
-  public verifyHash(hash: string): Promise<void | IUbirchVerificationResponse> {
+  public verifyHash(hash: string): Promise<void | IUbirchVerificationResult> {
 
-      return this.sendVerificationRequest(hash)
+    const verificationResult: IUbirchVerificationResult = this.createInitialUbirchVerificationResult(hash);
+
+    return this.sendVerificationRequest(hash)
         .then((response: any) => {
+
           try {
-            const verificationResponse: IUbirchVerificationResponse = this.checkResponse(response, hash);
-            Promise.resolve(verificationResponse);
+
+            this.handleInfo(EInfo.START_CHECKING_RESPONSE);
+
+            const verificationResponse: IUbirchVerificationResponse = this.parseJSONResponse(response, hash);
+
+            this.handleInfo(EInfo.RESPONSE_JSON_PARSED_SUCCESSFUL);
+
+            const ubirchUpp: IUbirchUpp = this.extractUpp(verificationResponse);
+
+            if (ubirchUpp) {
+              verificationResult.upp = ubirchUpp;
+              verificationResult.verificationState = EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+
+              this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
+            } else {
+              // should never reach this block....
+              this.handleError(EError.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE);
+            }
+
+            // TODO: check that upp contains given hash
+            // TODO: check signature, ...
+
+            const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(verificationResponse);
+
+            if (blxAnchors.length > 0) {
+              verificationResult.anchors = blxAnchors;
+              verificationResult.upp.state = EUppStates.anchored;
+              verificationResult.verificationState = EVerificationState.VERIFICATION_SUCCESSFUL;
+
+              this.handleInfo(EInfo.BLXTXS_FOUND_SUCCESS);
+
+            } else {
+              verificationResult.verificationState = EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+
+              this.handleInfo(EInfo.NO_BLXTX_FOUND);
+            }
+
+            this.handleInfo(verificationResult.verificationState);
+
           } catch (err) {
-            Promise.reject(err.code)
+            verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
+            if (err.code) {
+              verificationResult.failReason = err.code;
+            }
+            Promise.reject(verificationResult);
           }
-        });
+
+          Promise.resolve(verificationResult);
+
+        })
+      .catch (err => {
+        verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
+
+        verificationResult.failReason = err.code || EError.UNKNOWN_ERROR;
+        Promise.reject(verificationResult);
+      });
   }
 
   public formatJSON(json: string, sort: boolean = true): string {
@@ -106,7 +178,7 @@ export class UbirchVerification {
     throw err;
   }
 
-  protected handleInfo(infoCode: EInfo, hash?: string): void {
+  protected handleInfo(infoCode: EInfo | EVerificationState, hash?: string): void {
 
     const infoMsg: string = i18Next.t(infoCode);
 
@@ -143,6 +215,10 @@ export class UbirchVerification {
               reject(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
               break;
             }
+            case 500: {
+              reject(EError.INTERNAL_SERVER_ERROR);
+              break;
+            }
             default: {
               reject(EError.UNKNOWN_ERROR);
               break;
@@ -163,100 +239,123 @@ export class UbirchVerification {
     });
   }
 
-  private checkResponse(result: string, hash: string): IUbirchVerificationResponse {
-
-    this.handleInfo(EInfo.START_CHECKING_RESPONSE, hash);
-    // Success IF
-    // 1. HTTP Status 200 -> if this fkt is called and result isn't empty
-    // 2. Key Seal != ''
+  protected parseJSONResponse(result: string, hash: string): IUbirchVerificationResponse {
 
     if (!result) {
       this.handleError(EError.VERIFICATION_FAILED_EMPTY_RESPONSE, hash);
       return;
     }
 
-    const resultObj: IUbirchVerificationResponse = JSON.parse(result);
+    let resultObj: IUbirchVerificationResponse;
+
+    try {
+      resultObj = JSON.parse(result);
+    } catch (e) {
+      this.handleError(EError.JSON_PARSE_FAILED);
+    }
 
     if (!resultObj) {
       this.handleError(EError.VERIFICATION_FAILED_EMPTY_RESPONSE, hash);
       return;
     }
-
-    const seal = resultObj.upp;
-
-    if (!seal || !seal.length) {
-      this.handleError(EError.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE, hash);
-      return;
-    }
-
-    this.handleInfo(EInfo.VERIFICATION_SUCCESSFUL, hash);
-
-    const blockchainTX = resultObj.anchors.upper_blockchains;
-
-    if (!blockchainTX || !blockchainTX.length) {
-      this.handleInfo(EInfo.NO_BLXTX_FOUND, hash);
-      return;
-    }
-
-    this.handleInfo(EInfo.BLXTX_FOUND_SUCCESS, hash);
-
     return resultObj;
 
-    // show it for each item in array
-    // blockchainTX.forEach((item, index) => {
-    //   if (!item || !item.properties) {
-    //     return;
-    //   }
-    //
-    //   this.extractBloxTXIcon(item.properties, index);
-    // });
   }
 
-/*  private extractBloxTXIcon(bloxTX: IUbirchVerificationAnchorProperties, index: number): void {
-    if (!bloxTX) {
+  protected createInitialUbirchVerificationResult(hashP: string): IUbirchVerificationResult {
+
+    const result: IUbirchVerificationResult = {
+      hash: hashP,
+      upp: undefined,
+      anchors: [],
+      verificationState: EVerificationState.VERIFICATION_PENDING
+    };
+
+    return result;
+  }
+
+  protected extractUpp(resultObj: IUbirchVerificationResponse): IUbirchUpp {
+
+    // Success IF
+    // 2. Key Seal != ''
+
+    if (!resultObj.upp || !resultObj.upp.length) {
+      this.handleError(EError.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE);
       return;
     }
 
-    const blockchain: string = bloxTX.blockchain;
-    const networkType: string = bloxTX.network_type;
-
-    if (!blockchain || !networkType) {
-      return;
+    const ubirchUpp: IUbirchUpp = {
+      upp: resultObj.upp,
+      state: EUppStates.created
     }
 
-    const blox: IUbirchBlockchain =
+    return ubirchUpp;
+  }
+
+  protected checkBlockchainTXs(resultObj: IUbirchVerificationResponse): IUbirchBlockchainAnchor[] {
+    // extract blockchain anchors and fill with given data from blockchain_settings
+
+    const blxTXs = resultObj.anchors?.upper_blockchains;
+
+    if (!blxTXs || !blxTXs.length) {
+      return [];
+    }
+
+    const ubirchBlxTxAnchor: IUbirchBlockchainAnchor[] =
+      blxTXs
+        .map((rawAnchor: IUbirchBlockchainAnchorRAW) => this.createBlockchainAnchor(rawAnchor))
+        .filter((probablyAnchor: IUbirchBlockchainAnchor) => probablyAnchor !== undefined);
+
+    return ubirchBlxTxAnchor;
+  }
+
+  private isBloxTXDataDefined(bloxTX: IUbirchBlockchainAnchorRAW): boolean {
+    return bloxTX?.properties?.blockchain?.length > 0 && bloxTX?.properties?.network_type?.length > 0;
+  }
+
+
+  protected createBlockchainAnchor(bloxTX: IUbirchBlockchainAnchorRAW): IUbirchBlockchainAnchor {
+
+    if (! this.isBloxTXDataDefined(bloxTX)) {
+      this.handleInfo(EInfo.WARNING_EMPTY_BLXTX_FOUND);
+
+      return undefined;
+    }
+
+    const bloxTxProps: IUbirchBlockchainAnchorProperties = bloxTX.properties;
+
+    const blockchain: string = bloxTxProps.blockchain;
+    const networkType: string = bloxTxProps.network_type;
+
+    const bloxTxData: IUbirchBlockchain =
       BlockchainSettings.blockchainSettings ? BlockchainSettings.blockchainSettings[ blockchain ] : undefined;
 
-    if (!blox || !bloxTX.txid) {
-      return;
+    if (!bloxTxData) {
+      return undefined;
     }
 
-    const bloxTXData: IUbirchBlockchainNet =
-      blox.explorerUrl[ networkType ];
-
-    const linkTag: HTMLElement = document.createElement('a');
+    if (!bloxTxData.explorerUrl[networkType] || !bloxTxProps.txid) {
+      return undefined;
+    }
 
     // add transactionId to url
-    if (bloxTXData.url) {
-      linkTag.setAttribute('href', bloxTXData.url + bloxTX.txid);
+    const blxExplorerUrl: string = bloxTxData.explorerUrl[ networkType ].url + bloxTxProps.txid;
+    const titleStr: string = bloxTxProps.network_info ? bloxTxProps.network_info : bloxTxProps.blockchain;
+    const iconUrl: string = bloxTxData.nodeIcon ? bloxTxData.nodeIcon : undefined;
+
+    const ubirchBlockchainAnchor: IUbirchBlockchainAnchor = {
+      raw: bloxTxProps,
+      txid: bloxTxProps.txid,
+      networkInfo: bloxTxProps.network_info,
+      networkType: networkType,
+      timestamp: bloxTxProps.timestamp,
+      iconUrl: iconUrl,
+      blxTxExplorerUrl: blxExplorerUrl,
+      label: titleStr
     }
 
-    const titleStr: string = bloxTX.network_info ? bloxTX.network_info : bloxTX.blockchain;
-
-    linkTag.setAttribute('title', titleStr);
-    linkTag.setAttribute('target', '_blanc');
-
-    // if icon url is given add img, otherwise add text
-    if (blox.nodeIcon) {
-      const iconId = `blockchain_transid_check${index === undefined ? '' : '_' + index}`;
-      linkTag.appendChild(this.createIconTag(environment.assets_url_prefix + blox.nodeIcon, iconId));
-    } else {
-      linkTag.innerHTML = titleStr;
-    }
-
-    this.resultOutput.appendChild(linkTag);
+    return ubirchBlockchainAnchor;
   }
-*/
 
   private sortObjectRecursive(object: any, sort: boolean): object {
     // recursive termination condition
