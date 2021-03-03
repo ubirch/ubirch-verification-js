@@ -1,38 +1,28 @@
-"use strict";
+'use strict';
 
-import {
-  EError,
-  EHashAlgorithms,
-  EStages,
-  EUppStates,
-  EVerificationState,
-  IUbirchBlockchainAnchor,
-  IUbirchError,
-  IUbirchVerificationConfig,
-  IUbirchVerificationResponse,
-  IUbirchVerificationResult,
-} from './models';
-import { UbirchVerification } from './verification';
 import * as verifyResult from '../test/testdata/verifyresult.json';
+import { EError, EHashAlgorithms, EStages, EUppStates, EVerificationState, IUbirchBlockchainAnchor, IUbirchError, IUbirchVerificationConfig, IUbirchVerificationResult } from './models';
+import { UbirchVerification } from './verification';
 
 const defaultSettings: IUbirchVerificationConfig = {
   algorithm: EHashAlgorithms.SHA256,
-  accessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiZDYzZWNjMDMtZjVhNy00ZDQzLTkxZDAtYTMwZDAzNGQ4ZGEzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2MTk4MjA2MzAsImlhdCI6MTYxMjQzNTI4MCwianRpIjoiOGJkMzExZDItZGEyYi00ZWJhLWExMmMtODYxYjRiYWU2MjliIiwidGFyZ2V0X2lkZW50aXRpZXMiOiIqIiwicm9sZSI6InZlcmlmaWVyIiwic2NvcGUiOiJ2ZXIiLCJwdXJwb3NlIjoiVWJpcmNoIERlZmF1bHQgVG9rZW4iLCJvcmlnaW5fZG9tYWlucyI6W119.tDovGseqjwaJZNX0ZtoGmZVvkcdVltR1nXYYAFpF4DHGAQ8MiRAfeJIYL0TNHsqBt_-60fw2j65neje_ThJ7Eg",
-  stage: EStages.dev
-}
+  accessToken: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiZDYzZWNjMDMtZjVhNy00ZDQzLTkxZDAtYTMwZDAzNGQ4ZGEzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2MTk4MjA2MzAsImlhdCI6MTYxMjQzNTI4MCwianRpIjoiOGJkMzExZDItZGEyYi00ZWJhLWExMmMtODYxYjRiYWU2MjliIiwidGFyZ2V0X2lkZW50aXRpZXMiOiIqIiwicm9sZSI6InZlcmlmaWVyIiwic2NvcGUiOiJ2ZXIiLCJwdXJwb3NlIjoiVWJpcmNoIERlZmF1bHQgVG9rZW4iLCJvcmlnaW5fZG9tYWlucyI6W119.tDovGseqjwaJZNX0ZtoGmZVvkcdVltR1nXYYAFpF4DHGAQ8MiRAfeJIYL0TNHsqBt_-60fw2j65neje_ThJ7Eg',
+  stage: EStages.dev,
+};
 
 class UbirchVerificationMock extends UbirchVerification {
   constructor(config: IUbirchVerificationConfig) {
     super(config);
   }
+
   public sendVerificationRequest(hash: string): Promise<any> {
     return super.sendVerificationRequest(hash);
   }
 }
 
-describe("Verification", () => {
+describe('Verification', () => {
 
-  describe("formatJSON", () => {
+  describe('formatJSON', () => {
 
     test('should simply sort JSON params', () => {
       const verifier = new UbirchVerificationMock(defaultSettings);
@@ -79,11 +69,11 @@ describe("Verification", () => {
     test('should throw an error if the json is malformed', () => {
       const verifier = new UbirchVerificationMock(defaultSettings);
       const jsonString = '"a":"-1"';
-      expect(() => verifier.formatJSON(jsonString, true)).toThrow("Building internal JSON format from input string failed");
+      expect(() => verifier.formatJSON(jsonString, true)).toThrow('Building internal JSON format from input string failed');
     });
   });
 
-  describe("createHash", () => {
+  describe('createHash', () => {
 
     test('should create a correct sha256 hash from json data', () => {
       const verifier = new UbirchVerificationMock(defaultSettings);
@@ -126,17 +116,17 @@ describe("Verification", () => {
 
       const verifier = new UbirchVerificationMock(defaultSettings);
       const testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
-      const error: IUbirchError = { code: EError.CERTIFICATE_ID_CANNOT_BE_FOUND, message: 'message for CERTIFICATE_ID_CANNOT_BE_FOUND'};
+      const error: IUbirchError = { code: EError.CERTIFICATE_ID_CANNOT_BE_FOUND, message: 'message for CERTIFICATE_ID_CANNOT_BE_FOUND' };
 
       jest.spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
         .mockImplementation(_ => Promise.reject(error));
 
       return verifier.verifyHash(testhash_verifiable)
         .catch((errResponse: IUbirchVerificationResult) => {
-        expect(errResponse).toBeDefined();
-        expect(errResponse.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
-        expect(errResponse.failReason).toBe(error.code);
-      });
+          expect(errResponse).toBeDefined();
+          expect(errResponse.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
+          expect(errResponse.failReason).toBe(error.code);
+        });
 
     });
     test('should fail with VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE if no upp is returned', () => {
@@ -173,7 +163,7 @@ describe("Verification", () => {
         expect(response.anchors).toBeDefined();
         expect(response.anchors.length).toBeGreaterThan(0);
 
-        const firstAnchor: IUbirchBlockchainAnchor = response.anchors[0];
+        const firstAnchor: IUbirchBlockchainAnchor = response.anchors[ 0 ];
         expect(firstAnchor.blxTxExplorerUrl).toBeDefined();
         expect(firstAnchor.iconUrl).toBeDefined();
         expect(firstAnchor.label).toBeDefined();
