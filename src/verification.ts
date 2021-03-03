@@ -7,6 +7,7 @@ import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.js
 import * as de from './assets/i18n/de.json';
 import * as en from './assets/i18n/en.json';
 import environment from './environment';
+import { BehaviorSubject, Observable } from 'rxjs';
 import {
   EError,
   EHashAlgorithms,
@@ -72,6 +73,12 @@ export class UbirchVerification {
     return this;
   }
 
+  private watcherSubject = new BehaviorSubject<IUbirchError | IUbirchInfo>(null);
+  protected infoAndErrorWatcher$: Observable<IUbirchError | IUbirchInfo> = this.watcherSubject.asObservable();
+
+  public watchInfosAndErrors(): Observable<IUbirchError | IUbirchInfo> {
+    return this.infoAndErrorWatcher$;
+  }
   public createHash(json: string, hashAlgorithm: EHashAlgorithms = this.algorithm): string {
     let transIdAB: ArrayBuffer;
 
@@ -312,10 +319,9 @@ export class UbirchVerification {
     return ubirchBlxTxAnchor;
   }
 
-  private isBloxTXDataDefined(bloxTX: IUbirchBlockchainAnchorRAW): boolean {
+  protected isBloxTXDataDefined(bloxTX: IUbirchBlockchainAnchorRAW): boolean {
     return bloxTX?.properties?.blockchain?.length > 0 && bloxTX?.properties?.network_type?.length > 0;
   }
-
 
   protected createBlockchainAnchor(bloxTX: IUbirchBlockchainAnchorRAW): IUbirchBlockchainAnchor {
 
@@ -360,7 +366,7 @@ export class UbirchVerification {
     return ubirchBlockchainAnchor;
   }
 
-  private sortObjectRecursive(object: any, sort: boolean): object {
+  protected sortObjectRecursive(object: any, sort: boolean): object {
     // recursive termination condition
     if (typeof (object) !== 'object' || Array.isArray(object)) {
       return object;
@@ -375,8 +381,8 @@ export class UbirchVerification {
     }
   }
 
-  private log(logInfo: IUbirchInfo | IUbirchError): void {
-    console.log(logInfo.message);
+  protected log(logInfo: IUbirchInfo | IUbirchError): void {
+    this.watcherSubject.next(logInfo);
   }
 }
 

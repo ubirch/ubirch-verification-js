@@ -1,7 +1,19 @@
 'use strict';
 
+import { toArray } from 'rxjs/operators';
 import * as verifyResult from '../test/testdata/verifyresult.json';
-import { EError, EHashAlgorithms, EStages, EUppStates, EVerificationState, IUbirchBlockchainAnchor, IUbirchError, IUbirchVerificationConfig, IUbirchVerificationResult } from './models';
+import {
+  EError,
+  EHashAlgorithms, EInfo,
+  EStages,
+  EUppStates,
+  EVerificationState,
+  IUbirchBlockchainAnchor,
+  IUbirchError,
+  IUbirchInfo,
+  IUbirchVerificationConfig,
+  IUbirchVerificationResult,
+} from './models';
 import { UbirchVerification } from './verification';
 
 const defaultSettings: IUbirchVerificationConfig = {
@@ -176,6 +188,36 @@ describe('Verification', () => {
         expect(response.failReason).toBeUndefined();
       });
 
+    });
+
+    test('that watchInfosAndErrors observable is called', done => {
+
+      const verifier = new UbirchVerificationMock(defaultSettings);
+      const testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
+      const response: string = JSON.stringify(verifyResult);
+      const watcher$ = verifier.watchInfosAndErrors();
+
+      let infoCounter: number = 0;
+      const infoChain = [
+        EInfo.START_VERIFICATION_CALL,
+        EInfo.START_CHECKING_RESPONSE,
+        EInfo.RESPONSE_JSON_PARSED_SUCCESSFUL,
+        EInfo.UPP_HAS_BEEN_FOUND,
+        EInfo.BLXTXS_FOUND_SUCCESS,
+        EVerificationState.VERIFICATION_SUCCESSFUL];
+
+      watcher$.subscribe((info: (IUbirchError | IUbirchInfo)) => {
+        if (info !== null) {
+          expect(info.code).toEqual(infoChain[infoCounter]);
+          infoCounter++;
+          done();
+        }
+      });
+
+      jest.spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
+        .mockImplementation(_ => Promise.resolve(response));
+
+      verifier.verifyHash(testhash_verifiable).then(_ => infoCounter === infoChain.length ? done() : done('finished without expected info messages'));
     });
   });
 });
