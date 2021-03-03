@@ -1,6 +1,17 @@
 "use strict";
 
-import { EError, EHashAlgorithms, EStages, EUppStates, EVerificationState, IUbirchError, IUbirchVerificationConfig, IUbirchVerificationResponse, IUbirchVerificationResult } from './models';
+import {
+  EError,
+  EHashAlgorithms,
+  EStages,
+  EUppStates,
+  EVerificationState,
+  IUbirchBlockchainAnchor,
+  IUbirchError,
+  IUbirchVerificationConfig,
+  IUbirchVerificationResponse,
+  IUbirchVerificationResult,
+} from './models';
 import { UbirchVerification } from './verification';
 import * as verifyResult from '../test/testdata/verifyresult.json';
 
@@ -161,6 +172,17 @@ describe("Verification", () => {
         expect(response.verificationState).toBe(EVerificationState.VERIFICATION_SUCCESSFUL);
         expect(response.anchors).toBeDefined();
         expect(response.anchors.length).toBeGreaterThan(0);
+
+        const firstAnchor: IUbirchBlockchainAnchor = response.anchors[0];
+        expect(firstAnchor.blxTxExplorerUrl).toBeDefined();
+        expect(firstAnchor.iconUrl).toBeDefined();
+        expect(firstAnchor.label).toBeDefined();
+        expect(firstAnchor.networkInfo).toBeDefined();
+        expect(firstAnchor.networkType).toBeDefined();
+        expect(firstAnchor.timestamp).toBeDefined();
+        expect(firstAnchor.txid).toBeDefined();
+        expect(firstAnchor.raw).toBeDefined();
+
         expect(response.failReason).toBeUndefined();
       });
 
