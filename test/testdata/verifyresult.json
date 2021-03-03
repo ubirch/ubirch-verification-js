@@ -1,0 +1,267 @@
+{
+  "upp": "liPEEFVCSVIwrqROT0AwrqROT0DEQNs5HBX34pa9I7e7pn3y6yJdb+gOvoLtf5jKR+rOkQm3Zx5TjdJJ6Q80mO5ErYeWvCRDEu56ybalOu5m6UrVXwcAxEBq9QTEseZ6Ju3aPAS0iHWUiKIEHQjAcWJ5RQDI2H3+NbiROJWIMEvEqIiF/1xfgrrxit4NkvICENdfngW7yhamxEAqcOuxPyYz+Gf+NdJFmgsXTnkS2egqG3QG125gIe1IkKT/uos2n3DYKmWx7m/9pD8NpdnC/ZSNHu2sEJvsSA8P",
+  "prev": "liPEEFVCSVIwrqROT0AwrqROT0DEQJyMu8I7BklE4ONcTFfe6ODCMM3xZl4+003iRUWliDXVPZ83/GEJfYYXrXs3wD6aY+k9ObZ8ViKh5ExrY9/IQAYAxEDmKi7Kpy6BPrZlt8SuGe/d+awZR/MfvNew6zpLfvmpNcVDi+TR7WC3XkaQ6RJ+h36Rq51yg9EvHKAv0q46iP3TxEDbORwV9+KWvSO3u6Z98usiXW/oDr6C7X+YykfqzpEJt2ceU43SSekPNJjuRK2HlrwkQxLuesm2pTruZulK1V8H",
+  "anchors": {
+    "upper_path": [
+      {
+        "id": "204843122776",
+        "label": "UPP",
+        "properties": {
+          "timestamp": "2020-10-21T10:11:02.397Z",
+          "next_hash": "2e77cb7a30272bad9218406619f48e841e23b04a884f9a8eed98290590ccf83c39246ccf62ea2f1b1fc83ecaaa3127fa4bf37b5ffe4b13d974f8bd44ba9166c1",
+          "signature": "KnDrsT8mM/hn/jXSRZoLF055EtnoKht0BtduYCHtSJCk/7qLNp9w2Cplse5v/aQ/DaXZwv2UjR7trBCb7EgPDw==",
+          "hash": "avUExLHmeibt2jwEtIh1lIiiBB0IwHFieUUAyNh9/jW4kTiViDBLxKiIhf9cX4K68YreDZLyAhDXX54Fu8oWpg==",
+          "prev_hash": ""
+        }
+      },
+      {
+        "id": "82007384080",
+        "label": "FOUNDATION_TREE",
+        "properties": {
+          "hash": "2e77cb7a30272bad9218406619f48e841e23b04a884f9a8eed98290590ccf83c39246ccf62ea2f1b1fc83ecaaa3127fa4bf37b5ffe4b13d974f8bd44ba9166c1",
+          "timestamp": "2020-10-21T10:11:03.606Z",
+          "prev_hash": "avUExLHmeibt2jwEtIh1lIiiBB0IwHFieUUAyNh9/jW4kTiViDBLxKiIhf9cX4K68YreDZLyAhDXX54Fu8oWpg==",
+          "next_hash": "e535376c51fe20d9a4316713d98b7a188fe33654684eb33370a74dbbe110d2fa15e2b98588afe03029b047ee587f5c04e8be371c9021a358b581af2cc584ff82"
+        }
+      },
+      {
+        "id": "122965565456",
+        "label": "MASTER_TREE",
+        "properties": {
+          "hash": "e535376c51fe20d9a4316713d98b7a188fe33654684eb33370a74dbbe110d2fa15e2b98588afe03029b047ee587f5c04e8be371c9021a358b581af2cc584ff82",
+          "timestamp": "2020-10-21T10:11:32.641Z",
+          "prev_hash": "2e77cb7a30272bad9218406619f48e841e23b04a884f9a8eed98290590ccf83c39246ccf62ea2f1b1fc83ecaaa3127fa4bf37b5ffe4b13d974f8bd44ba9166c1",
+          "next_hash": "cab7761298e3b894d0be98e72910cfd3d9f6965e6f395ae54a41ce99493ebb255f33474bb3545aa716c394cf39bc79e7456ae2b41016b44ad4a1fa44e08b1410"
+        }
+      },
+      {
+        "id": "81990295728",
+        "label": "MASTER_TREE",
+        "properties": {
+          "hash": "cab7761298e3b894d0be98e72910cfd3d9f6965e6f395ae54a41ce99493ebb255f33474bb3545aa716c394cf39bc79e7456ae2b41016b44ad4a1fa44e08b1410",
+          "timestamp": "2020-10-21T10:12:01.681Z",
+          "prev_hash": "e535376c51fe20d9a4316713d98b7a188fe33654684eb33370a74dbbe110d2fa15e2b98588afe03029b047ee587f5c04e8be371c9021a358b581af2cc584ff82",
+          "next_hash": "GAES9AETXTSURXVNPKOTJICGADOLHPOWOYXCHIAQKPEKPLJKTNGNUJV9DCTKUZJOVOZZPSRWM9KFA9999"
+        }
+      },
+      {
+        "id": "81990299824",
+        "label": "MASTER_TREE",
+        "properties": {
+          "hash": "b98d7c5de3866bc9588162e10dc6b9fbae98e8943df98f504bf2edc01afdeb2744f1c2d0a10c740ed007e8832eda898fc9f50179e2a7ebca9bda93de9bfe532c",
+          "timestamp": "2020-10-21T10:12:31.689Z",
+          "prev_hash": "cab7761298e3b894d0be98e72910cfd3d9f6965e6f395ae54a41ce99493ebb255f33474bb3545aa716c394cf39bc79e7456ae2b41016b44ad4a1fa44e08b1410",
+          "next_hash": "363371dd90878d924b1a6810a7198931fbb20c761d2890a8e031316caa268ca9f18df71ba9f560f06ecaa90bf231b98dba64a176d24e8072da125d2c368d91ba"
+        }
+      },
+      {
+        "id": "41091830008",
+        "label": "MASTER_TREE",
+        "properties": {
+          "hash": "363371dd90878d924b1a6810a7198931fbb20c761d2890a8e031316caa268ca9f18df71ba9f560f06ecaa90bf231b98dba64a176d24e8072da125d2c368d91ba",
+          "timestamp": "2020-10-21T10:13:01.695Z",
+          "prev_hash": "b98d7c5de3866bc9588162e10dc6b9fbae98e8943df98f504bf2edc01afdeb2744f1c2d0a10c740ed007e8832eda898fc9f50179e2a7ebca9bda93de9bfe532c",
+          "next_hash": "0x6dc74af43d3e11227229ee5d34e18c601850cc8c4d3f9013442f77dadb399b66,0x7bfa46bd5ec04704125588abc7350920848f9658159bb8cafa3f180ea97291dc"
+        }
+      }
+    ],
+    "upper_blockchains": [
+      {
+        "id": "82007396368",
+        "label": "PUBLIC_CHAIN",
+        "properties": {
+          "timestamp": "2020-10-21T10:13:16.548Z",
+          "network_info": "IOTA Mainnet Network",
+          "network_type": "mainnet",
+          "txid": "GAES9AETXTSURXVNPKOTJICGADOLHPOWOYXCHIAQKPEKPLJKTNGNUJV9DCTKUZJOVOZZPSRWM9KFA9999",
+          "hash": "GAES9AETXTSURXVNPKOTJICGADOLHPOWOYXCHIAQKPEKPLJKTNGNUJV9DCTKUZJOVOZZPSRWM9KFA9999",
+          "status": "added",
+          "public_chain": "IOTA_MAINNET_IOTA_MAINNET_NETWORK",
+          "blockchain": "iota",
+          "message": "cab7761298e3b894d0be98e72910cfd3d9f6965e6f395ae54a41ce99493ebb255f33474bb3545aa716c394cf39bc79e7456ae2b41016b44ad4a1fa44e08b1410",
+          "prev_hash": "cab7761298e3b894d0be98e72910cfd3d9f6965e6f395ae54a41ce99493ebb255f33474bb3545aa716c394cf39bc79e7456ae2b41016b44ad4a1fa44e08b1410",
+          "created": "2020-10-21T10:13:15.542Z"
+        }
+      },
+      {
+        "id": "122951332056",
+        "label": "PUBLIC_CHAIN",
+        "properties": {
+          "timestamp": "2020-10-21T10:13:24.467Z",
+          "network_info": "Bloxberg Testnet Network",
+          "network_type": "testnet",
+          "txid": "0x6dc74af43d3e11227229ee5d34e18c601850cc8c4d3f9013442f77dadb399b66",
+          "hash": "0x6dc74af43d3e11227229ee5d34e18c601850cc8c4d3f9013442f77dadb399b66",
+          "status": "added",
+          "public_chain": "BLOXBERG_TESTNET_BLOXBERG_TESTNET_NETWORK",
+          "blockchain": "bloxberg",
+          "message": "363371dd90878d924b1a6810a7198931fbb20c761d2890a8e031316caa268ca9f18df71ba9f560f06ecaa90bf231b98dba64a176d24e8072da125d2c368d91ba",
+          "prev_hash": "363371dd90878d924b1a6810a7198931fbb20c761d2890a8e031316caa268ca9f18df71ba9f560f06ecaa90bf231b98dba64a176d24e8072da125d2c368d91ba",
+          "created": "2020-10-21T10:13:23.461Z"
+        }
+      },
+      {
+        "id": "122965573648",
+        "label": "PUBLIC_CHAIN",
+        "properties": {
+          "timestamp": "2020-10-21T10:13:27.453Z",
+          "network_info": "Gov_Digital Mainnet Network",
+          "network_type": "mainnet",
+          "txid": "0x7bfa46bd5ec04704125588abc7350920848f9658159bb8cafa3f180ea97291dc",
+          "hash": "0x7bfa46bd5ec04704125588abc7350920848f9658159bb8cafa3f180ea97291dc",
+          "status": "added",
+          "public_chain": "GOV-DIGITAL_MAINNET_GOV_DIGITAL_MAINNET_NETWORK",
+          "blockchain": "gov-digital",
+          "message": "363371dd90878d924b1a6810a7198931fbb20c761d2890a8e031316caa268ca9f18df71ba9f560f06ecaa90bf231b98dba64a176d24e8072da125d2c368d91ba",
+          "prev_hash": "363371dd90878d924b1a6810a7198931fbb20c761d2890a8e031316caa268ca9f18df71ba9f560f06ecaa90bf231b98dba64a176d24e8072da125d2c368d91ba",
+          "created": "2020-10-21T10:13:26.446Z"
+        }
+      }
+    ],
+    "lower_path": [
+      {
+        "id": "122965565456",
+        "label": "MASTER_TREE",
+        "properties": {
+          "hash": "e535376c51fe20d9a4316713d98b7a188fe33654684eb33370a74dbbe110d2fa15e2b98588afe03029b047ee587f5c04e8be371c9021a358b581af2cc584ff82",
+          "timestamp": "2020-10-21T10:11:32.641Z",
+          "prev_hash": "",
+          "next_hash": "5e3b22dfbeba9a6cae4f0036b05a3a1a1b64cfedbaf1132d026967aee896d6ce15519ffc3e39e2a3ecb8c6eaae7c8857fea320d070d828b4391be77cfd703956"
+        }
+      },
+      {
+        "id": "122951323864",
+        "label": "MASTER_TREE",
+        "properties": {
+          "hash": "5e3b22dfbeba9a6cae4f0036b05a3a1a1b64cfedbaf1132d026967aee896d6ce15519ffc3e39e2a3ecb8c6eaae7c8857fea320d070d828b4391be77cfd703956",
+          "timestamp": "2020-10-21T10:11:03.607Z",
+          "prev_hash": "e535376c51fe20d9a4316713d98b7a188fe33654684eb33370a74dbbe110d2fa15e2b98588afe03029b047ee587f5c04e8be371c9021a358b581af2cc584ff82",
+          "next_hash": "034318fdc114fa871557f5e0c023eb3f2c751e1668795aa222f972b8691296181319e878c8276db43e86210c27769081306f58a66fd1985d834ff6efcbf437e0"
+        }
+      },
+      {
+        "id": "245804523608",
+        "label": "MASTER_TREE",
+        "properties": {
+          "hash": "034318fdc114fa871557f5e0c023eb3f2c751e1668795aa222f972b8691296181319e878c8276db43e86210c27769081306f58a66fd1985d834ff6efcbf437e0",
+          "timestamp": "2020-10-21T10:10:31.663Z",
+          "prev_hash": "5e3b22dfbeba9a6cae4f0036b05a3a1a1b64cfedbaf1132d026967aee896d6ce15519ffc3e39e2a3ecb8c6eaae7c8857fea320d070d828b4391be77cfd703956",
+          "next_hash": "f8ced50f4bce75cbbbe87a2aa0cffa52e2967f9364f5d985382421a631775540a679ab7dc5f89789f2a64b8a106920bb3b1f673bc2ddb572abf6ea52af4b7d1b"
+        }
+      },
+      {
+        "id": "163909939312",
+        "label": "MASTER_TREE",
+        "properties": {
+          "hash": "f8ced50f4bce75cbbbe87a2aa0cffa52e2967f9364f5d985382421a631775540a679ab7dc5f89789f2a64b8a106920bb3b1f673bc2ddb572abf6ea52af4b7d1b",
+          "timestamp": "2020-10-21T10:10:01.658Z",
+          "prev_hash": "034318fdc114fa871557f5e0c023eb3f2c751e1668795aa222f972b8691296181319e878c8276db43e86210c27769081306f58a66fd1985d834ff6efcbf437e0",
+          "next_hash": "9IFLCAVLKIJV9LCMBGRFJUGLQGZSJFGRUDTWTRQLWZFEAFRXK9DCEVBLNCHOBZBNP9KJWCJDUOMMA9999"
+        }
+      },
+      {
+        "id": "82007375888",
+        "label": "MASTER_TREE",
+        "properties": {
+          "hash": "cb5fa684cd89d4f7d97689656025edd1924409f50ab50bcfee6eae561ab27c56178ce859be4ead4651b50cfab2b42a87e46e59012db89ed23f6d952e3b79f51e",
+          "timestamp": "2020-10-21T10:09:31.655Z",
+          "prev_hash": "f8ced50f4bce75cbbbe87a2aa0cffa52e2967f9364f5d985382421a631775540a679ab7dc5f89789f2a64b8a106920bb3b1f673bc2ddb572abf6ea52af4b7d1b",
+          "next_hash": "fe68ebab6e3c5aa07ebff31590bb1c91869871ade7bfd34eed0c35666996d350b585328afff527b2d0170453179bb96327e642614e46792367ec91457263de1f"
+        }
+      },
+      {
+        "id": "163909935216",
+        "label": "MASTER_TREE",
+        "properties": {
+          "hash": "fe68ebab6e3c5aa07ebff31590bb1c91869871ade7bfd34eed0c35666996d350b585328afff527b2d0170453179bb96327e642614e46792367ec91457263de1f",
+          "timestamp": "2020-10-21T10:09:02.716Z",
+          "prev_hash": "cb5fa684cd89d4f7d97689656025edd1924409f50ab50bcfee6eae561ab27c56178ce859be4ead4651b50cfab2b42a87e46e59012db89ed23f6d952e3b79f51e",
+          "next_hash": "0x1ab504f66b41dd85dbe6192f5239dd1e45ee1f8180e1c6eb6c411cf894e4ae37"
+        }
+      },
+      {
+        "id": "163909939312",
+        "label": "MASTER_TREE",
+        "properties": {
+          "hash": "f8ced50f4bce75cbbbe87a2aa0cffa52e2967f9364f5d985382421a631775540a679ab7dc5f89789f2a64b8a106920bb3b1f673bc2ddb572abf6ea52af4b7d1b",
+          "timestamp": "2020-10-21T10:10:01.658Z",
+          "prev_hash": "fe68ebab6e3c5aa07ebff31590bb1c91869871ade7bfd34eed0c35666996d350b585328afff527b2d0170453179bb96327e642614e46792367ec91457263de1f",
+          "next_hash": "cb5fa684cd89d4f7d97689656025edd1924409f50ab50bcfee6eae561ab27c56178ce859be4ead4651b50cfab2b42a87e46e59012db89ed23f6d952e3b79f51e"
+        }
+      },
+      {
+        "id": "82007375888",
+        "label": "MASTER_TREE",
+        "properties": {
+          "hash": "cb5fa684cd89d4f7d97689656025edd1924409f50ab50bcfee6eae561ab27c56178ce859be4ead4651b50cfab2b42a87e46e59012db89ed23f6d952e3b79f51e",
+          "timestamp": "2020-10-21T10:09:31.655Z",
+          "prev_hash": "f8ced50f4bce75cbbbe87a2aa0cffa52e2967f9364f5d985382421a631775540a679ab7dc5f89789f2a64b8a106920bb3b1f673bc2ddb572abf6ea52af4b7d1b",
+          "next_hash": "fe68ebab6e3c5aa07ebff31590bb1c91869871ade7bfd34eed0c35666996d350b585328afff527b2d0170453179bb96327e642614e46792367ec91457263de1f"
+        }
+      },
+      {
+        "id": "163909935216",
+        "label": "MASTER_TREE",
+        "properties": {
+          "hash": "fe68ebab6e3c5aa07ebff31590bb1c91869871ade7bfd34eed0c35666996d350b585328afff527b2d0170453179bb96327e642614e46792367ec91457263de1f",
+          "timestamp": "2020-10-21T10:09:02.716Z",
+          "prev_hash": "cb5fa684cd89d4f7d97689656025edd1924409f50ab50bcfee6eae561ab27c56178ce859be4ead4651b50cfab2b42a87e46e59012db89ed23f6d952e3b79f51e",
+          "next_hash": "0x80c38a8d5b4b837639473be39ffc8fd49367794490192fbd144969da3f6688f0"
+        }
+      }
+    ],
+    "lower_blockchains": [
+      {
+        "id": "81990287536",
+        "label": "PUBLIC_CHAIN",
+        "properties": {
+          "timestamp": "2020-10-21T10:10:19.152Z",
+          "network_info": "IOTA Mainnet Network",
+          "network_type": "mainnet",
+          "txid": "9IFLCAVLKIJV9LCMBGRFJUGLQGZSJFGRUDTWTRQLWZFEAFRXK9DCEVBLNCHOBZBNP9KJWCJDUOMMA9999",
+          "hash": "9IFLCAVLKIJV9LCMBGRFJUGLQGZSJFGRUDTWTRQLWZFEAFRXK9DCEVBLNCHOBZBNP9KJWCJDUOMMA9999",
+          "status": "added",
+          "public_chain": "IOTA_MAINNET_IOTA_MAINNET_NETWORK",
+          "blockchain": "iota",
+          "message": "f8ced50f4bce75cbbbe87a2aa0cffa52e2967f9364f5d985382421a631775540a679ab7dc5f89789f2a64b8a106920bb3b1f673bc2ddb572abf6ea52af4b7d1b",
+          "prev_hash": "f8ced50f4bce75cbbbe87a2aa0cffa52e2967f9364f5d985382421a631775540a679ab7dc5f89789f2a64b8a106920bb3b1f673bc2ddb572abf6ea52af4b7d1b",
+          "created": "2020-10-21T10:10:18.147Z"
+        }
+      },
+      {
+        "id": "41003860008",
+        "label": "PUBLIC_CHAIN",
+        "properties": {
+          "timestamp": "2020-10-21T10:09:42.357Z",
+          "network_info": "Bloxberg Testnet Network",
+          "network_type": "testnet",
+          "txid": "0x1ab504f66b41dd85dbe6192f5239dd1e45ee1f8180e1c6eb6c411cf894e4ae37",
+          "hash": "0x1ab504f66b41dd85dbe6192f5239dd1e45ee1f8180e1c6eb6c411cf894e4ae37",
+          "status": "added",
+          "public_chain": "BLOXBERG_TESTNET_BLOXBERG_TESTNET_NETWORK",
+          "blockchain": "bloxberg",
+          "message": "fe68ebab6e3c5aa07ebff31590bb1c91869871ade7bfd34eed0c35666996d350b585328afff527b2d0170453179bb96327e642614e46792367ec91457263de1f",
+          "prev_hash": "fe68ebab6e3c5aa07ebff31590bb1c91869871ade7bfd34eed0c35666996d350b585328afff527b2d0170453179bb96327e642614e46792367ec91457263de1f",
+          "created": "2020-10-21T10:09:41.353Z"
+        }
+      },
+      {
+        "id": "41091817720",
+        "label": "PUBLIC_CHAIN",
+        "properties": {
+          "timestamp": "2020-10-21T10:09:27.404Z",
+          "network_info": "Gov_Digital Mainnet Network",
+          "network_type": "mainnet",
+          "txid": "0x80c38a8d5b4b837639473be39ffc8fd49367794490192fbd144969da3f6688f0",
+          "hash": "0x80c38a8d5b4b837639473be39ffc8fd49367794490192fbd144969da3f6688f0",
+          "status": "added",
+          "public_chain": "GOV-DIGITAL_MAINNET_GOV_DIGITAL_MAINNET_NETWORK",
+          "blockchain": "gov-digital",
+          "message": "fe68ebab6e3c5aa07ebff31590bb1c91869871ade7bfd34eed0c35666996d350b585328afff527b2d0170453179bb96327e642614e46792367ec91457263de1f",
+          "prev_hash": "fe68ebab6e3c5aa07ebff31590bb1c91869871ade7bfd34eed0c35666996d350b585328afff527b2d0170453179bb96327e642614e46792367ec91457263de1f",
+          "created": "2020-10-21T10:09:26.398Z"
+        }
+      }
+    ]
+  }
+}

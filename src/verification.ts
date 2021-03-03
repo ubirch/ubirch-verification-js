@@ -90,11 +90,14 @@ export class UbirchVerification {
     return transId;
   }
 
-  public verifyHash(hash: string): Promise<void | IUbirchVerificationResult> {
+  public verifyHash(hash: string): Promise<IUbirchVerificationResult> {
 
     const verificationResult: IUbirchVerificationResult = this.createInitialUbirchVerificationResult(hash);
 
-    return this.sendVerificationRequest(hash)
+    this.handleInfo(EInfo.START_VERIFICATION_CALL, hash);
+
+    return new Promise((resolve, reject) => {
+      this.sendVerificationRequest(hash)
         .then((response: any) => {
 
           try {
@@ -142,18 +145,20 @@ export class UbirchVerification {
             if (err.code) {
               verificationResult.failReason = err.code;
             }
-            Promise.reject(verificationResult);
+            reject(verificationResult);
           }
 
-          Promise.resolve(verificationResult);
+          resolve(verificationResult);
 
         })
-      .catch (err => {
-        verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
+        .catch (err => {
+          verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
 
-        verificationResult.failReason = err.code || EError.UNKNOWN_ERROR;
-        Promise.reject(verificationResult);
-      });
+          verificationResult.failReason = err.code || EError.UNKNOWN_ERROR;
+          reject(verificationResult);
+        });
+    });
+
   }
 
   public formatJSON(json: string, sort: boolean = true): string {
@@ -208,35 +213,33 @@ export class UbirchVerification {
               break;
             }
             case 404: {
-              reject(EError.CERTIFICATE_ID_CANNOT_BE_FOUND);
+              self.handleError(EError.CERTIFICATE_ID_CANNOT_BE_FOUND);
               break;
             }
             case 403: {
-              reject(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
+              self.handleError(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
               break;
             }
             case 500: {
-              reject(EError.INTERNAL_SERVER_ERROR);
+              self.handleError(EError.INTERNAL_SERVER_ERROR);
               break;
             }
             default: {
-              reject(EError.UNKNOWN_ERROR);
+              self.handleError(EError.UNKNOWN_ERROR);
               break;
             }
           }
         }
       }
       xhr.onerror = function () {
-        reject(EError.VERIFICATION_UNAVAILABLE);
+        self.handleError(EError.VERIFICATION_UNAVAILABLE);
       };
-
-      self.handleInfo(EInfo.START_VERIFICATION_CALL, hash);
 
       xhr.setRequestHeader('Content-type', 'text/plain');
       xhr.setRequestHeader('authorization', 'bearer ' + self.accessToken);
       xhr.send(hash);
 
-    });
+    }).catch(err => Promise.reject(err));
   }
 
   protected parseJSONResponse(result: string, hash: string): IUbirchVerificationResponse {

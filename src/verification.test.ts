@@ -1,7 +1,8 @@
 "use strict";
 
-import { EHashAlgorithms, EStages, IUbirchVerificationConfig, IUbirchVerificationResponse } from './models';
+import { EError, EHashAlgorithms, EStages, EUppStates, EVerificationState, IUbirchError, IUbirchVerificationConfig, IUbirchVerificationResponse, IUbirchVerificationResult } from './models';
 import { UbirchVerification } from './verification';
+import * as verifyResult from '../test/testdata/verifyresult.json';
 
 const defaultSettings: IUbirchVerificationConfig = {
   algorithm: EHashAlgorithms.SHA256,
@@ -89,25 +90,42 @@ describe("Verification", () => {
 
   });
 
-  describe('sendVerificationRequest', () => {
+  fdescribe('sendVerificationRequest', () => {
 
-    test('should send the hash to the backend', () => {
+    test('should send the hash successfully and return a VERIFICATION_PARTLY_SUCCESSFUL response', () => {
 
       const verifier = new UbirchVerificationMock(defaultSettings);
       const testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
       const responseJSON: string = '{"anchors":{"upper_blockchains":[]},"prev":"","upp":"upp-must-not-be-null"}';
-      const responseInstance: IUbirchVerificationResponse = JSON.parse(responseJSON);
 
-      const spy = jest.spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
+      jest.spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
         .mockImplementation(_ => Promise.resolve(responseJSON));
 
-      verifier.verifyHash(testhash_verifiable).then(resonse => {
-        expect(spy).toHaveBeenCalled();
-        console.log("Response: " + resonse);
-        expect(resonse).toEqual(responseInstance);
+      return verifier.verifyHash(testhash_verifiable).then((response: IUbirchVerificationResult) => {
+        expect(response).toBeDefined();
+        expect(response.upp).toBeDefined();
+        expect(response.upp.state).toBe(EUppStates.created);
+        expect(response.verificationState).toBe(EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL);
+        expect(response.failReason).toBeUndefined();
       });
 
-      spy.mockRestore();
+    });
+
+    test('should handle error if CERTIFICATE_ID_CANNOT_BE_FOUND', () => {
+
+      const verifier = new UbirchVerificationMock(defaultSettings);
+      const testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
+      const error: IUbirchError = { code: EError.CERTIFICATE_ID_CANNOT_BE_FOUND, message: 'message for CERTIFICATE_ID_CANNOT_BE_FOUND'};
+
+      jest.spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
+        .mockImplementation(_ => Promise.reject(error));
+
+      return verifier.verifyHash(testhash_verifiable)
+        .catch((errResponse: IUbirchVerificationResult) => {
+        expect(errResponse).toBeDefined();
+        expect(errResponse.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
+        expect(errResponse.failReason).toBe(error.code);
+      });
 
     });
     test('should fail with VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE if no upp is returned', () => {
@@ -115,14 +133,36 @@ describe("Verification", () => {
       const verifier = new UbirchVerificationMock(defaultSettings);
       const testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
       const responseJSON: string = '{"anchors":{"upper_blockchains":[]},"prev":"","upp":""}';
-      const responseInstance: IUbirchVerificationResponse = JSON.parse(responseJSON);
 
-      const spy = jest.spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
+      jest.spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
         .mockImplementation(_ => Promise.resolve(responseJSON));
 
-      verifier.verifyHash(testhash_verifiable).catch(e => expect(e.code).toMatch('VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE'));
+      return verifier.verifyHash(testhash_verifiable)
+        .catch((errResponse: IUbirchVerificationResult) => {
+          expect(errResponse).toBeDefined();
+          expect(errResponse.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
+          expect(errResponse.failReason).toBe(EError.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE);
+        });
+    });
 
-      spy.mockRestore();
+    test('should send the hash successfully and return a VERIFICATION_SUCCESSFUL response', () => {
+
+      const verifier = new UbirchVerificationMock(defaultSettings);
+      const testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
+      const response: string = JSON.stringify(verifyResult);
+
+      jest.spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
+        .mockImplementation(_ => Promise.resolve(response));
+
+      return verifier.verifyHash(testhash_verifiable).then((response: IUbirchVerificationResult) => {
+        expect(response).toBeDefined();
+        expect(response.upp).toBeDefined();
+        expect(response.upp.state).toBe(EUppStates.anchored);
+        expect(response.verificationState).toBe(EVerificationState.VERIFICATION_SUCCESSFUL);
+        expect(response.anchors).toBeDefined();
+        expect(response.anchors.length).toBeGreaterThan(0);
+        expect(response.failReason).toBeUndefined();
+      });
 
     });
   });
