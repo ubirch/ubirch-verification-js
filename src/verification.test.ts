@@ -103,7 +103,7 @@ describe('Verification', () => {
 
   });
 
-  fdescribe('sendVerificationRequest', () => {
+  describe('sendVerificationRequest', () => {
 
     test('should send the hash successfully and return a VERIFICATION_PARTLY_SUCCESSFUL response', () => {
 

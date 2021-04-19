@@ -14,7 +14,20 @@ JavaScript package to verify that data has been anchored in blockchains through 
 
 `npm run build` This will bundle a js file for the browser.
 
-## Examples
+## Copyright
 
-Note: The manner we use in this example this lib is not the only one and it depends on the project you are working with.
-That means that the verification object added to the Window object can be ignored.
+```fundamental
+Copyright (c) 2021 ubirch GmbH
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```

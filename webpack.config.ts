@@ -18,7 +18,8 @@ module.exports = function (env) {
       fallback: {
         "js-sha256": require.resolve("js-sha256"),
         "js-sha512": require.resolve("js-sha512"),
-        "i18next": require.resolve("i18next")
+        "i18next": require.resolve("i18next"),
+        "rxjs": require.resolve("rxjs")
       }
     },
     devtool: 'inline-source-map',
