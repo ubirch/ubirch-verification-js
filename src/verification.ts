@@ -1,6 +1,6 @@
 'use strict';
 
-import * as i18next from 'i18next';
+import i18next from 'i18next';
 import { sha256 } from 'js-sha256';
 import { sha512 } from 'js-sha512';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
@@ -28,9 +28,7 @@ import {
   IUbirchVerificationResult,
 } from './models';
 
-const i18Next: i18next.i18n = i18next as any as i18next.i18n;
-
-i18Next.init({
+i18next.init({
   supportedLngs: [ 'en', 'de' ],
   fallbackLng: 'en',
   // allow keys to be phrases having `:`, `.`
@@ -51,6 +49,8 @@ i18Next.init({
   }
 });
 
+
+
 const VERSION = '/v2';
 
 export class UbirchVerification {
@@ -60,6 +60,9 @@ export class UbirchVerification {
   private language?: ELanguages = ELanguages.en;
   private debug?: boolean = false;
 
+  static createInstance(config: IUbirchVerificationConfig) {
+    return new UbirchVerification(config);
+  }
 
   constructor(config: IUbirchVerificationConfig) {
     if (!config.accessToken) {
@@ -179,7 +182,7 @@ export class UbirchVerification {
 
   protected handleError(errorCode: EError, hash?: string): void {
 
-    const errorMsg: string = i18Next.t(errorCode);
+    const errorMsg: string = i18next.t(errorCode);
 
     const err: IUbirchError = {
       message: errorMsg,
@@ -192,7 +195,7 @@ export class UbirchVerification {
 
   protected handleInfo(infoCode: EInfo | EVerificationState, hash?: string): void {
 
-    const infoMsg: string = i18Next.t(infoCode);
+    const infoMsg: string = i18next.t(infoCode);
 
     const info: IUbirchInfo = {
       message: infoMsg,
@@ -386,4 +389,4 @@ export class UbirchVerification {
   }
 }
 
-module.exports = { UbirchVerification };
+window[ 'UbirchVerification' ] = UbirchVerification;

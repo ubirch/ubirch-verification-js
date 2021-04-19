@@ -1,4 +1,6 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 
 module.exports = function (env) {
   const STAGE = env.STAGE || 'dev';
@@ -28,7 +30,14 @@ module.exports = function (env) {
       compress: true,
       port: 9102
     },
-    plugins: [],
+    plugins: [
+      new CleanWebpackPlugin({cleanStaleWebpackAssets: false}),
+      new HtmlWebpackPlugin(
+        {
+          filename: 'simple.html',
+          template: './src/simple_verification.html'
+        }),
+    ],
     module: {
       rules: [
         {
