@@ -74,7 +74,6 @@ export class UbirchVerification {
     this.algorithm = config.algorithm || this.algorithm;
     this.language = config.language || this.language;
     this.debug = config.debug !== undefined ? config.debug : this.debug;
-    return this;
   }
 
   private watcherSubject = new BehaviorSubject<IUbirchError | IUbirchInfo>(null);
