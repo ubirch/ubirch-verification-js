@@ -52,7 +52,7 @@ i18n.init(
   }
 );
 
-const VERSION = '/v2';
+const API_VERSION = '/v2';
 
 export class UbirchVerification {
   private stage: EStages = EStages.prod;
@@ -213,7 +213,7 @@ export class UbirchVerification {
   protected sendVerificationRequest(hash: string): Promise<any> {
     const self = this;
     const verificationUrl =
-      environment.verify_api_url[this.stage] + VERSION + environment.verify_api_path;
+      environment.verify_api_url[this.stage] + API_VERSION + environment.verify_api_path;
 
     return new Promise(function (resolve) {
       const xhr = new XMLHttpRequest();
