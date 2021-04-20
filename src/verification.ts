@@ -1,5 +1,3 @@
-'use strict';
-
 import i18n from 'i18next';
 import { sha256 } from 'js-sha256';
 import { sha512 } from 'js-sha512';
