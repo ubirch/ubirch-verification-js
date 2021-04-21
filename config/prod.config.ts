@@ -1,10 +1,8 @@
 module.exports = {
   mode: 'production',
   externals: {
-    'js-sha256': 'js-sha256',
-    'js-sha512': 'js-sha512',
-    i18next: 'i18next',
-    rxjs: 'rxjs',
+    'sha256': 'js-sha256',
+    'sha512': 'js-sha512'
   },
 };
 

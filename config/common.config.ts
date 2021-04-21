@@ -9,16 +9,17 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, '../dist'),
     filename: '[name].min.js',
+    libraryTarget: 'umd',
   },
   resolve: {
     extensions: ['.js', '.ts'],
   },
   plugins: [
-    new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
     new HtmlWebpackPlugin({
-      filename: 'simple.html',
-      template: path.resolve(__dirname, '../src/simple_verification.html'),
+      filename: 'index.html',
+      template: path.resolve(__dirname, '../demo/index.html'),
     }),
+    new CleanWebpackPlugin({ cleanStaleWebpackAssets: false }),
   ],
   module: {
     rules: [
@@ -29,6 +30,12 @@ module.exports = {
       },
     ],
   },
+  devServer: {
+    contentBase: path.join(__dirname, '../dist'),
+    compress: true,
+    port: 9102,
+  },
 };
 
+// https://medium.com/@muravitskiy.mail/cannot-redeclare-block-scoped-variable-varname-how-to-fix-b1c3d9cc8206
 export {};

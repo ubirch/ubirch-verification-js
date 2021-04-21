@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ubirch Verification Widget</title>
+</head>
+<body>
+  <div class="input-field">
+    <label for="token-input">UBIRCH verification token:</label>
+    <textarea rows="10" cols="80" placeholder="" type="text" id="token-input"></textarea>
+  </div>
+  <button id="set-token">Set UBIRCH verification token</button>
+  <div class="input-field">
+    <label for="json-input">JSON:</label>
+    <textarea rows="10" cols="80" placeholder="" type="text" id="json-input"></textarea>
+  </div>
+  <button id="verify-json">Verify JSON</button>
+  <div class="input-field">
+    <label for="output">Output:</label>
+    <textarea rows="10" cols="80" placeholder="" type="text" id="output"></textarea>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.8.0/sha512.min.js"></script>
+  <script src="./ubirch-verification.min.js"></script>
+  <!--  Use this if installed from NPM -->
+  <!--  <script src="../node_modules/@ubirch/ubirch-verification-widget/dist/ubirch-verification-widget.min.js"></script> -->
+  <script>
+    let ubirchVerification;
+
+    // verify JSON button click listener
+    document.getElementById('set-token').addEventListener('click', function () {
+      const token = document.getElementById('token-input').value;
+      if (token) {
+        // create UbirchVerification instance
+        ubirchVerification = UbirchVerification.createInstance({
+          algorithm: 'sha256',
+          stage: 'dev',
+          accessToken: token,
+        });
+      } else {
+        // handle the error yourself and inform user about the missing token
+        const msg = "Token input is empty!\n";
+        window.alert(msg);
+      }
+    });
+    // verify JSON button click listener
+    document.getElementById('verify-json').addEventListener('click', function () {
+      if (!ubirchVerification) {
+        // handle the error yourself and inform user about the missing token
+        const msg = "Verification Widget not initialized propertly - did you set a token?\n";
+        window.alert(msg);
+      } else {
+        const json = document.getElementById('json-input').value;
+        if (!json) {
+          // handle the error yourself and inform user about the missing JSON
+          const msg = "Please add a JSON to be verified\n";
+          window.alert(msg);
+        }
+        try {
+          const hash = ubirchVerification.createHash(json);
+          ubirchVerification.verifyHash(hash).then(response => {
+            const msg = "Verification success!!\n\nVerificationResult:\n" +
+              response.upp + "\n" +
+              response.upp.state + "\n" +
+              response.verificationState;
+            document.getElementById('output').value = msg;
+
+          })
+            .catch(errResponse => {
+              const msg = "Verification failed!!\n\nErrorResponse:\n" + errResponse.verificationState + ', ' + errResponse.failReason;
+              window.alert(msg);
+            });
+        } catch (e) {
+          // handle the error yourself and inform user about the missing fields
+          const msg = "JSON Verification failed!\n";
+          window.alert(msg);
+        }
+      }
+
+    });
+  </script>
+</body>
+</html>
