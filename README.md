@@ -4,7 +4,7 @@ JavaScript package to verify that data has been anchored in blockchains through 
 
 ## Installing from NPM.
 
-`npm i @ubirch/ubirch-verification-js`
+`npm i @ubirch/ubirch-verification-js js-sha256 js-sha512`
 
 ## Building from sources.
 
