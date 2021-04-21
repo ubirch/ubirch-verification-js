@@ -1,6 +1,6 @@
 'use strict';
 
-import * as verifyResult from '../test/testdata/verifyresult.json';
+import * as verifyResult from './test/testdata/verifyresult.json';
 import {
   EError,
   EHashAlgorithms, EInfo,

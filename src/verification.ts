@@ -1,7 +1,7 @@
 import i18n from 'i18next';
 import { sha256 } from 'js-sha256';
 import { sha512 } from 'js-sha512';
-import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
+import * as BlockchainSettings from './blockchain-assets/blockchain-settings.json';
 import * as de from './assets/i18n/de.json';
 import * as en from './assets/i18n/en.json';
 import environment from './environment';
