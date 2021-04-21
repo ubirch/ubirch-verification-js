@@ -1,7 +1,7 @@
 const path = require('path');
 const { merge } = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const common = require('./common.config');
 const dev = require('./dev.config');
 const prod = require('./prod.config');
