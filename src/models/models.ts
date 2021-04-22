@@ -62,6 +62,7 @@ export enum EError {
   CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE = 'CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE',
   INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+  ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND = 'ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND',
 }
 
 export interface IUbirchError {
@@ -94,6 +95,7 @@ export interface IUbirchVerificationEnvConfig {
   verify_api_path: string;
   console_verify_url: IUbirchStagesURLs;
   console_verify_path: string;
+  assets_url_prefix: string;
 }
 
 export interface IUbirchVerificationResponse {

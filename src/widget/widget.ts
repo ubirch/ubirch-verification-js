@@ -1,3 +1,39 @@
-export class UbirchVerificationWidget {
-  
+import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
+import environment from '../environment';
+import { EError } from '../models/models';
+
+enum WidgetClassNames {
+  InfoText = 'info-text',
+  SealOutput = 'seal-output',
+  ResultOutput = 'result-output',
+  ErrorOutput = 'error-output',
 }
+
+export class UbirchVerificationWidget {
+  private host: HTMLElement;
+  private sealInfoText: HTMLElement;
+  private sealOutput: HTMLElement;
+  private resultOutput: HTMLElement;
+  private errorOutput: HTMLElement;
+
+  constructor(elementSelectorP: string, private openConsoleInSameTarget: boolean = false) {
+    const host = document.querySelector(elementSelectorP);
+    if (!host) throw new Error(EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND);
+    this.host = host as HTMLElement;
+    this.host.insertAdjacentHTML('beforeend', this.template);
+    this.sealOutput = this.host.querySelector('.ubirch');
+    this.sealInfoText = this.host.querySelector(WidgetClassNames.InfoText);
+    this.sealOutput = this.host.querySelector(WidgetClassNames.SealOutput);
+    this.resultOutput = this.host.querySelector(WidgetClassNames.ResultOutput);
+    this.errorOutput = this.host.querySelector(WidgetClassNames.ErrorOutput);
+  }
+
+  private get template(): string {
+    return Object.values(WidgetClassNames).reduce((template: string, val: string) => {
+      template += `<div class="ubirch-${val}"></div>`;
+      return template;
+    }, '');
+  }
+}
+
+window['UbirchVerificationWidget'] = UbirchVerificationWidget;
