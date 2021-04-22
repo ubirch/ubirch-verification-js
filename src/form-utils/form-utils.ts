@@ -66,9 +66,15 @@ export class FormUtils {
     return query.length > 0 ? FormUtils.sanitizeUrlAndQuery(query.substr(1)) : undefined;
   };
 
-  static getFormParamsFromUrl = (windowRef: Window): string => {
-    const hash = FormUtils.handleFragment(windowRef);
+  static parseParams = (params: string): { [index: string]: string } => {
+    return Object.fromEntries(params.split('&').map((pair) => pair.split('=', 2)));
+  };
 
-    return hash ? hash : FormUtils.handleQuery(windowRef);
+  static getFormParamsFromUrl = (windowRef: Window): { [index: string]: string } => {
+    return FormUtils.parseParams(
+      FormUtils.handleFragment(windowRef) || FormUtils.handleQuery(windowRef)
+    );
   };
 }
+
+
