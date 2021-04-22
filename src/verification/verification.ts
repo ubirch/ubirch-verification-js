@@ -24,7 +24,7 @@ import {
   IUbirchVerificationConfig,
   IUbirchVerificationResponse,
   IUbirchVerificationResult,
-} from '../models';
+} from '../models/models';
 
 i18n.init(
   {

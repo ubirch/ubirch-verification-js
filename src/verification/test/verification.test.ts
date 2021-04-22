@@ -11,7 +11,7 @@ import {
   IUbirchInfo,
   IUbirchVerificationConfig,
   IUbirchVerificationResult,
-} from '../../models';
+} from '../../models/models';
 import { UbirchVerification } from '../verification';
 
 const defaultSettings: IUbirchVerificationConfig = {
