@@ -2,7 +2,7 @@ import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.js
 import environment from '../environment';
 import { EError } from '../models/models';
 
-enum WidgetClassNameSuffixes {
+export enum WidgetClassNameSuffixes {
   InfoText = 'info-text',
   SealOutput = 'seal-output',
   ResultOutput = 'result-output',
