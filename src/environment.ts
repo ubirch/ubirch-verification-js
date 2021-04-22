@@ -1,4 +1,4 @@
-import { IUbirchVerificationEnvConfig } from '../src/models';
+import { IUbirchVerificationEnvConfig } from './models/models';
 export default {
   verify_api_url: {
     local: 'https://verify.dev.ubirch.com',

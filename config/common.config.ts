@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
-    'ubirch-verification': path.resolve(__dirname, '../src/verification.ts'),
+    'ubirch-verification': path.resolve(__dirname, '../src/index.ts'),
   },
   output: {
     path: path.resolve(__dirname, '../dist'),
