@@ -2,7 +2,7 @@ import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.js
 import environment from '../environment';
 import { EError } from '../models/models';
 
-enum WidgetClassNames {
+enum WidgetClassNameSuffixes {
   InfoText = 'info-text',
   SealOutput = 'seal-output',
   ResultOutput = 'result-output',
@@ -22,14 +22,14 @@ export class UbirchVerificationWidget {
     this.host = host as HTMLElement;
     this.host.insertAdjacentHTML('beforeend', this.template);
     this.sealOutput = this.host.querySelector('.ubirch');
-    this.sealInfoText = this.host.querySelector(WidgetClassNames.InfoText);
-    this.sealOutput = this.host.querySelector(WidgetClassNames.SealOutput);
-    this.resultOutput = this.host.querySelector(WidgetClassNames.ResultOutput);
-    this.errorOutput = this.host.querySelector(WidgetClassNames.ErrorOutput);
+    this.sealInfoText = this.host.querySelector(WidgetClassNameSuffixes.InfoText);
+    this.sealOutput = this.host.querySelector(WidgetClassNameSuffixes.SealOutput);
+    this.resultOutput = this.host.querySelector(WidgetClassNameSuffixes.ResultOutput);
+    this.errorOutput = this.host.querySelector(WidgetClassNameSuffixes.ErrorOutput);
   }
 
   private get template(): string {
-    return Object.values(WidgetClassNames).reduce((template: string, val: string) => {
+    return Object.values(WidgetClassNameSuffixes).reduce((template: string, val: string) => {
       template += `<div class="ubirch-${val}"></div>`;
       return template;
     }, '');
