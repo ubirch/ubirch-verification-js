@@ -9,5 +9,5 @@ describe('Widget', () => {
     Object.values(WidgetClassNameSuffixes).forEach((suffix) => {
       expect(root.querySelector(`.ubirch-${suffix}`)).not.toBe(null);
     });
-  })
+  });
 });

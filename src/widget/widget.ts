@@ -15,6 +15,7 @@ export class UbirchVerificationWidget {
   private sealOutput: HTMLElement;
   private resultOutput: HTMLElement;
   private errorOutput: HTMLElement;
+  public highlightPageAfterVerification: boolean = false;
 
   constructor(elementSelectorP: string, private openConsoleInSameTarget: boolean = false) {
     const host = document.querySelector(elementSelectorP);
@@ -33,6 +34,44 @@ export class UbirchVerificationWidget {
       template += `<div class="ubirch-${val}"></div>`;
       return template;
     }, '');
+  }
+
+  private cleanAllChilds(element: HTMLElement): void {
+    if (element) {
+      while (element.firstChild) {
+        element.removeChild(element.firstChild);
+      }
+    }
+  }
+
+  private createIconTag(
+    src: string,
+    imgTagId: string,
+    width?: string,
+    height?: string
+  ): HTMLElement {
+    const imgTag: HTMLElement = document.createElement('img');
+    imgTag.setAttribute('width', width ? width : '50');
+    imgTag.setAttribute('height', height ? height : '50');
+    imgTag.setAttribute('src', src);
+
+    if (imgTagId) {
+      imgTag.setAttribute('id', imgTagId);
+    }
+    return imgTag;
+  }
+
+  private highlightPage(successful: boolean) {
+    if (this.highlightPageAfterVerification) {
+      const highlightClass = successful ? 'flashgreen' : 'flashred';
+      const mainElement = document.getElementsByTagName('main')[0];
+      setTimeout((_) => {
+        mainElement.classList.toggle(highlightClass);
+      }, 100);
+      setTimeout((_) => {
+        mainElement.classList.toggle(highlightClass);
+      }, 2400);
+    }
   }
 }
 
