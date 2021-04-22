@@ -1,4 +1,4 @@
-import i18n from 'i18next';
+import i18n, { TFunction } from 'i18next';
 import { ELanguages } from '../models/models';
 
 export interface Translations {
@@ -7,7 +7,7 @@ export interface Translations {
 
 export type TranslationMap = { [key in ELanguages]: Translations };
 
-export const initTranslation = (translations: TranslationMap) =>
+export const initTranslation = (translations: TranslationMap): Promise<TFunction> =>
   i18n.init(
     {
       supportedLngs: Object.keys(ELanguages),
