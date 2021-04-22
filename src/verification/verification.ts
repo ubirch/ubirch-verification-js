@@ -210,7 +210,7 @@ export class UbirchVerification {
   protected sendVerificationRequest(hash: string): Promise<any> {
     const self = this;
     const verificationUrl =
-      environment.verify_api_url[this.stage] + API_VERSION + environment.verify_api_path;
+      environment.verify_api_url[this.stage] + '/api' + API_VERSION + environment.verify_api_path;
 
     return new Promise(function (resolve) {
       const xhr = new XMLHttpRequest();

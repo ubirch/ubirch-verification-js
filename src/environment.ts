@@ -13,6 +13,6 @@ export default {
     prod: 'https://console.prod.ubirch.com',
   },
   //  verify_api_path: '/api/upp/verify/anchor?blockchain_info=ext',
-  verify_api_path: '/api/v2/upp/verify/record?response_form=anchors_with_path&blockchain_info=ext',
+  verify_api_path: '/upp/verify/record?response_form=anchors_with_path&blockchain_info=ext',
   console_verify_path: '/verification',
 } as IUbirchVerificationEnvConfig;
