@@ -25,30 +25,9 @@ import {
   IUbirchVerificationResponse,
   IUbirchVerificationResult,
 } from '../models/models';
+import { initTranslation } from '../utils/i18n';
 
-i18n.init(
-  {
-    supportedLngs: ['en', 'de'],
-    fallbackLng: 'en',
-    // allow keys to be phrases having `:`, `.`
-    nsSeparator: false,
-    keySeparator: false,
-    resources: {
-      en: {
-        translation: en,
-      },
-      de: {
-        translation: de,
-      },
-    },
-    debug: false,
-  },
-  (err) => {
-    if (err) {
-      return console.log('something went wrong loading translation files', err);
-    }
-  }
-);
+initTranslation({ de, en });
 
 const API_VERSION = '/v2';
 

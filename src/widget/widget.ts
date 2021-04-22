@@ -1,5 +1,7 @@
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import environment from '../environment';
+import * as de from '../assets/i18n/widget/de.json';
+import * as en from '../assets/i18n/widget/en.json';
 import { EError, ELanguages } from '../models/models';
 
 export enum WidgetClassNameSuffixes {
@@ -15,12 +17,20 @@ export interface IUbirchVerificationWidgetConfig {
   openConsoleInSameTarget?: boolean;
 }
 
+interface Translations { [key: string]: (string | { [key: string]: string }) };
+
+const languageMap: { [key in ELanguages]: Translations } = {
+  de,
+  en,
+};
+
 export class UbirchVerificationWidget {
   private host: HTMLElement;
   private sealInfoText: HTMLElement;
   private sealOutput: HTMLElement;
   private resultOutput: HTMLElement;
   private errorOutput: HTMLElement;
+  private messages: Translations;
   public highlightPageAfterVerification: boolean = false;
 
   constructor(config: IUbirchVerificationWidgetConfig) {
@@ -33,6 +43,10 @@ export class UbirchVerificationWidget {
     this.sealOutput = this.host.querySelector(WidgetClassNameSuffixes.SealOutput);
     this.resultOutput = this.host.querySelector(WidgetClassNameSuffixes.ResultOutput);
     this.errorOutput = this.host.querySelector(WidgetClassNameSuffixes.ErrorOutput);
+    this.messages =
+      config.language && languageMap[config.language]
+        ? languageMap[config.language]
+        : languageMap.de;
   }
 
   private get template(): string {
