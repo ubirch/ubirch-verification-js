@@ -163,3 +163,17 @@ export interface IUbirchBlockhainTransidCheckUrl {
 export interface IUbirchBlockchainNet {
   url: string;
 }
+
+export interface IUbirchVerificationAnchorProperties {
+  blockchain: string;
+  created: string;
+  hash: string;
+  message: string;
+  network_info: string;
+  network_type: string;
+  prev_hash: string;
+  public_chaing: string;
+  status: string;
+  timestamp: string;
+  txid: string;
+}
