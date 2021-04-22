@@ -1,12 +1,18 @@
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import environment from '../environment';
-import { EError } from '../models/models';
+import { EError, ELanguages } from '../models/models';
 
 export enum WidgetClassNameSuffixes {
   InfoText = 'info-text',
   SealOutput = 'seal-output',
   ResultOutput = 'result-output',
   ErrorOutput = 'error-output',
+}
+
+export interface IUbirchVerificationWidgetConfig {
+  elementSelector: string;
+  language?: ELanguages;
+  openConsoleInSameTarget?: boolean;
 }
 
 export class UbirchVerificationWidget {
@@ -17,8 +23,8 @@ export class UbirchVerificationWidget {
   private errorOutput: HTMLElement;
   public highlightPageAfterVerification: boolean = false;
 
-  constructor(elementSelectorP: string, private openConsoleInSameTarget: boolean = false) {
-    const host = document.querySelector(elementSelectorP);
+  constructor(config: IUbirchVerificationWidgetConfig) {
+    const host = document.querySelector(config.elementSelector);
     if (!host) throw new Error(EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND);
     this.host = host as HTMLElement;
     this.host.insertAdjacentHTML('beforeend', this.template);
