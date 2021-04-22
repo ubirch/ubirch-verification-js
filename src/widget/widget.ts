@@ -34,11 +34,12 @@ export class UbirchVerificationWidget {
   private resultOutput: HTMLElement;
   private errorOutput: HTMLElement;
   public highlightPageAfterVerification: boolean = false;
-  public openConsoleInSameTarget = false;
+  public openConsoleInSameTarget: boolean;
 
   constructor(config: IUbirchVerificationWidgetConfig) {
     const host = document.querySelector(config.elementSelector);
     if (!host) throw new Error(EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND);
+    this.openConsoleInSameTarget = config.openConsoleInSameTarget || false;
     this.host = host as HTMLElement;
     this.host.insertAdjacentHTML('beforeend', this.template);
     this.sealOutput = this.host.querySelector('.ubirch');
