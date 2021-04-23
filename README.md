@@ -1,6 +1,6 @@
 # ubirch-verification-js
 
-JavaScript package to verify that data has been anchored in blockchains through the ubirch system
+JavaScript package to verify that data has been anchored in blockchains through the Ubirch system
 
 ## Installing from NPM.
 
