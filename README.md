@@ -2,9 +2,38 @@
 
 JavaScript package to verify that data has been anchored in blockchains through the Ubirch system
 
-## Installing from NPM.
+## Usage
 
-`npm i @ubirch/ubirch-verification-js js-sha256 js-sha512`
+### From NPM registry
+
+```
+    npm i @ubirch/ubirch-verification-js js-sha256 js-sha512
+    // or using Yarn
+    yarn add @ubirch/ubirch-verification-js js-sha256 js-sha512
+```
+
+And then
+
+```js
+import { UbirchVerification } from '@ubirch/ubirch-verification-js';
+```
+
+### As a script
+
+```html
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.8.0/sha512.min.js"></script>
+  <script src="path/to/ubirch-verification-js"></script>
+
+  <script>
+    /* UbirchVerification automatically assings itself to the window object */
+    const verification = new UbirchVerification({
+      /* configuration object */
+    });
+  </script>
+</body>
+```
 
 ## Building from sources.
 
@@ -37,8 +66,6 @@ Insert Test JSON:
     {"b":"19111111","d":["20210104","20210127"],"f":"\\nNewline\\\\n\\\\\\n","g":"<p>Hällo</p>","i":"Altötting","p":"#%;,.<>-+*\"'?$&:*","r":"BioNTech / Pfizer Corminaty®","s":"2kmsq5fzqiu","t":"vaccination"}
 
 Press Button "Verify JSON"
-
--> Problem: Ends up in CORS error.....
 
 ## Copyright
 
