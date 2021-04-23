@@ -66,8 +66,8 @@ export class FormUtils {
     return query.length > 0 ? FormUtils.sanitizeUrlAndQuery(query.substr(1)) : undefined;
   };
 
-  static parseParams = (params: string): { [index: string]: string } => {
-    return Object.fromEntries(params.split('&').map((pair) => pair.split('=', 2)));
+  static parseParams = (params = ''): { [index: string]: string } => {
+    return Object.fromEntries(params.split('&').map((pair) => pair.split('=', 2))) || {};
   };
 
   static getFormParamsFromUrl = (windowRef: Window): { [index: string]: string } => {
@@ -76,5 +76,3 @@ export class FormUtils {
     );
   };
 }
-
-
