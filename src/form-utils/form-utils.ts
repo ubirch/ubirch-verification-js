@@ -100,7 +100,7 @@ export class FormUtils {
     }
   }
 
-  static parseParams = (params: string): { [index: string]: string } => {
+  static parseParams = (paramsString: string, separator: string): { [index: string]: string } => {
     const splitDataset = (dataset: string) => {
       const arraySeparator = ',';
 
@@ -109,18 +109,23 @@ export class FormUtils {
       return [data[0], FormUtils.handleUrlParamValue(data[1], arraySeparator)];
     };
 
-    if (!params) return {};
+    if (!paramsString) return {};
 
-    return Object.fromEntries(params.split('&').map(splitDataset)) || {};
+    return Object.fromEntries(paramsString.split(separator).map(splitDataset)) || {};
   };
 
   /**
    * get params of form fields as string from fragment OR - if no fragment set - from query of url
    * @param windowRef Reference to window
+   * @param separator data separator string
    */
-  static getFormParamsFromUrl = (windowRef: Window): { [index: string]: string } => {
+  static getFormParamsFromUrl = (
+    windowRef: Window,
+    separator: string
+  ): { [index: string]: string } => {
     return FormUtils.parseParams(
-      FormUtils.handleFragment(windowRef) || FormUtils.handleQuery(windowRef)
+      FormUtils.handleFragment(windowRef) || FormUtils.handleQuery(windowRef),
+      separator
     );
   };
 
