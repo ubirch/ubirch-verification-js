@@ -212,36 +212,40 @@ export class UbirchVerification {
     const verificationUrl =
       environment.verify_api_url[this.stage] + '/api' + API_VERSION + environment.verify_api_path;
 
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', verificationUrl, true);
 
       xhr.onload = function () {
-        if (this.readyState < 4) {
-          self.handleInfo(EInfo.PROCESSING_VERIFICATION_CALL);
-        } else {
-          switch (this.status) {
-            case 200: {
-              resolve(xhr.response);
-              break;
-            }
-            case 404: {
-              self.handleError(EError.CERTIFICATE_ID_CANNOT_BE_FOUND);
-              break;
-            }
-            case 403: {
-              self.handleError(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
-              break;
-            }
-            case 500: {
-              self.handleError(EError.INTERNAL_SERVER_ERROR);
-              break;
-            }
-            default: {
-              self.handleError(EError.UNKNOWN_ERROR);
-              break;
+        try {
+          if (this.readyState < 4) {
+            self.handleInfo(EInfo.PROCESSING_VERIFICATION_CALL);
+          } else {
+            switch (this.status) {
+              case 200: {
+                resolve(xhr.response);
+                break;
+              }
+              case 404: {
+                self.handleError(EError.CERTIFICATE_ID_CANNOT_BE_FOUND);
+                break;
+              }
+              case 403: {
+                self.handleError(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
+                break;
+              }
+              case 500: {
+                self.handleError(EError.INTERNAL_SERVER_ERROR);
+                break;
+              }
+              default: {
+                self.handleError(EError.UNKNOWN_ERROR);
+                break;
+              }
             }
           }
+        } catch (err) {
+          reject(err);
         }
       };
       xhr.onerror = function () {
@@ -251,7 +255,7 @@ export class UbirchVerification {
       xhr.setRequestHeader('Content-type', 'text/plain');
       xhr.setRequestHeader('authorization', 'bearer ' + self.accessToken);
       xhr.send(hash);
-    }).catch((err) => Promise.reject(err));
+    });
   }
 
   protected parseJSONResponse(result: string, hash: string): IUbirchVerificationResponse {
