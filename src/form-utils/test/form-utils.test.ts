@@ -29,3 +29,34 @@ describe('Get params from URL', () => {
     expect(result).toEqual({});
   });
 });
+
+describe('Fill inputs with data', () => {
+  test('should set fields', () => {
+    document.body.innerHTML = `
+    <form>
+      <input id="a"/>
+      <input id="b"/>
+      <input id="c"/>
+    </form>
+    `;
+    const formUtils = new FormUtils({ formIds: [] });
+    formUtils.setDataIntoForm({ a: 'testA', b: 'testB' }, document);
+    expect((document.getElementById('a') as HTMLInputElement).value).toEqual('testA');
+    expect((document.getElementById('b') as HTMLInputElement).value).toEqual('testB');
+    expect((document.getElementById('c') as HTMLInputElement).value).toEqual('');
+  });
+  test('should set only available input fields', () => {
+    document.body.innerHTML = `
+    <form>
+      <div id="a"></div>
+      <input id="b"/>
+      <input id="c"/>
+    </form>
+    `;
+    const formUtils = new FormUtils({ formIds: [] });
+    formUtils.setDataIntoForm({ a: 'testA', b: 'testB' }, document);
+    expect((document.getElementById('a') as HTMLInputElement).value).toBeUndefined();
+    expect((document.getElementById('b') as HTMLInputElement).value).toEqual('testB');
+    expect((document.getElementById('c') as HTMLInputElement).value).toEqual('');
+  });
+});

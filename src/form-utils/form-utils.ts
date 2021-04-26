@@ -150,11 +150,12 @@ export class FormUtils {
             value.forEach((value, index) => {
               const keyStr = `${key}_${index}`;
               const element = documentRef.getElementById(keyStr);
-              if (element) (element as HTMLInputElement).value = value;
+              if (element && element.tagName === 'INPUT')
+                (element as HTMLInputElement).value = value;
             });
           } else {
             const element = documentRef.getElementById(key);
-            if (element) (element as HTMLInputElement).value = value;
+            if (element && element.tagName === 'INPUT') (element as HTMLInputElement).value = value;
           }
         }
       });
