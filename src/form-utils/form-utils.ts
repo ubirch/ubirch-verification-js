@@ -87,7 +87,7 @@ export class FormUtils {
     return query.length > 0 ? FormUtils.sanitizeUrlAndQuery(query.substr(1)) : undefined;
   };
 
-  private static handleUrlParamValue(val, arraySeparator: string): any {
+  private static handleUrlParamValue(val: string, arraySeparator: string): any {
     try {
       if (val.includes(arraySeparator)) {
         const arrayVal = val.split(arraySeparator).map(decodeURIComponent);
