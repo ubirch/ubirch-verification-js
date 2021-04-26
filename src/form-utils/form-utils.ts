@@ -1,9 +1,30 @@
 import i18n from 'i18next';
-import { EError, IUbirchError } from '../models/models';
+import { EError, IUbirchError, IUbirchFormVerificationConfig } from '../models/models';
+
+const DEFAULT_FORM_CONFIG: IUbirchFormVerificationConfig = {
+  formIds: ['created', 'name', 'workshop'],
+};
 
 export class FormUtils {
   static allowedCharacters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
+  private formIds: string[];
+  private paramsFormIdsMapping: string[];
+
+  constructor(config: IUbirchFormVerificationConfig = DEFAULT_FORM_CONFIG) {
+    if (!config.formIds) {
+      throw new Error('Please, provide a string array with param ids');
+    }
+    this.formIds = config.formIds;
+    if (config.paramsFormIdsMapping) {
+      if (config.paramsFormIdsMapping.length !== this.formIds.length) {
+        throw new Error(
+          'If you provide paramsFormIdsMapping define a mapping for each formId; they need to be in the same order'
+        );
+      }
+      this.paramsFormIdsMapping = config.paramsFormIdsMapping;
+    }
+  }
 
   static log = (errorStr: IUbirchError): void => {
     console.log(JSON.stringify(errorStr));
@@ -79,7 +100,7 @@ export class FormUtils {
     }
   }
 
-  static parseParams = (params:string): { [index: string]: string } => {
+  static parseParams = (params: string): { [index: string]: string } => {
     const splitDataset = (dataset: string) => {
       const arraySeparator = ',';
 
@@ -99,64 +120,45 @@ export class FormUtils {
    */
   static getFormParamsFromUrl = (windowRef: Window): { [index: string]: string } => {
     return FormUtils.parseParams(
-      FormUtils.handleFragment(windowRef) || FormUtils.handleQuery(windowRef) 
+      FormUtils.handleFragment(windowRef) || FormUtils.handleQuery(windowRef)
     );
   };
 
   /**
    * put params into form fields
-   * @param dataP string that contains field params in a form like:
-   *    pid=9ceb5551-d006-4648-8cf7-c7b1a1ddccb1&tid=FGXC-CL11-KDKC-P9XC-74MM&td=2020-06-12&tt=11:00:00&tr=negativ
+   * @param params object that contains field params
    * @param documentRef Reference to document
    */
-  // public setDataIntoForm(params = {}, documentRef) {
-  //   try {
-  //     const separator = separatorP || '&';
-  //     const arraySeparator = arraySeparatorP || ',';
-
-  //     const allParams = dataP.split(separator).map((dataset: string) => {
-  //       const data = dataset.split('=');
-
-  //       return {
-  //         key: data[0],
-  //         value: this.handleUrlParamValue(data[1], arraySeparator),
-  //       };
-  //     });
-
-  //     allParams.forEach((param) => {
-  //       if (param.key) {
-  //         let key = param.key;
-  //         if (this.paramsFormIdsMapping && this.paramsFormIdsMapping.length > 0) {
-  //           const idIndex = this.paramsFormIdsMapping.indexOf(key);
-  //           if (idIndex < 0) {
-  //             console.warn('No mapping defined for ' + key);
-  //           } else {
-  //             key = this.formIds[idIndex];
-  //           }
-  //         }
-  //         if (Array.isArray(param.value)) {
-  //           param.value.forEach((value, index) => {
-  //             const keyStr = `${key}_${index}`;
-  //             if (
-  //               documentRef.getElementById(keyStr) &&
-  //               documentRef.getElementById(keyStr) !== null
-  //             ) {
-  //               documentRef.getElementById(keyStr).value = value;
-  //             }
-  //           });
-  //         } else {
-  //           if (documentRef.getElementById(key) && documentRef.getElementById(key) !== null) {
-  //             documentRef.getElementById(key).value = param.value;
-  //           }
-  //         }
-  //       }
-  //     });
-  //   } catch (e) {
-  //     const err: IUbirchFormError = {
-  //       message: e.message,
-  //       code: EError.FILLING_FORM_WITH_PARAMS_FAILED,
-  //     };
-  //     throw err;
-  //   }
-  // }
+  public setDataIntoForm(params: { [index: string]: string } = {}, documentRef: Document): void {
+    try {
+      Object.entries(params).forEach(([key, value]) => {
+        if (key) {
+          if (this.paramsFormIdsMapping && this.paramsFormIdsMapping.length > 0) {
+            const idIndex = this.paramsFormIdsMapping.indexOf(key);
+            if (idIndex < 0) {
+              console.warn('No mapping defined for ' + key);
+            } else {
+              key = this.formIds[idIndex];
+            }
+          }
+          if (Array.isArray(value)) {
+            value.forEach((value, index) => {
+              const keyStr = `${key}_${index}`;
+              const element = documentRef.getElementById(keyStr);
+              if (element) (element as HTMLInputElement).value = value;
+            });
+          } else {
+            const element = documentRef.getElementById(key);
+            if (element) (element as HTMLInputElement).value = value;
+          }
+        }
+      });
+    } catch (e) {
+      const err: IUbirchError = {
+        message: e.message,
+        code: EError.FILLING_FORM_WITH_PARAMS_FAILED,
+      };
+      throw err;
+    }
+  }
 }
