@@ -166,3 +166,5 @@ export interface IUbirchBlockhainTransidCheckUrl {
 export interface IUbirchBlockchainNet {
   url: string;
 }
+
+export type DataParams = { [index: string]: string };

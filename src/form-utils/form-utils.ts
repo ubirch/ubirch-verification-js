@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import { EError, IUbirchError, IUbirchFormVerificationConfig } from '../models/models';
+import { EError, IUbirchError, IUbirchFormVerificationConfig, DataParams } from '../models/models';
 
 const DEFAULT_FORM_CONFIG: IUbirchFormVerificationConfig = {
   formIds: ['created', 'name', 'workshop'],
@@ -100,7 +100,7 @@ export class FormUtils {
     }
   }
 
-  static parseParams = (paramsString: string, separator: string): { [index: string]: string } => {
+  static parseParams = (paramsString: string, separator: string): DataParams => {
     const splitDataset = (dataset: string) => {
       const arraySeparator = ',';
 
@@ -122,7 +122,7 @@ export class FormUtils {
   static getFormParamsFromUrl = (
     windowRef: Window,
     separator: string
-  ): { [index: string]: string } => {
+  ): DataParams => {
     return FormUtils.parseParams(
       FormUtils.handleFragment(windowRef) || FormUtils.handleQuery(windowRef),
       separator
@@ -134,7 +134,7 @@ export class FormUtils {
    * @param params object that contains field params
    * @param documentRef Reference to document
    */
-  public setDataIntoForm(params: { [index: string]: string } = {}, documentRef: Document): void {
+  public setDataIntoForm(params: DataParams = {}, documentRef: Document): void {
     try {
       Object.entries(params).forEach(([key, value]) => {
         if (key) {
