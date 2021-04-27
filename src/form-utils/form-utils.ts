@@ -119,15 +119,11 @@ export class UbirchFormUtils {
    * @param windowRef Reference to window
    * @param separator data separator string
    */
-  static getFormParamsFromUrl = (
-    windowRef: Window,
-    separator: string
-  ): DataParams => {
-    return UbirchFormUtils.parseParams(
+  public getFormParamsFromUrl = (windowRef: Window, separator: string): DataParams =>
+    UbirchFormUtils.parseParams(
       UbirchFormUtils.handleFragment(windowRef) || UbirchFormUtils.handleQuery(windowRef),
       separator
     );
-  };
 
   /**
    * put params into form fields
@@ -137,25 +133,26 @@ export class UbirchFormUtils {
   public setDataIntoForm(params: DataParams = {}, documentRef: Document): void {
     try {
       Object.entries(params).forEach(([key, value]) => {
-        if (key) {
-          if (this.paramsFormIdsMapping && this.paramsFormIdsMapping.length > 0) {
-            const idIndex = this.paramsFormIdsMapping.indexOf(key);
-            if (idIndex < 0) {
-              console.warn('No mapping defined for ' + key);
-            } else {
-              key = this.formIds[idIndex];
-            }
-          }
-          if (Array.isArray(value)) {
-            value.forEach((value, index) => {
-              const keyStr = `${key}_${index}`;
-              const element = documentRef.getElementById(keyStr);
-              if (element && element.tagName === 'INPUT')
-                (element as HTMLInputElement).value = value;
-            });
+        if (this.paramsFormIdsMapping && this.paramsFormIdsMapping.length > 0) {
+          const idIndex = this.paramsFormIdsMapping.indexOf(key);
+          if (idIndex < 0) {
+            console.warn('No mapping defined for ' + key);
           } else {
-            const element = documentRef.getElementById(key);
-            if (element && element.tagName === 'INPUT') (element as HTMLInputElement).value = value;
+            key = this.formIds[idIndex];
+          }
+        }
+        if (Array.isArray(value)) {
+          value.forEach((valueItem, index) => {
+            const keyStr = `${key}_${index}`;
+            const element = documentRef.getElementById(keyStr);
+            if (element && element.tagName === 'INPUT') {
+              (element as HTMLInputElement).value = valueItem;
+            }
+          });
+        } else {
+          const element = documentRef.getElementById(key);
+          if (element && element.tagName === 'INPUT') {
+            (element as HTMLInputElement).value = value;
           }
         }
       });
