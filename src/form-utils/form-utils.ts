@@ -6,7 +6,7 @@ const DEFAULT_FORM_CONFIG: IUbirchFormVerificationConfig = {
 };
 
 export class FormUtils {
-  static allowedCharacters =
+  static readonly allowedCharacters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
   private formIds: string[];
   private paramsFormIdsMapping: string[];
@@ -65,7 +65,7 @@ export class FormUtils {
     return urlStr;
   };
 
-  static handleFragment = (windowRef: Window): string => {
+  static handleFragment = (windowRef: Window): string | undefined => {
     let hash: string;
     try {
       hash = windowRef.location.hash;
@@ -76,7 +76,7 @@ export class FormUtils {
     return hash ? FormUtils.sanitizeUrlAndQuery(hash.slice(1)) : undefined;
   };
 
-  static handleQuery = (windowRef: Window): string => {
+  static handleQuery = (windowRef: Window): string | undefined => {
     let query: string;
     try {
       query = windowRef.location.search;
@@ -87,7 +87,7 @@ export class FormUtils {
     return query.length > 0 ? FormUtils.sanitizeUrlAndQuery(query.substr(1)) : undefined;
   };
 
-  private static handleUrlParamValue(val: string, arraySeparator: string): any {
+  private static handleUrlParamValue(val: string, arraySeparator: string): string[] | string {
     try {
       if (val.includes(arraySeparator)) {
         const arrayVal = val.split(arraySeparator).map(decodeURIComponent);
@@ -168,3 +168,5 @@ export class FormUtils {
     }
   }
 }
+
+window['FormUtils'] = FormUtils;
