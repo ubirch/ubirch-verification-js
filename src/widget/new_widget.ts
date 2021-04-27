@@ -1,5 +1,5 @@
 import { Observable } from "rxjs";
-import { EError, ELanguages, IUbirchError, IUbirchInfo, IUbirchVerificationResult } from "../models/models";
+import { EError, ELanguages, IUbirchMessage, IUbirchVerificationResult } from "../models/models";
 import { initTranslation } from "../utils/i18n";
 import * as de from '../assets/i18n/widget/de.json';
 import * as en from '../assets/i18n/widget/en.json';
@@ -19,7 +19,7 @@ export interface IUbirchVerificationWidgetConfig {
   language?: ELanguages;
   openConsoleInSameTarget?: boolean;
   initialVerificationResult?: IUbirchVerificationResult;
-  infoWatcher?: Observable<IUbirchError | IUbirchInfo>;
+  infoWatcher?: Observable<IUbirchMessage>;
 }
 
 export class UbirchVerificationWidget {
