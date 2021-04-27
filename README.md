@@ -35,6 +35,12 @@ import { UbirchVerification } from '@ubirch/ubirch-verification-js';
 </body>
 ```
 
+## Utils
+
+Package contains `UbirchFormUtils` class with following methods:
+- `static getFormParamsFromUrl(windowRef: Window, separator: string): DataParams` - resolves data paramms object from url string.
+- `public setDataIntoForm(params: DataParams = {}, documentRef: Document): void` - inserts the data from data params object to input fields.
+
 ## Building from sources.
 
 `npm install`

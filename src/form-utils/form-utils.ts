@@ -115,7 +115,7 @@ export class UbirchFormUtils {
   };
 
   /**
-   * get params of form fields as string from fragment OR - if no fragment set - from query of url
+   * get params of form hash or search part of url
    * @param windowRef Reference to window
    * @param separator data separator string
    */
