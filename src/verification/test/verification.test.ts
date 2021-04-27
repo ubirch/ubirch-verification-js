@@ -7,8 +7,7 @@ import {
   EUppStates,
   EVerificationState,
   IUbirchBlockchainAnchor,
-  IUbirchError,
-  IUbirchInfo,
+  IUbirchMessage,
   IUbirchVerificationConfig,
   IUbirchVerificationResult,
 } from '../../models/models';
@@ -129,7 +128,7 @@ describe('Verification', () => {
     });
 
     test('should handle error if CERTIFICATE_ID_CANNOT_BE_FOUND', () => {
-      const error: IUbirchError = {
+      const error: IUbirchMessage = {
         code: EError.CERTIFICATE_ID_CANNOT_BE_FOUND,
         message: 'message for CERTIFICATE_ID_CANNOT_BE_FOUND',
       };
@@ -207,7 +206,7 @@ describe('Verification', () => {
         EVerificationState.VERIFICATION_SUCCESSFUL,
       ];
 
-      watcher$.subscribe((info: IUbirchError | IUbirchInfo) => {
+      watcher$.subscribe((info: IUbirchMessage | IUbirchMessage) => {
         if (info !== null) {
           expect(info.code).toEqual(infoChain[infoCounter]);
           infoCounter++;

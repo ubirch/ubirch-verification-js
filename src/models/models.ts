@@ -65,14 +65,9 @@ export enum EError {
   ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND = 'ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND',
 }
 
-export interface IUbirchError {
+export interface IUbirchMessage {
   message: string;
-  code: EError;
-}
-
-export interface IUbirchInfo {
-  message: string;
-  code: EInfo | EVerificationState;
+  code: EError | EInfo | EVerificationState;
 }
 
 export interface IUbirchVerificationConfig {

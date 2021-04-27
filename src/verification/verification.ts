@@ -18,8 +18,7 @@ import {
   IUbirchBlockchainAnchor,
   IUbirchBlockchainAnchorProperties,
   IUbirchBlockchainAnchorRAW,
-  IUbirchError,
-  IUbirchInfo,
+  IUbirchMessage,
   IUbirchUpp,
   IUbirchVerificationConfig,
   IUbirchVerificationResponse,
@@ -53,12 +52,12 @@ export class UbirchVerification {
     this.debug = config.debug !== undefined ? config.debug : this.debug;
   }
 
-  private watcherSubject = new BehaviorSubject<IUbirchError | IUbirchInfo>(null);
+  private watcherSubject = new BehaviorSubject<IUbirchMessage | IUbirchMessage>(null);
   protected infoAndErrorWatcher$: Observable<
-    IUbirchError | IUbirchInfo
+    IUbirchMessage | IUbirchMessage
   > = this.watcherSubject.asObservable();
 
-  public watchInfosAndErrors(): Observable<IUbirchError | IUbirchInfo> {
+  public watchInfosAndErrors(): Observable<IUbirchMessage | IUbirchMessage> {
     return this.infoAndErrorWatcher$;
   }
   public createHash(json: string, hashAlgorithm: EHashAlgorithms = this.algorithm): string {
@@ -166,7 +165,7 @@ export class UbirchVerification {
   protected handleError(errorCode: EError, hash?: string): void {
     const errorMsg: string = i18n.t(errorCode);
 
-    const err: IUbirchError = {
+    const err: IUbirchMessage = {
       message: errorMsg,
       code: errorCode,
     };
@@ -178,7 +177,7 @@ export class UbirchVerification {
   protected handleInfo(infoCode: EInfo | EVerificationState, hash?: string): void {
     const infoMsg: string = i18n.t(infoCode);
 
-    const info: IUbirchInfo = {
+    const info: IUbirchMessage = {
       message: infoMsg,
       code: infoCode,
     };
@@ -367,7 +366,7 @@ export class UbirchVerification {
     }
   }
 
-  protected log(logInfo: IUbirchInfo | IUbirchError): void {
+  protected log(logInfo: IUbirchMessage | IUbirchMessage): void {
     this.watcherSubject.next(logInfo);
   }
 }
