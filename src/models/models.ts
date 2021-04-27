@@ -82,7 +82,7 @@ export interface IUbirchVerificationConfig {
   debug?: boolean;
 }
 
-export interface IUbirchFormVerificationConfig {
+export interface IUbirchFormUtilsConfig {
   formIds: string[];
   paramsFormIdsMapping?: string[];
 }

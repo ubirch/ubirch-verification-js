@@ -1,3 +1,3 @@
-import { FormUtils } from './form-utils';
+import { UbirchFormUtils } from './form-utils';
 
-export default FormUtils;
+export default UbirchFormUtils;

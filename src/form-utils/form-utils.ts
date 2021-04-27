@@ -1,17 +1,17 @@
 import i18n from 'i18next';
-import { EError, IUbirchError, IUbirchFormVerificationConfig, DataParams } from '../models/models';
+import { EError, IUbirchError, IUbirchFormUtilsConfig, DataParams } from '../models/models';
 
-const DEFAULT_FORM_CONFIG: IUbirchFormVerificationConfig = {
+const DEFAULT_CONFIG: IUbirchFormUtilsConfig = {
   formIds: ['created', 'name', 'workshop'],
 };
 
-export class FormUtils {
+export class UbirchFormUtils {
   static readonly allowedCharacters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
   private formIds: string[];
   private paramsFormIdsMapping: string[];
 
-  constructor(config: IUbirchFormVerificationConfig = DEFAULT_FORM_CONFIG) {
+  constructor(config: IUbirchFormUtilsConfig = DEFAULT_CONFIG) {
     if (!config.formIds) {
       throw new Error('Please, provide a string array with param ids');
     }
@@ -43,13 +43,13 @@ export class FormUtils {
       ...additionalErrorAttributes,
     };
 
-    FormUtils.log(err);
+    UbirchFormUtils.log(err);
     throw err;
   };
 
   static sanitizeUrlAndQuery = (urlStr: string): string => {
     const foundNotAllowedChars: string[] = [...Array.from(urlStr)].filter(
-      (char) => !FormUtils.allowedCharacters.includes(char)
+      (char) => !UbirchFormUtils.allowedCharacters.includes(char)
     );
     const uniqueFoundNotAllowedChars = foundNotAllowedChars.filter(
       (char, index) => foundNotAllowedChars.indexOf(char) === index
@@ -59,7 +59,7 @@ export class FormUtils {
       const errAttributes: any = {
         notAllowedChars: uniqueFoundNotAllowedChars,
       };
-      FormUtils.handleError(EError.URL_PARAMS_CORRUPT, undefined, errAttributes);
+      UbirchFormUtils.handleError(EError.URL_PARAMS_CORRUPT, undefined, errAttributes);
     }
 
     return urlStr;
@@ -70,10 +70,10 @@ export class FormUtils {
     try {
       hash = windowRef.location.hash;
     } catch (e) {
-      FormUtils.handleError(EError.LOCATION_MALFORMED);
+      UbirchFormUtils.handleError(EError.LOCATION_MALFORMED);
     }
 
-    return hash ? FormUtils.sanitizeUrlAndQuery(hash.slice(1)) : undefined;
+    return hash ? UbirchFormUtils.sanitizeUrlAndQuery(hash.slice(1)) : undefined;
   };
 
   static handleQuery = (windowRef: Window): string | undefined => {
@@ -81,10 +81,10 @@ export class FormUtils {
     try {
       query = windowRef.location.search;
     } catch (e) {
-      FormUtils.handleError(EError.LOCATION_MALFORMED);
+      UbirchFormUtils.handleError(EError.LOCATION_MALFORMED);
     }
 
-    return query.length > 0 ? FormUtils.sanitizeUrlAndQuery(query.substr(1)) : undefined;
+    return query.length > 0 ? UbirchFormUtils.sanitizeUrlAndQuery(query.substr(1)) : undefined;
   };
 
   private static handleUrlParamValue(val: string, arraySeparator: string): string[] | string {
@@ -96,7 +96,7 @@ export class FormUtils {
         return decodeURIComponent(val);
       }
     } catch (e) {
-      FormUtils.handleError(EError.URL_PARAMS_CORRUPT);
+      UbirchFormUtils.handleError(EError.URL_PARAMS_CORRUPT);
     }
   }
 
@@ -106,7 +106,7 @@ export class FormUtils {
 
       const data = dataset.split('=');
 
-      return [data[0], FormUtils.handleUrlParamValue(data[1], arraySeparator)];
+      return [data[0], UbirchFormUtils.handleUrlParamValue(data[1], arraySeparator)];
     };
 
     if (!paramsString) return {};
@@ -123,8 +123,8 @@ export class FormUtils {
     windowRef: Window,
     separator: string
   ): DataParams => {
-    return FormUtils.parseParams(
-      FormUtils.handleFragment(windowRef) || FormUtils.handleQuery(windowRef),
+    return UbirchFormUtils.parseParams(
+      UbirchFormUtils.handleFragment(windowRef) || UbirchFormUtils.handleQuery(windowRef),
       separator
     );
   };
@@ -169,4 +169,4 @@ export class FormUtils {
   }
 }
 
-window['FormUtils'] = FormUtils;
+window['UbirchFormUtils'] = UbirchFormUtils;
