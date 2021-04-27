@@ -8,6 +8,7 @@ import {
   IUbirchBlockchain,
   IUbirchBlockchainNet,
   IUbirchVerificationAnchorProperties,
+  IUbirchVerificationResult,
 } from '../models/models';
 import { initTranslation } from '../utils/i18n';
 import environment from '../environment';
@@ -26,6 +27,46 @@ export interface IUbirchVerificationWidgetConfig {
 }
 
 initTranslation({ de, en });
+
+export class $UbirchVerificationWidget {
+  private host: HTMLElement;
+  private sealInfoText: HTMLElement;
+  private sealOutput: HTMLElement;
+  private resultOutput: HTMLElement;
+  private errorOutput: HTMLElement;
+  public verificationResult: IUbirchVerificationResult | null;
+
+  constructor(
+    private hostSelector: string,
+    initialVerificationResult?: IUbirchVerificationResult,
+    public openConsoleInSameTarget?: boolean
+  ) {
+    const host = document.querySelector(this.hostSelector);
+    if (!host) throw new Error(EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND);
+    this.verificationResult = initialVerificationResult || null;
+    this.host = host as HTMLElement;
+    this.display();
+  }
+
+  private display(): void {
+    this.host.insertAdjacentHTML('beforeend', this.template);
+    this.sealOutput = this.host.querySelector('.ubirch');
+    this.sealInfoText = this.host.querySelector(WidgetClassNameSuffixes.InfoText);
+    this.sealOutput = this.host.querySelector(WidgetClassNameSuffixes.SealOutput);
+    this.resultOutput = this.host.querySelector(WidgetClassNameSuffixes.ResultOutput);
+    this.errorOutput = this.host.querySelector(WidgetClassNameSuffixes.ErrorOutput);
+    if (this.verificationResult) {
+      
+    }
+  }
+
+  private get template(): string {
+    return Object.values(WidgetClassNameSuffixes).reduce((template: string, val: string) => {
+      template += `<div class="ubirch-${val}"></div>`;
+      return template;
+    }, '');
+  }
+}
 
 export class UbirchVerificationWidget {
   private host: HTMLElement;
@@ -219,7 +260,7 @@ export class UbirchVerificationWidget {
     return imgTag;
   }
 
-  private highlightPage(successful: boolean) {
+  private highlightPage(successful: boolean): void {
     if (this.highlightPageAfterVerification) {
       const highlightClass = successful ? 'flashgreen' : 'flashred';
       const mainElement = document.getElementsByTagName('main')[0];
