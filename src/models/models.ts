@@ -47,10 +47,10 @@ export enum EError {
   // VERIFICATION_FAILED = 'VERIFICATION_FAILED',
   // VERIFICATION_CURRENTLY_UNAVAILABLE = 'VERIFICATION_CURRENTLY_UNAVAILABLE',
   VERIFICATION_UNAVAILABLE = 'VERIFICATION_UNAVAILABLE',
-  // URL_PARAMS_CORRUPT = 'URL_PARAMS_CORRUPT',
-  // LOCATION_MALFORMED = 'LOCATION_MALFORMED',
+  URL_PARAMS_CORRUPT = 'URL_PARAMS_CORRUPT',
+  LOCATION_MALFORMED = 'LOCATION_MALFORMED',
   // MANDATORY_FIELD_MISSING = 'MANDATORY_FIELD_MISSING',
-  // FILLING_FORM_WITH_PARAMS_FAILED = 'FILLING_FORM_WITH_PARAMS_FAILED',
+  FILLING_FORM_WITH_PARAMS_FAILED = 'FILLING_FORM_WITH_PARAMS_FAILED',
   JSON_PARSE_FAILED = 'JSON_PARSE_FAILED',
   JSON_MALFORMED = 'JSON_MALFORMED',
   // CANNOT_ACCESS_FORM_FIELD = 'CANNOT_ACCESS_FORM_FIELD',
@@ -76,6 +76,11 @@ export interface IUbirchVerificationConfig {
   stage?: EStages;
   language?: ELanguages;
   debug?: boolean;
+}
+
+export interface IUbirchFormUtilsConfig {
+  formIds: string[];
+  paramsFormIdsMapping?: string[];
 }
 
 export interface IUbirchStagesURLs {
@@ -172,3 +177,4 @@ export interface IUbirchVerificationAnchorProperties {
   timestamp: string;
   txid: string;
 }
+export type DataParams = { [index: string]: string };
