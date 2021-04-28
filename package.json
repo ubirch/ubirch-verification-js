@@ -1,8 +1,11 @@
 {
   "name": "@ubirch/ubirch-verification-js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "JavaScript package to verify that data has been anchored in blockchains through the ubirch system",
-  "main": "ubirch-verification.min.js",
+  "main": "index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "jest",
     "serve:local": "webpack serve --env STAGE=local --config config/webpack.config.ts",
