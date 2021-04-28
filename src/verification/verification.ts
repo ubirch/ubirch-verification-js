@@ -5,7 +5,7 @@ import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.js
 import * as de from '../assets/i18n/de.json';
 import * as en from '../assets/i18n/en.json';
 import environment from '../environment';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { infoSubject } from '../info';
 import {
   EError,
   EHashAlgorithms,
@@ -53,14 +53,6 @@ export class UbirchVerification {
     this.debug = config.debug !== undefined ? config.debug : this.debug;
   }
 
-  private watcherSubject = new BehaviorSubject<IUbirchError | IUbirchInfo>(null);
-  protected infoAndErrorWatcher$: Observable<
-    IUbirchError | IUbirchInfo
-  > = this.watcherSubject.asObservable();
-
-  public watchInfosAndErrors(): Observable<IUbirchError | IUbirchInfo> {
-    return this.infoAndErrorWatcher$;
-  }
   public createHash(json: string, hashAlgorithm: EHashAlgorithms = this.algorithm): string {
     let transIdAB: ArrayBuffer;
     const formatedJson = this.formatJSON(json);
@@ -373,7 +365,7 @@ export class UbirchVerification {
   }
 
   protected log(logInfo: IUbirchInfo | IUbirchError): void {
-    this.watcherSubject.next(logInfo);
+    infoSubject.next(logInfo);
   }
 }
 

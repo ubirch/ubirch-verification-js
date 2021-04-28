@@ -1,5 +1,6 @@
 import i18n from 'i18next';
 import { EError, IUbirchError, IUbirchFormUtilsConfig, DataParams } from '../models/models';
+import { infoSubject } from '../info';
 
 const DEFAULT_CONFIG: IUbirchFormUtilsConfig = {
   formIds: ['created', 'name', 'workshop'],
@@ -26,9 +27,9 @@ export class UbirchFormUtils {
     }
   }
 
-  static log = (errorStr: IUbirchError): void => {
-    console.log(JSON.stringify(errorStr));
-  };
+  static log(logInfo: IUbirchError): void {
+    infoSubject.next(logInfo);
+  }
 
   static handleError = (
     errorCode: EError,
