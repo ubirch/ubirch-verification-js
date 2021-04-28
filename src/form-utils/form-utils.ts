@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import { EError, IUbirchError, IUbirchFormUtilsConfig, DataParams } from '../models/models';
+import { EError, IUbirchMessage, IUbirchFormUtilsConfig, DataParams } from '../models/models';
 
 const DEFAULT_CONFIG: IUbirchFormUtilsConfig = {
   formIds: ['created', 'name', 'workshop'],
@@ -26,7 +26,7 @@ export class UbirchFormUtils {
     }
   }
 
-  static log = (errorStr: IUbirchError): void => {
+  static log = (errorStr: IUbirchMessage): void => {
     console.log(JSON.stringify(errorStr));
   };
 
@@ -37,7 +37,7 @@ export class UbirchFormUtils {
   ): void => {
     const errorMsg: string = i18n.t(errorCode);
 
-    const err: IUbirchError = {
+    const err: IUbirchMessage = {
       message: errorMsg,
       code: errorCode,
       ...additionalErrorAttributes,
@@ -157,7 +157,7 @@ export class UbirchFormUtils {
         }
       });
     } catch (e) {
-      const err: IUbirchError = {
+      const err: IUbirchMessage = {
         message: e.message,
         code: EError.FILLING_FORM_WITH_PARAMS_FAILED,
       };
