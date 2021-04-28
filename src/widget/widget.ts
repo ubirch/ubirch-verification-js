@@ -8,9 +8,8 @@ import {
   IUbirchBlockchain,
   IUbirchBlockchainNet,
   IUbirchVerificationAnchorProperties,
-  IUbirchVerificationResult,
 } from '../models/models';
-import { initTranslation } from '../utils/i18n';
+import { initTranslations } from '../utils/translations';
 import environment from '../environment';
 
 export enum WidgetClassNameSuffixes {
@@ -26,7 +25,7 @@ export interface IUbirchVerificationWidgetConfig {
   openConsoleInSameTarget?: boolean;
 }
 
-initTranslation({ de, en });
+initTranslations({ de, en });
 
 export class UbirchVerificationWidget {
   private host: HTMLElement;
