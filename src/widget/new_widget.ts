@@ -1,8 +1,12 @@
+import { Observable } from 'rxjs';
+import classnames from 'classnames';
 import {
   EError,
   ELanguages,
+  EMessageType,
   EVerificationState,
   IUbirchVerificationResult,
+  UbirchMessage,
 } from '../models/models';
 import { initTranslations } from '../utils/translations';
 import * as de from '../assets/i18n/widget/de.json';
@@ -24,6 +28,7 @@ export interface IUbirchVerificationWidgetConfig {
   hostSelector: string;
   language?: ELanguages;
   openConsoleInSameTarget?: boolean;
+  messenger: Observable<UbirchMessage>;
   initialVerificationResult?: IUbirchVerificationResult;
 }
 
@@ -35,23 +40,45 @@ export class UbirchVerificationWidget {
     const host = document.querySelector(config.hostSelector);
     if (!host) throw new Error(EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND);
     this.host = host as HTMLElement;
-    this.update(config.initialVerificationResult);
+    config.messenger.subscribe(this.render);
   }
 
-  public update(verificationResult?: IUbirchVerificationResult) {
-    this.verificationResult = verificationResult;
-    this.renderTemplate();
-  }
-
-  private renderTemplate(): void {
+  private render(message: UbirchMessage): void {
     this.host.innerHTML = '';
+    const headlineClassList = this.getClassName(styles.container__verification_headline, message);
     this.host.insertAdjacentHTML(
       'beforeend',
-      `<div class="${styles['ubirch-info-text']}">${this.getHeadlineInfoText()}</div>
-        <div class="${styles['ubirch-seal-output']}"></div>
-        <div class="${styles['ubirch-result-output']}"></div>
-        <div class="${styles['ubirch-error-output']}">${this.getErrorOutput()}</div>`
+      `<div class="${styles.container}">
+        <header class="${styles.container__row}">
+          <h1 class="${headlineClassList}">${message.message}</h1>
+        </header>
+        <div class="${styles.container__row}">
+          <div class="${styles.container__seal_output}"></div>
+        <div>
+        <div class="${styles.container__row}">
+          <div class="${styles.container__result_output}"></div>
+        </div>
+        <div class="${styles.container__row}">
+          <p class="${styles.container__error_output}"></p>
+        </div>
+      </div>`
     );
+  }
+
+  private getClassName(rootClassName: string, message: UbirchMessage): string {
+    return classnames(rootClassName, {
+      [styles.container__verification_info]:
+        message.type === EMessageType.INFO ||
+        (message.type === EMessageType.VERIFICATION_STATE &&
+          message.result?.verificationState === EVerificationState.VERIFICATION_PENDING),
+      [styles.container__verification_success]:
+        message.type === EMessageType.VERIFICATION_STATE &&
+        message.result?.verificationState === EVerificationState.VERIFICATION_SUCCESSFUL,
+      [styles.container__verification_fail]:
+        message.type === EMessageType.ERROR ||
+        (message.type === EMessageType.VERIFICATION_STATE &&
+          message.result?.verificationState === EVerificationState.VERIFICATION_FAILED),
+    });
   }
 
   private getErrorOutput(): string {
@@ -64,8 +91,8 @@ export class UbirchVerificationWidget {
     return '';
   }
 
-  private getHeadlineInfoText(): string {
-    let classNames = 'ubirch-verification-info';
+  private getHeadlineInfoText(type: EMessageType, msg: string): string {
+    let classNames = styles['ubirch-verification-info'];
     let tKey = 'PENDING.info';
     if (this.verificationResult) {
       switch (this.verificationResult.verificationState) {

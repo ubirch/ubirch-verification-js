@@ -1,32 +1,31 @@
-.ubirch-info-text {
+.container {
+  width: 100%;
   display: flex;
   flex-direction: column;
-}
 
-.ubirch-seal-output {
-  display: flex;
-}
+  &__row {
+    width: 100%;
+  }
 
-.ubirch-result-output {
-  display: flex;
-}
+  &__seal_output,
+  &__result_output,
+  &__error_output {
+    display: flex;
+  }
 
-.ubirch-error-output {
-  display: flex;
-}
+  &__verification_headline {
+    color: black;
+  }
 
-.ubirch-verification-success {
-  color: green;
-}
+  .__verification_success {
+    color: green;
+  }
 
-.ubirch-verification-headline {
-  color: black;
-}
+  .__verification_fail {
+    color: red;
+  }
 
-.ubirch-verification-fail {
-  color: red;
-}
-
-.ubirch-verification-info {
-  color: black;
+  .__ubirch-verification-info {
+    color: black;
+  }
 }
