@@ -59,7 +59,7 @@ export class UbirchVerificationWidget {
       this.verificationResult &&
       this.verificationResult.verificationState === EVerificationState.VERIFICATION_FAILED
     ) {
-      return `<span class="ubirch-error-output">Error msg TBD</span>`;
+      return `<span class="${styles['ubirch-error-output']}">Error msg TBD</span>`;
     }
     return '';
   }
