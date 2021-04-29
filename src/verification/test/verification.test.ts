@@ -6,14 +6,15 @@ import {
   EStages,
   EUppStates,
   EVerificationState,
+  EMessageType,
+  UbirchMessage,
   IUbirchBlockchainAnchor,
   IUbirchError,
-  IUbirchInfo,
   IUbirchVerificationConfig,
   IUbirchVerificationResult,
 } from '../../models/models';
 import { UbirchVerification } from '../verification';
-import { infoSubject } from '../../info';
+import { messageSubject$ } from '../../messenger';
 
 const defaultSettings: IUbirchVerificationConfig = {
   algorithm: EHashAlgorithms.SHA256,
@@ -131,6 +132,7 @@ describe('Verification', () => {
 
     test('should handle error if CERTIFICATE_ID_CANNOT_BE_FOUND', () => {
       const error: IUbirchError = {
+        type: EMessageType.ERROR,
         code: EError.CERTIFICATE_ID_CANNOT_BE_FOUND,
         message: 'message for CERTIFICATE_ID_CANNOT_BE_FOUND',
       };
@@ -207,10 +209,10 @@ describe('Verification', () => {
         EVerificationState.VERIFICATION_SUCCESSFUL,
       ];
 
-      infoSubject.next(null);
-      infoSubject.subscribe((info: IUbirchError | IUbirchInfo) => {
-        if (info !== null) {
-          expect(info.code).toEqual(infoChain[infoCounter]);
+      messageSubject$.next(null);
+      messageSubject$.subscribe((message: UbirchMessage) => {
+        if (message !== null) {
+          expect(message.code).toEqual(infoChain[infoCounter]);
           infoCounter++;
         }
       });

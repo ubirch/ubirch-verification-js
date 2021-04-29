@@ -5,7 +5,7 @@ import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.js
 import * as de from '../assets/i18n/de.json';
 import * as en from '../assets/i18n/en.json';
 import environment from '../environment';
-import { infoSubject } from '../info';
+import { messageSubject$ } from '../messenger';
 import {
   EError,
   EHashAlgorithms,
@@ -14,6 +14,7 @@ import {
   EStages,
   EUppStates,
   EVerificationState,
+  EMessageType,
   IUbirchBlockchain,
   IUbirchBlockchainAnchor,
   IUbirchBlockchainAnchorProperties,
@@ -127,22 +128,25 @@ export class UbirchVerification {
 
               this.handleInfo(EInfo.NO_BLXTX_FOUND);
             }
-
-            this.handleVerificationState(verificationResult);
           } catch (err) {
             verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
             if (err.code) {
               verificationResult.failReason = err.code;
             }
+
+            this.handleVerificationState(verificationResult.verificationState, verificationResult);
             reject(verificationResult);
           }
 
+          this.handleVerificationState(verificationResult.verificationState, verificationResult);
           resolve(verificationResult);
         })
         .catch((err) => {
           verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
 
           verificationResult.failReason = err.code || EError.UNKNOWN_ERROR;
+
+          this.handleVerificationState(verificationResult.verificationState, verificationResult);
           reject(verificationResult);
         });
     });
@@ -157,36 +161,42 @@ export class UbirchVerification {
     }
   }
 
-  protected handleError(errorCode: EError): void {
-    const errorMsg: string = i18n.t(errorCode);
+  protected handleError(code: EError): void {
+    const errorMsg: string = i18n.t(code);
 
     const err: IUbirchError = {
+      type: EMessageType.ERROR,
       message: errorMsg,
-      code: errorCode,
+      code,
     };
 
     this.log(err);
     throw err;
   }
 
-  protected handleInfo(infoCode: EInfo): void {
-    const infoMsg: string = i18n.t(infoCode);
+  protected handleInfo(code: EInfo): void {
+    const infoMsg: string = i18n.t(code);
 
     const info: IUbirchInfo = {
+      type: EMessageType.INFO,
       message: infoMsg,
-      code: infoCode,
+      code,
     };
 
     this.log(info);
   }
 
-  protected handleVerificationState(verificationResult?: IUbirchVerificationResult): void {
-    const infoMsg: string = i18n.t(verificationResult.verificationState);
+  protected handleVerificationState(
+    code: EVerificationState,
+    result?: IUbirchVerificationResult
+  ): void {
+    const infoMsg: string = i18n.t(code);
 
     const info: IUbirchVerificationState = {
+      type: EMessageType.VERIFICATION_STATE,
       message: infoMsg,
-      code: verificationResult.verificationState,
-      result: verificationResult,
+      code,
+      result,
     };
 
     this.log(info);
@@ -378,7 +388,7 @@ export class UbirchVerification {
   }
 
   protected log(logInfo: UbirchMessage): void {
-    infoSubject.next(logInfo);
+    messageSubject$.next(logInfo);
   }
 }
 

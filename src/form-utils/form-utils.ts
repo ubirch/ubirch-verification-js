@@ -1,13 +1,14 @@
 import i18n from 'i18next';
 import {
   EError,
+  EMessageType,
   IUbirchFormUtilsConfig,
   IUbirchError,
   IUbirchErrorDetails,
   UbirchMessage,
   DataParams,
 } from '../models/models';
-import { infoSubject } from '../info';
+import { messageSubject$ } from '../messenger';
 
 const DEFAULT_CONFIG: IUbirchFormUtilsConfig = {
   formIds: ['created', 'name', 'workshop'],
@@ -35,15 +36,16 @@ export class UbirchFormUtils {
   }
 
   static log(logInfo: UbirchMessage): void {
-    infoSubject.next(logInfo);
+    messageSubject$.next(logInfo);
   }
 
-  static handleError = (errorCode: EError, errorDetails?: IUbirchErrorDetails): void => {
-    const errorMsg: string = i18n.t(errorCode);
+  static handleError = (code: EError, errorDetails?: IUbirchErrorDetails): void => {
+    const errorMsg: string = i18n.t(code);
 
     const err: IUbirchError = {
+      type: EMessageType.ERROR,
       message: errorMsg,
-      code: errorCode,
+      code,
       errorDetails,
     };
 

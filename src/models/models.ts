@@ -64,23 +64,32 @@ export enum EError {
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
 
+export enum EMessageType {
+  INFO = 'info',
+  ERROR = 'error',
+  VERIFICATION_STATE = 'verification-state',
+}
+
 export interface IUbirchErrorDetails {
   errorMessage?: string;
   notAllowedChars?: string[];
 }
 
 export interface IUbirchInfo {
+  type: EMessageType.INFO,
   message: string;
   code: EInfo;
 }
 
 export interface IUbirchError {
+  type: EMessageType.ERROR,
   message: string;
-  code: EError | EInfo | EVerificationState;
+  code: EError;
   errorDetails?: IUbirchErrorDetails;
 }
 
 export interface IUbirchVerificationState {
+  type: EMessageType.VERIFICATION_STATE,
   message: string;
   code: EVerificationState;
   result?: IUbirchVerificationResult;

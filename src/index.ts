@@ -1,6 +1,6 @@
 import UbirchVerification from './verification';
 import UbirchFormUtils from './form-utils';
 import * as models from './models/models';
-import { infoWatcher$ } from './info';
+import { messenger$ } from './messenger';
 
-export { UbirchVerification, UbirchFormUtils, models, infoWatcher$ };
+export { UbirchVerification, UbirchFormUtils, models, messenger$ };
