@@ -13,6 +13,7 @@ import {
   IUbirchVerificationResult,
 } from '../../models/models';
 import { UbirchVerification } from '../verification';
+import { infoSubject } from '../../info';
 
 const defaultSettings: IUbirchVerificationConfig = {
   algorithm: EHashAlgorithms.SHA256,
@@ -195,7 +196,6 @@ describe('Verification', () => {
 
     test('that watchInfosAndErrors observable is called', (done) => {
       const response: string = JSON.stringify(verifyResult);
-      const watcher$ = verifier.watchInfosAndErrors();
 
       let infoCounter: number = 0;
       const infoChain = [
@@ -207,11 +207,11 @@ describe('Verification', () => {
         EVerificationState.VERIFICATION_SUCCESSFUL,
       ];
 
-      watcher$.subscribe((info: IUbirchError | IUbirchInfo) => {
+      infoSubject.next(null);
+      infoSubject.subscribe((info: IUbirchError | IUbirchInfo) => {
         if (info !== null) {
           expect(info.code).toEqual(infoChain[infoCounter]);
           infoCounter++;
-          done();
         }
       });
 
