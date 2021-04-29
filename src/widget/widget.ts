@@ -3,11 +3,12 @@ import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.js
 import * as de from '../assets/i18n/widget/de.json';
 import * as en from '../assets/i18n/widget/en.json';
 import {
+  EError,
+  ELanguages,
   IUbirchBlockchain,
   IUbirchBlockchainNet,
   IUbirchVerificationAnchorProperties,
-} from '../models/types';
-import { EError, ELanguages } from '../models/enums';
+} from '../models/models';
 import { initTranslations } from '../utils/translations';
 import environment from '../environment';
 

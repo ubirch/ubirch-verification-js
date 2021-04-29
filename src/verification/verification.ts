@@ -7,6 +7,13 @@ import * as en from '../assets/i18n/verification/en.json';
 import environment from '../environment';
 import { BehaviorSubject, Observable } from 'rxjs';
 import {
+  EError,
+  EHashAlgorithms,
+  EInfo,
+  ELanguages,
+  EStages,
+  EUppStates,
+  EVerificationState,
   IUbirchBlockchain,
   IUbirchBlockchainAnchor,
   IUbirchBlockchainAnchorProperties,
@@ -16,16 +23,7 @@ import {
   IUbirchVerificationConfig,
   IUbirchVerificationResponse,
   IUbirchVerificationResult,
-} from '../models/types';
-import {
-  EError,
-  EHashAlgorithms,
-  EInfo,
-  ELanguages,
-  EStages,
-  EUppStates,
-  EVerificationState,
-} from '../models/enums';
+} from '../models/models';
 import { initTranslations } from '../utils/translations';
 
 initTranslations({ de, en });

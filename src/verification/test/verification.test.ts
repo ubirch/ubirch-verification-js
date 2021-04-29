@@ -1,18 +1,16 @@
 import * as verifyResult from './verifyresult.json';
 import {
-  IUbirchBlockchainAnchor,
-  IUbirchMessage,
-  IUbirchVerificationConfig,
-  IUbirchVerificationResult,
-} from '../../models/types';
-import {
   EError,
   EHashAlgorithms,
   EInfo,
   EStages,
   EUppStates,
   EVerificationState,
-} from '../../models/enums';
+  IUbirchBlockchainAnchor,
+  IUbirchMessage,
+  IUbirchVerificationConfig,
+  IUbirchVerificationResult,
+} from '../../models/models';
 import { UbirchVerification } from '../verification';
 
 const defaultSettings: IUbirchVerificationConfig = {

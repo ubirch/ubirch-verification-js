@@ -1,5 +1,5 @@
 import i18n, { TFunction } from 'i18next';
-import { ELanguages } from '../models/enums';
+import { ELanguages } from '../models/models';
 
 export interface Translations {
   [key: string]: string | { [key: string]: string };

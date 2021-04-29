@@ -1,6 +1,5 @@
 import i18n from 'i18next';
-import { IUbirchMessage, IUbirchFormUtilsConfig, DataParams } from '../models/types';
-import { EError } from '../models/enums';
+import { EError, IUbirchMessage, IUbirchFormUtilsConfig, DataParams } from '../models/models';
 
 const DEFAULT_CONFIG: IUbirchFormUtilsConfig = {
   formIds: ['created', 'name', 'workshop'],
