@@ -9,6 +9,7 @@ import * as de from '../assets/i18n/widget/de.json';
 import * as en from '../assets/i18n/widget/en.json';
 import environment from '../environment';
 import i18next from 'i18next';
+import styles from './widget.module.scss';
 
 initTranslations({ en, de });
 
@@ -46,10 +47,10 @@ export class UbirchVerificationWidget {
     this.host.innerHTML = '';
     this.host.insertAdjacentHTML(
       'beforeend',
-      `<div class="ubirch-${WidgetClassNameSuffixes.InfoText}">${this.getHeadlineInfoText()}</div>
-        <div class="ubirch-${WidgetClassNameSuffixes.SealOutput}"></div>
-        <div class="ubirch-${WidgetClassNameSuffixes.ResultOutput}"></div>
-        <div class="ubirch-${WidgetClassNameSuffixes.ErrorOutput}">${this.getErrorOutput()}</div>`
+      `<div class="${styles['ubirch-info-text']}">${this.getHeadlineInfoText()}</div>
+        <div class="${styles['ubirch-seal-output']}"></div>
+        <div class="${styles['ubirch-result-output']}"></div>
+        <div class="${styles['ubirch-error-output']}">${this.getErrorOutput()}</div>`
     );
   }
 

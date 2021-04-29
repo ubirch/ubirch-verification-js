@@ -10,10 +10,14 @@
     "declarationDir": "dist",
     "rootDir": "src"
   },
+  "include": [
+    "src",
+    "typings"
+  ],
   "exclude": [
     "node_modules",
     "config",
     "src/**/*.test.ts",
     "dist"
-  ]
+  ],
 }
