@@ -6,12 +6,15 @@ import {
   EStages,
   EUppStates,
   EVerificationState,
+  EMessageType,
+  UbirchMessage,
   IUbirchBlockchainAnchor,
-  IUbirchMessage,
+  IUbirchError,
   IUbirchVerificationConfig,
   IUbirchVerificationResult,
 } from '../../models/models';
 import { UbirchVerification } from '../verification';
+import { messageSubject$ } from '../../messenger';
 
 const defaultSettings: IUbirchVerificationConfig = {
   algorithm: EHashAlgorithms.SHA256,
@@ -128,7 +131,8 @@ describe('Verification', () => {
     });
 
     test('should handle error if CERTIFICATE_ID_CANNOT_BE_FOUND', () => {
-      const error: IUbirchMessage = {
+      const error: IUbirchError = {
+        type: EMessageType.ERROR,
         code: EError.CERTIFICATE_ID_CANNOT_BE_FOUND,
         message: 'message for CERTIFICATE_ID_CANNOT_BE_FOUND',
       };
@@ -194,7 +198,6 @@ describe('Verification', () => {
 
     test('that watchInfosAndErrors observable is called', (done) => {
       const response: string = JSON.stringify(verifyResult);
-      const watcher$ = verifier.watchInfosAndErrors();
 
       let infoCounter: number = 0;
       const infoChain = [
@@ -206,11 +209,11 @@ describe('Verification', () => {
         EVerificationState.VERIFICATION_SUCCESSFUL,
       ];
 
-      watcher$.subscribe((info: IUbirchMessage | IUbirchMessage) => {
-        if (info !== null) {
-          expect(info.code).toEqual(infoChain[infoCounter]);
+      messageSubject$.next(null);
+      messageSubject$.subscribe((message: UbirchMessage) => {
+        if (message !== null) {
+          expect(message.code).toEqual(infoChain[infoCounter]);
           infoCounter++;
-          done();
         }
       });
 
