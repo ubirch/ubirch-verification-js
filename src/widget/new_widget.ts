@@ -45,6 +45,7 @@ export class UbirchVerificationWidget {
   }
 
   private renderTemplate(): void {
+    this.host.innerHTML = '';
     this.host.insertAdjacentHTML(
       'beforeend',
       `<div class="ubirch-${WidgetClassNameSuffixes.InfoText}">${this.getHeadlineInfoText()}</div>
