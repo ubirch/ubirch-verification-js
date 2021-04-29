@@ -5,13 +5,12 @@ import {
   ELanguages,
   EMessageType,
   EVerificationState,
-  IUbirchVerificationResult,
   UbirchMessage,
 } from '../models/models';
 import { initTranslations } from '../utils/translations';
 import * as de from '../assets/i18n/widget/de.json';
 import * as en from '../assets/i18n/widget/en.json';
-import environment from '../environment';
+// import environment from '../environment';
 import i18next from 'i18next';
 import styles from './widget.module.scss';
 
@@ -29,12 +28,10 @@ export interface IUbirchVerificationWidgetConfig {
   language?: ELanguages;
   openConsoleInSameTarget?: boolean;
   messenger: Observable<UbirchMessage>;
-  initialVerificationResult?: IUbirchVerificationResult;
 }
 
 export class UbirchVerificationWidget {
   private host: HTMLElement;
-  private verificationResult: IUbirchVerificationResult;
 
   constructor(config: IUbirchVerificationWidgetConfig) {
     const host = document.querySelector(config.hostSelector);
@@ -50,7 +47,9 @@ export class UbirchVerificationWidget {
       'beforeend',
       `<div class="${styles.container}">
         <header class="${styles.container__row}">
-          <h1 class="${headlineClassList}">${message.message}</h1>
+          <h1 class="${headlineClassList}">
+            ${this.getHeadlineText(message)}
+          </h1>
         </header>
         <div class="${styles.container__row}">
           <div class="${styles.container__seal_output}"></div>
@@ -59,7 +58,7 @@ export class UbirchVerificationWidget {
           <div class="${styles.container__result_output}"></div>
         </div>
         <div class="${styles.container__row}">
-          <p class="${styles.container__error_output}"></p>
+          ${this.getErrorOutput(message)}
         </div>
       </div>`
     );
@@ -81,37 +80,36 @@ export class UbirchVerificationWidget {
     });
   }
 
-  private getErrorOutput(): string {
+  private getErrorOutput(message: UbirchMessage): string {
     if (
-      this.verificationResult &&
-      this.verificationResult.verificationState === EVerificationState.VERIFICATION_FAILED
+      message.type === EMessageType.ERROR ||
+      (message.type === EMessageType.VERIFICATION_STATE &&
+        message.result.verificationState === EVerificationState.VERIFICATION_FAILED)
     ) {
-      return `<span class="${styles['ubirch-error-output']}">Error msg TBD</span>`;
+      return ` <p class="${styles.container__error_output}">${message.message}</p>`;
     }
     return '';
   }
 
-  private getHeadlineInfoText(type: EMessageType, msg: string): string {
-    let classNames = styles['ubirch-verification-info'];
-    let tKey = 'PENDING.info';
-    if (this.verificationResult) {
-      switch (this.verificationResult.verificationState) {
-        case EVerificationState.VERIFICATION_SUCCESSFUL:
-        case EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL:
-          classNames = `${styles['ubirch-verification-success']} ${styles['ubirch-verification-headline']}`;
-          tKey = 'SUCCESS.headline';
-          break;
-        case EVerificationState.VERIFICATION_FAILED:
-          classNames = styles['ubirch-verification-fail'];
-          tKey = 'FAIL.info';
-          break;
-        case EVerificationState.VERIFICATION_PENDING:
-        default:
-          classNames = styles['ubirch-verification-info'];
-          tKey = 'PENDING.info';
-          break;
-      }
+  private getHeadlineText(message: UbirchMessage): string {
+    switch (message.type) {
+      case EMessageType.INFO:
+      case EMessageType.ERROR:
+        return message.message;
+      case EMessageType.VERIFICATION_STATE:
+        switch (message.result.verificationState) {
+          case EVerificationState.VERIFICATION_FAILED:
+            return i18next.t('FAIL.info');
+          case EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL:
+          case EVerificationState.VERIFICATION_SUCCESSFUL:
+            return i18next.t('SUCCESS.headline');
+          case EVerificationState.VERIFICATION_PENDING:
+            return i18next.t('PENDING.info');
+          default:
+            return '';
+        }
+      default:
+        return '';
     }
-    return `<span class="${classNames}">${i18next.t(tKey)}</span>`;
   }
 }
