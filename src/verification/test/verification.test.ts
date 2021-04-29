@@ -42,6 +42,14 @@ beforeEach(() => {
 });
 
 describe('Verification', () => {
+  describe('constructor', () => {
+    test("should throw an error if access token isn't specified", () => {
+      expect(
+        () => new UbirchVerificationMock({ ...defaultSettings, accessToken: undefined })
+      ).toThrow('You need to provide an accessToken to verify data');
+    });
+  });
+
   describe('formatJSON', () => {
     test('should simply sort JSON params', () => {
       const jsonString = '{"b":"2","a":"1"}';
@@ -127,6 +135,40 @@ describe('Verification', () => {
             EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL
           );
           expect(response.failReason).toBeUndefined();
+        });
+    });
+
+    test('should throw an error if the json is empty', () => {
+      const responseJSON: string = '';
+      const errorCode = EError.VERIFICATION_FAILED_EMPTY_RESPONSE;
+
+      jest
+        .spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
+        .mockImplementation((_) => Promise.resolve(responseJSON));
+
+      return verifier
+        .verifyHash(testhash_verifiable)
+        .catch((errResponse: IUbirchVerificationResult) => {
+          expect(errResponse).toBeDefined();
+          expect(errResponse.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
+          expect(errResponse.failReason).toBe(errorCode);
+        });
+    });
+
+    test('should throw an error if the json is malformed', () => {
+      const responseJSON: string = 'not-a-json';
+      const errorCode = EError.JSON_PARSE_FAILED;
+
+      jest
+        .spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
+        .mockImplementation((_) => Promise.resolve(responseJSON));
+
+      return verifier
+        .verifyHash(testhash_verifiable)
+        .catch((errResponse: IUbirchVerificationResult) => {
+          expect(errResponse).toBeDefined();
+          expect(errResponse.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
+          expect(errResponse.failReason).toBe(errorCode);
         });
     });
 

@@ -41,10 +41,6 @@ export class UbirchVerification {
   private language?: ELanguages = ELanguages.en;
   private debug?: boolean = false;
 
-  static createInstance(config: IUbirchVerificationConfig): UbirchVerification {
-    return new UbirchVerification(config);
-  }
-
   constructor(config: IUbirchVerificationConfig) {
     if (!config.accessToken) {
       this.handleError(EError.MISSING_ACCESS_TOKEN);
@@ -98,16 +94,11 @@ export class UbirchVerification {
 
             const ubirchUpp: IUbirchUpp = this.extractUpp(verificationResponse);
 
-            if (ubirchUpp) {
-              verificationResult.upp = ubirchUpp;
-              verificationResult.verificationState =
-                EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+            verificationResult.upp = ubirchUpp;
+            verificationResult.verificationState =
+              EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
 
-              this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
-            } else {
-              // should never reach this block....
-              this.handleError(EError.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE);
-            }
+            this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
 
             // TODO: check that upp contains given hash
             // TODO: check signature, ...
@@ -256,7 +247,6 @@ export class UbirchVerification {
   protected parseJSONResponse(result: string): IUbirchVerificationResponse {
     if (!result) {
       this.handleError(EError.VERIFICATION_FAILED_EMPTY_RESPONSE);
-      return;
     }
 
     let resultObj: IUbirchVerificationResponse;
@@ -267,10 +257,6 @@ export class UbirchVerification {
       this.handleError(EError.JSON_PARSE_FAILED);
     }
 
-    if (!resultObj) {
-      this.handleError(EError.VERIFICATION_FAILED_EMPTY_RESPONSE);
-      return;
-    }
     return resultObj;
   }
 
@@ -291,7 +277,6 @@ export class UbirchVerification {
 
     if (!resultObj.upp || !resultObj.upp.length) {
       this.handleError(EError.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE);
-      return;
     }
 
     const ubirchUpp: IUbirchUpp = {
