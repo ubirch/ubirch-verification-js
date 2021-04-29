@@ -1,6 +1,7 @@
 import UbirchVerification from './verification';
 import UbirchVerificationWidget from './widget';
 import UbirchFormUtils from './form-utils';
-import * as models from './models/models';
+import * as types from './models/types';
+import * as enums from './models/enums';
 
-export { UbirchVerification, UbirchVerificationWidget, UbirchFormUtils, models };
+export { UbirchVerification, UbirchVerificationWidget, UbirchFormUtils, types, enums };

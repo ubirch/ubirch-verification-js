@@ -1,9 +1,11 @@
 import {
+  IUbirchVerificationResult,
+} from '../models/types';
+import {
   EError,
   ELanguages,
-  EVerificationState,
-  IUbirchVerificationResult,
-} from '../models/models';
+  EVerificationState
+} from '../models/enums';
 import { initTranslations } from '../utils/translations';
 import * as de from '../assets/i18n/widget/de.json';
 import * as en from '../assets/i18n/widget/en.json';
