@@ -18,8 +18,10 @@ import {
   IUbirchBlockchainAnchor,
   IUbirchBlockchainAnchorProperties,
   IUbirchBlockchainAnchorRAW,
-  IUbirchError,
   IUbirchInfo,
+  IUbirchError,
+  IUbirchVerificationState,
+  UbirchMessage,
   IUbirchUpp,
   IUbirchVerificationConfig,
   IUbirchVerificationResponse,
@@ -79,7 +81,7 @@ export class UbirchVerification {
       hash
     );
 
-    this.handleInfo(EInfo.START_VERIFICATION_CALL, hash);
+    this.handleInfo(EInfo.START_VERIFICATION_CALL);
 
     return new Promise((resolve, reject) => {
       this.sendVerificationRequest(hash)
@@ -88,8 +90,7 @@ export class UbirchVerification {
             this.handleInfo(EInfo.START_CHECKING_RESPONSE);
 
             const verificationResponse: IUbirchVerificationResponse = this.parseJSONResponse(
-              response,
-              hash
+              response
             );
 
             this.handleInfo(EInfo.RESPONSE_JSON_PARSED_SUCCESSFUL);
@@ -127,7 +128,7 @@ export class UbirchVerification {
               this.handleInfo(EInfo.NO_BLXTX_FOUND);
             }
 
-            this.handleInfo(verificationResult.verificationState);
+            this.handleVerificationState(verificationResult);
           } catch (err) {
             verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
             if (err.code) {
@@ -156,7 +157,7 @@ export class UbirchVerification {
     }
   }
 
-  protected handleError(errorCode: EError, hash?: string): void {
+  protected handleError(errorCode: EError): void {
     const errorMsg: string = i18n.t(errorCode);
 
     const err: IUbirchError = {
@@ -168,12 +169,24 @@ export class UbirchVerification {
     throw err;
   }
 
-  protected handleInfo(infoCode: EInfo | EVerificationState, hash?: string): void {
+  protected handleInfo(infoCode: EInfo): void {
     const infoMsg: string = i18n.t(infoCode);
 
     const info: IUbirchInfo = {
       message: infoMsg,
       code: infoCode,
+    };
+
+    this.log(info);
+  }
+
+  protected handleVerificationState(verificationResult?: IUbirchVerificationResult): void {
+    const infoMsg: string = i18n.t(verificationResult.verificationState);
+
+    const info: IUbirchVerificationState = {
+      message: infoMsg,
+      code: verificationResult.verificationState,
+      result: verificationResult,
     };
 
     this.log(info);
@@ -230,9 +243,9 @@ export class UbirchVerification {
     });
   }
 
-  protected parseJSONResponse(result: string, hash: string): IUbirchVerificationResponse {
+  protected parseJSONResponse(result: string): IUbirchVerificationResponse {
     if (!result) {
-      this.handleError(EError.VERIFICATION_FAILED_EMPTY_RESPONSE, hash);
+      this.handleError(EError.VERIFICATION_FAILED_EMPTY_RESPONSE);
       return;
     }
 
@@ -245,7 +258,7 @@ export class UbirchVerification {
     }
 
     if (!resultObj) {
-      this.handleError(EError.VERIFICATION_FAILED_EMPTY_RESPONSE, hash);
+      this.handleError(EError.VERIFICATION_FAILED_EMPTY_RESPONSE);
       return;
     }
     return resultObj;
@@ -364,7 +377,7 @@ export class UbirchVerification {
     }
   }
 
-  protected log(logInfo: IUbirchInfo | IUbirchError): void {
+  protected log(logInfo: UbirchMessage): void {
     infoSubject.next(logInfo);
   }
 }

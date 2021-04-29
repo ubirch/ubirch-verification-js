@@ -64,15 +64,29 @@ export enum EError {
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
 
-export interface IUbirchError {
-  message: string;
-  code: EError;
+export interface IUbirchErrorDetails {
+  errorMessage?: string;
+  notAllowedChars?: string[];
 }
 
 export interface IUbirchInfo {
   message: string;
-  code: EInfo | EVerificationState;
+  code: EInfo;
 }
+
+export interface IUbirchError {
+  message: string;
+  code: EError | EInfo | EVerificationState;
+  errorDetails?: IUbirchErrorDetails;
+}
+
+export interface IUbirchVerificationState {
+  message: string;
+  code: EVerificationState;
+  result?: IUbirchVerificationResult;
+}
+
+export type UbirchMessage = IUbirchInfo | IUbirchError | IUbirchVerificationState;
 
 export interface IUbirchVerificationConfig {
   algorithm: EHashAlgorithms;

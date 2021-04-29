@@ -1,5 +1,12 @@
 import i18n from 'i18next';
-import { EError, IUbirchError, IUbirchFormUtilsConfig, DataParams } from '../models/models';
+import {
+  EError,
+  IUbirchFormUtilsConfig,
+  IUbirchError,
+  IUbirchErrorDetails,
+  UbirchMessage,
+  DataParams,
+} from '../models/models';
 import { infoSubject } from '../info';
 
 const DEFAULT_CONFIG: IUbirchFormUtilsConfig = {
@@ -27,21 +34,17 @@ export class UbirchFormUtils {
     }
   }
 
-  static log(logInfo: IUbirchError): void {
+  static log(logInfo: UbirchMessage): void {
     infoSubject.next(logInfo);
   }
 
-  static handleError = (
-    errorCode: EError,
-    hash?: string,
-    additionalErrorAttributes: any = {}
-  ): void => {
+  static handleError = (errorCode: EError, errorDetails?: IUbirchErrorDetails): void => {
     const errorMsg: string = i18n.t(errorCode);
 
     const err: IUbirchError = {
       message: errorMsg,
       code: errorCode,
-      ...additionalErrorAttributes,
+      errorDetails,
     };
 
     UbirchFormUtils.log(err);
@@ -57,10 +60,10 @@ export class UbirchFormUtils {
     );
 
     if (uniqueFoundNotAllowedChars.length > 0) {
-      const errAttributes: any = {
+      const errorDetails: IUbirchErrorDetails = {
         notAllowedChars: uniqueFoundNotAllowedChars,
       };
-      UbirchFormUtils.handleError(EError.URL_PARAMS_CORRUPT, undefined, errAttributes);
+      UbirchFormUtils.handleError(EError.URL_PARAMS_CORRUPT, errorDetails);
     }
 
     return urlStr;
@@ -158,11 +161,9 @@ export class UbirchFormUtils {
         }
       });
     } catch (e) {
-      const err: IUbirchError = {
-        message: e.message,
-        code: EError.FILLING_FORM_WITH_PARAMS_FAILED,
-      };
-      throw err;
+      UbirchFormUtils.handleError(EError.FILLING_FORM_WITH_PARAMS_FAILED, {
+        errorMessage: e.message as string,
+      });
     }
   }
 }
