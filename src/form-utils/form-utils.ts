@@ -1,5 +1,14 @@
 import i18n from 'i18next';
-import { EError, IUbirchError, IUbirchFormUtilsConfig, DataParams } from '../models/models';
+import {
+  EError,
+  EMessageType,
+  IUbirchFormUtilsConfig,
+  IUbirchError,
+  IUbirchErrorDetails,
+  UbirchMessage,
+  DataParams,
+} from '../models/models';
+import { messageSubject$ } from '../messenger';
 
 const DEFAULT_CONFIG: IUbirchFormUtilsConfig = {
   formIds: ['created', 'name', 'workshop'],
@@ -26,21 +35,18 @@ export class UbirchFormUtils {
     }
   }
 
-  static log = (errorStr: IUbirchError): void => {
-    console.log(JSON.stringify(errorStr));
-  };
+  static log(logInfo: UbirchMessage): void {
+    messageSubject$.next(logInfo);
+  }
 
-  static handleError = (
-    errorCode: EError,
-    hash?: string,
-    additionalErrorAttributes: any = {}
-  ): void => {
-    const errorMsg: string = i18n.t(errorCode);
+  static handleError = (code: EError, errorDetails?: IUbirchErrorDetails): void => {
+    const errorMsg: string = i18n.t(code);
 
     const err: IUbirchError = {
+      type: EMessageType.ERROR,
       message: errorMsg,
-      code: errorCode,
-      ...additionalErrorAttributes,
+      code,
+      errorDetails,
     };
 
     UbirchFormUtils.log(err);
@@ -56,10 +62,10 @@ export class UbirchFormUtils {
     );
 
     if (uniqueFoundNotAllowedChars.length > 0) {
-      const errAttributes: any = {
+      const errorDetails: IUbirchErrorDetails = {
         notAllowedChars: uniqueFoundNotAllowedChars,
       };
-      UbirchFormUtils.handleError(EError.URL_PARAMS_CORRUPT, undefined, errAttributes);
+      UbirchFormUtils.handleError(EError.URL_PARAMS_CORRUPT, errorDetails);
     }
 
     return urlStr;
@@ -157,11 +163,9 @@ export class UbirchFormUtils {
         }
       });
     } catch (e) {
-      const err: IUbirchError = {
-        message: e.message,
-        code: EError.FILLING_FORM_WITH_PARAMS_FAILED,
-      };
-      throw err;
+      UbirchFormUtils.handleError(EError.FILLING_FORM_WITH_PARAMS_FAILED, {
+        errorMessage: e.message as string,
+      });
     }
   }
 }
