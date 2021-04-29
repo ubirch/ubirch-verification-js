@@ -55,7 +55,10 @@ export class UbirchVerificationWidget {
   }
 
   private getErrorOutput(): string {
-    if (this.verificationResult && this.verificationResult.verificationState === EVerificationState.VERIFICATION_FAILED) {
+    if (
+      this.verificationResult &&
+      this.verificationResult.verificationState === EVerificationState.VERIFICATION_FAILED
+    ) {
       return `<span class="ubirch-error-output">Error msg TBD</span>`;
     }
     return '';
@@ -68,16 +71,16 @@ export class UbirchVerificationWidget {
       switch (this.verificationResult.verificationState) {
         case EVerificationState.VERIFICATION_SUCCESSFUL:
         case EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL:
-          classNames = 'ubirch-verification-success ubirch-verification-headline';
+          classNames = `${styles['ubirch-verification-success']} ${styles['ubirch-verification-headline']}`;
           tKey = 'SUCCESS.headline';
           break;
         case EVerificationState.VERIFICATION_FAILED:
-          classNames = 'ubirch-verification-fail';
+          classNames = styles['ubirch-verification-fail'];
           tKey = 'FAIL.info';
           break;
         case EVerificationState.VERIFICATION_PENDING:
         default:
-          classNames = 'ubirch-verification-info';
+          classNames = styles['ubirch-verification-info'];
           tKey = 'PENDING.info';
           break;
       }
