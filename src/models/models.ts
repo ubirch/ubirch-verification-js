@@ -102,7 +102,6 @@ export interface IUbirchVerificationConfig {
   accessToken: string;
   stage?: EStages;
   language?: ELanguages;
-  debug?: boolean;
 }
 
 export interface IUbirchFormUtilsConfig {

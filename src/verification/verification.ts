@@ -40,7 +40,6 @@ export class UbirchVerification {
   private algorithm: EHashAlgorithms = EHashAlgorithms.SHA256;
   private accessToken: string;
   private language?: ELanguages = ELanguages.en;
-  private debug?: boolean = false;
 
   constructor(config: IUbirchVerificationConfig) {
     if (!config.accessToken) {
@@ -48,9 +47,8 @@ export class UbirchVerification {
     }
     this.accessToken = config.accessToken;
     this.stage = config.stage || this.stage;
-    this.algorithm = config.algorithm || this.algorithm;
+    this.algorithm = config.algorithm;
     this.language = config.language || this.language;
-    this.debug = config.debug !== undefined ? config.debug : this.debug;
   }
 
   public createHash(json: string, hashAlgorithm: EHashAlgorithms = this.algorithm): string {
@@ -178,10 +176,10 @@ export class UbirchVerification {
     const verificationUrl =
       environment.verify_api_url[this.stage] + '/api' + API_VERSION + environment.verify_api_path;
 
-    const headers = new Headers({
+    const headers = {
       'Content-type': 'text/plain',
       authorization: 'bearer ' + self.accessToken,
-    });
+    };
 
     return fetch(verificationUrl, { headers, method: 'POST', body: hash })
       .catch((err) => {
@@ -257,7 +255,9 @@ export class UbirchVerification {
 
   protected isBloxTXDataDefined(bloxTX: IUbirchBlockchainAnchorRAW): boolean {
     return (
-      bloxTX?.properties?.blockchain?.length > 0 && bloxTX?.properties?.network_type?.length > 0
+      bloxTX.properties &&
+      bloxTX.properties.blockchain?.length > 0 &&
+      bloxTX.properties.network_type?.length > 0
     );
   }
 
@@ -288,7 +288,6 @@ export class UbirchVerification {
     const titleStr: string = bloxTxProps.network_info
       ? bloxTxProps.network_info
       : bloxTxProps.blockchain;
-    const iconUrl: string = bloxTxData.nodeIcon ? bloxTxData.nodeIcon : undefined;
 
     const ubirchBlockchainAnchor: IUbirchBlockchainAnchor = {
       raw: bloxTxProps,
@@ -296,7 +295,7 @@ export class UbirchVerification {
       networkInfo: bloxTxProps.network_info,
       networkType: networkType,
       timestamp: bloxTxProps.timestamp,
-      iconUrl: iconUrl,
+      iconUrl: bloxTxData.nodeIcon,
       blxTxExplorerUrl: blxExplorerUrl,
       label: titleStr,
     };
