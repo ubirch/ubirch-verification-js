@@ -50,20 +50,6 @@ describe('Fill inputs with data', () => {
     expect((document.getElementById('b') as HTMLInputElement).value).toEqual('testB');
     expect((document.getElementById('c') as HTMLInputElement).value).toEqual('');
   });
-  test('should set only available input fields', () => {
-    document.body.innerHTML = `
-    <form>
-      <div id="a"></div>
-      <input id="b"/>
-      <input id="c"/>
-    </form>
-    `;
-    const formUtils = new UbirchFormUtils({ formIds: [] });
-    formUtils.setDataIntoForm({ a: 'testA', b: 'testB' }, document);
-    expect((document.getElementById('a') as HTMLInputElement).value).toBeUndefined();
-    expect((document.getElementById('b') as HTMLInputElement).value).toEqual('testB');
-    expect((document.getElementById('c') as HTMLInputElement).value).toEqual('');
-  });
   test('should set data with array to fields', () => {
     document.body.innerHTML = `
     <form>
@@ -73,9 +59,27 @@ describe('Fill inputs with data', () => {
     </form>
     `;
     const formUtils = new UbirchFormUtils({ formIds: [] });
-    formUtils.setDataIntoForm({ a: 'testA', b: ['testB1', 'testB2'] }, document);
+    formUtils.setDataIntoForm({ a: 'testA', b: ['testB0', 'testB1'] }, document);
     expect((document.getElementById('a') as HTMLInputElement).value).toEqual('testA');
-    expect((document.getElementById('b_0') as HTMLInputElement).value).toEqual('testB1');
-    expect((document.getElementById('b_1') as HTMLInputElement).value).toEqual('testB2');
+    expect((document.getElementById('b_0') as HTMLInputElement).value).toEqual('testB0');
+    expect((document.getElementById('b_1') as HTMLInputElement).value).toEqual('testB1');
+  });
+  test('should set only available input fields', () => {
+    document.body.innerHTML = `
+    <form>
+      <div id="a"></div>
+      <input id="b"/>
+      <input id="c_0"/>
+      <div id="c_1"/>
+      <input id="c_2"/>
+    </form>
+    `;
+    const formUtils = new UbirchFormUtils({ formIds: [] });
+    formUtils.setDataIntoForm({ a: 'testA', c: ['testC0', 'testC2'] }, document);
+    expect((document.getElementById('a') as HTMLInputElement).value).toBeUndefined();
+    expect((document.getElementById('b') as HTMLInputElement).value).toEqual('');
+    expect((document.getElementById('c_0') as HTMLInputElement).value).toEqual('testC0');
+    expect((document.getElementById('c_1') as HTMLInputElement).value).toBeUndefined();
+    expect((document.getElementById('c_2') as HTMLInputElement).value).toEqual('');
   });
 });
