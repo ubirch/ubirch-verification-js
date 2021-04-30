@@ -11,7 +11,7 @@ import {
 import { messageSubject$ } from '../messenger';
 
 const DEFAULT_CONFIG: IUbirchFormUtilsConfig = {
-  formIds: ['created', 'name', 'workshop'],
+  formIds: [],
 };
 
 export class UbirchFormUtils {
@@ -21,9 +21,6 @@ export class UbirchFormUtils {
   private paramsFormIdsMapping: string[];
 
   constructor(config: IUbirchFormUtilsConfig = DEFAULT_CONFIG) {
-    if (!config.formIds) {
-      throw new Error('Please, provide a string array with param ids');
-    }
     this.formIds = config.formIds;
     if (config.paramsFormIdsMapping) {
       if (config.paramsFormIdsMapping.length !== this.formIds.length) {
@@ -57,9 +54,12 @@ export class UbirchFormUtils {
     const foundNotAllowedChars: string[] = [...Array.from(urlStr)].filter(
       (char) => !UbirchFormUtils.allowedCharacters.includes(char)
     );
+
     const uniqueFoundNotAllowedChars = foundNotAllowedChars.filter(
       (char, index) => foundNotAllowedChars.indexOf(char) === index
     );
+
+
 
     if (uniqueFoundNotAllowedChars.length > 0) {
       const errorDetails: IUbirchErrorDetails = {
