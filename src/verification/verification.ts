@@ -122,10 +122,10 @@ export class UbirchVerification {
       });
   }
 
-  public formatJSON(json: string, sort = true): string {
+  public formatJSON(json: string): string {
     try {
       const object: { [key: string]: any } = JSON.parse(json);
-      return JSON.stringify(sort ? this.sortObjectRecursive(object, sort) : object);
+      return JSON.stringify(this.sortObjectRecursive(object));
     } catch (e) {
       this.handleError(EError.JSON_MALFORMED);
     }
@@ -273,9 +273,7 @@ export class UbirchVerification {
     const blockchain: string = bloxTxProps.blockchain;
     const networkType: string = bloxTxProps.network_type;
 
-    const bloxTxData: IUbirchBlockchain = BlockchainSettings.blockchainSettings
-      ? BlockchainSettings.blockchainSettings[blockchain]
-      : undefined;
+    const bloxTxData: IUbirchBlockchain = BlockchainSettings.blockchainSettings[blockchain];
 
     if (!bloxTxData) {
       return undefined;
@@ -306,18 +304,15 @@ export class UbirchVerification {
     return ubirchBlockchainAnchor;
   }
 
-  protected sortObjectRecursive(object: unknown, sort: boolean): unknown {
+  protected sortObjectRecursive(object: unknown): unknown {
     // recursive termination condition
     if (typeof object !== 'object' || Array.isArray(object)) {
       return object;
     } else {
       const objectSorted: { [key: string]: any } = {};
-      const keysOrdered: { [key: string]: any } = sort
-        ? Object.keys(object).sort()
-        : Object.keys(object);
-
+      const keysOrdered: { [key: string]: any } = Object.keys(object).sort();
       keysOrdered.forEach(
-        (key: string) => (objectSorted[key] = this.sortObjectRecursive(object[key], sort))
+        (key: string) => (objectSorted[key] = this.sortObjectRecursive(object[key]))
       );
 
       return objectSorted;
