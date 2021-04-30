@@ -74,7 +74,7 @@ export class UbirchVerification {
     return transId;
   }
 
-  public verifyHash(hash: string): Promise<IUbirchVerificationResult> {
+  public async verifyHash(hash: string): Promise<IUbirchVerificationResult> {
     const verificationResult: IUbirchVerificationResult = this.createInitialUbirchVerificationResult(
       hash
     );
@@ -183,14 +183,14 @@ export class UbirchVerification {
       authorization: 'bearer ' + self.accessToken,
     });
 
-    self.handleInfo(EInfo.PROCESSING_VERIFICATION_CALL);
-
     return fetch(verificationUrl, { headers, method: 'POST', body: hash })
       .catch((err) => {
-        self.handleError(EError.VERIFICATION_UNAVAILABLE, { errorMessage: err.message });
+        return err.message as string;
       })
       .then((response) => {
-        if (!response) return;
+        if (typeof response === 'string') {
+          return self.handleError(EError.VERIFICATION_UNAVAILABLE, { errorMessage: response });
+        }
 
         switch (response.status) {
           case 200: {
@@ -198,19 +198,15 @@ export class UbirchVerification {
           }
           case 404: {
             self.handleError(EError.CERTIFICATE_ID_CANNOT_BE_FOUND);
-            break;
           }
           case 403: {
             self.handleError(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
-            break;
           }
           case 500: {
             self.handleError(EError.INTERNAL_SERVER_ERROR);
-            break;
           }
           default: {
             self.handleError(EError.UNKNOWN_ERROR);
-            break;
           }
         }
       });
