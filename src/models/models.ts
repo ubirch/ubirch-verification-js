@@ -190,4 +190,4 @@ export interface IUbirchBlockchainNet {
   url: string;
 }
 
-export type DataParams = { [index: string]: string };
+export type DataParams = { [index: string]: string | string[] };

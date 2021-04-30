@@ -64,4 +64,18 @@ describe('Fill inputs with data', () => {
     expect((document.getElementById('b') as HTMLInputElement).value).toEqual('testB');
     expect((document.getElementById('c') as HTMLInputElement).value).toEqual('');
   });
+  test('should set data with array to fields', () => {
+    document.body.innerHTML = `
+    <form>
+      <input id="a"/>
+      <input id="b_0"/>
+      <input id="b_1"/>
+    </form>
+    `;
+    const formUtils = new UbirchFormUtils({ formIds: [] });
+    formUtils.setDataIntoForm({ a: 'testA', b: ['testB1', 'testB2'] }, document);
+    expect((document.getElementById('a') as HTMLInputElement).value).toEqual('testA');
+    expect((document.getElementById('b_0') as HTMLInputElement).value).toEqual('testB1');
+    expect((document.getElementById('b_1') as HTMLInputElement).value).toEqual('testB2');
+  });
 });
