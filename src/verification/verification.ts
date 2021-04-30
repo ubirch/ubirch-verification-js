@@ -21,6 +21,7 @@ import {
   IUbirchBlockchainAnchorRAW,
   IUbirchInfo,
   IUbirchError,
+  IUbirchErrorDetails,
   IUbirchVerificationState,
   UbirchMessage,
   IUbirchUpp,
@@ -80,67 +81,45 @@ export class UbirchVerification {
 
     this.handleInfo(EInfo.START_VERIFICATION_CALL);
 
-    return new Promise((resolve, reject) => {
-      this.sendVerificationRequest(hash)
-        .then((response: any) => {
-          try {
-            this.handleInfo(EInfo.START_CHECKING_RESPONSE);
+    return this.sendVerificationRequest(hash)
+      .then((verificationResponse: IUbirchVerificationResponse) => {
+        this.handleInfo(EInfo.START_CHECKING_RESPONSE);
 
-            const verificationResponse: IUbirchVerificationResponse = this.parseJSONResponse(
-              response
-            );
+        const ubirchUpp: IUbirchUpp = this.extractUpp(verificationResponse);
 
-            this.handleInfo(EInfo.RESPONSE_JSON_PARSED_SUCCESSFUL);
+        verificationResult.upp = ubirchUpp;
+        verificationResult.verificationState = EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
 
-            const ubirchUpp: IUbirchUpp = this.extractUpp(verificationResponse);
+        this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
 
-            verificationResult.upp = ubirchUpp;
-            verificationResult.verificationState =
-              EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+        // TODO: check that upp contains given hash
+        // TODO: check signature, ...
 
-            this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
+        const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(verificationResponse);
 
-            // TODO: check that upp contains given hash
-            // TODO: check signature, ...
+        if (blxAnchors.length > 0) {
+          verificationResult.anchors = blxAnchors;
+          verificationResult.upp.state = EUppStates.anchored;
+          verificationResult.verificationState = EVerificationState.VERIFICATION_SUCCESSFUL;
 
-            const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(
-              verificationResponse
-            );
+          this.handleInfo(EInfo.BLXTXS_FOUND_SUCCESS);
+        } else {
+          verificationResult.verificationState = EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
 
-            if (blxAnchors.length > 0) {
-              verificationResult.anchors = blxAnchors;
-              verificationResult.upp.state = EUppStates.anchored;
-              verificationResult.verificationState = EVerificationState.VERIFICATION_SUCCESSFUL;
+          this.handleInfo(EInfo.NO_BLXTX_FOUND);
+        }
 
-              this.handleInfo(EInfo.BLXTXS_FOUND_SUCCESS);
-            } else {
-              verificationResult.verificationState =
-                EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+        this.handleVerificationState(verificationResult.verificationState, verificationResult);
+        return verificationResult;
+      })
+      .catch((err) => {
+        verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
 
-              this.handleInfo(EInfo.NO_BLXTX_FOUND);
-            }
-          } catch (err) {
-            verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
-            if (err.code) {
-              verificationResult.failReason = err.code;
-            }
+        verificationResult.failReason = err.code || EError.UNKNOWN_ERROR;
 
-            this.handleVerificationState(verificationResult.verificationState, verificationResult);
-            reject(verificationResult);
-          }
-
-          this.handleVerificationState(verificationResult.verificationState, verificationResult);
-          resolve(verificationResult);
-        })
-        .catch((err) => {
-          verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
-
-          verificationResult.failReason = err.code || EError.UNKNOWN_ERROR;
-
-          this.handleVerificationState(verificationResult.verificationState, verificationResult);
-          reject(verificationResult);
-        });
-    });
+        this.handleVerificationState(verificationResult.verificationState, verificationResult);
+        return verificationResult;
+      });
   }
 
   public formatJSON(json: string, sort = true): string {
@@ -152,13 +131,14 @@ export class UbirchVerification {
     }
   }
 
-  protected handleError(code: EError): void {
+  protected handleError(code: EError, errorDetails?: IUbirchErrorDetails): void {
     const errorMsg: string = i18n.t(code);
 
     const err: IUbirchError = {
       type: EMessageType.ERROR,
       message: errorMsg,
       code,
+      errorDetails,
     };
 
     this.log(err);
@@ -193,71 +173,47 @@ export class UbirchVerification {
     this.log(info);
   }
 
-  protected sendVerificationRequest(hash: string): Promise<any> {
+  protected async sendVerificationRequest(hash: string): Promise<IUbirchVerificationResponse> {
     const self = this;
     const verificationUrl =
       environment.verify_api_url[this.stage] + '/api' + API_VERSION + environment.verify_api_path;
 
-    return new Promise(function (resolve, reject) {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', verificationUrl, true);
-
-      xhr.onload = function () {
-        try {
-          if (this.readyState < 4) {
-            self.handleInfo(EInfo.PROCESSING_VERIFICATION_CALL);
-          } else {
-            switch (this.status) {
-              case 200: {
-                resolve(xhr.response);
-                break;
-              }
-              case 404: {
-                self.handleError(EError.CERTIFICATE_ID_CANNOT_BE_FOUND);
-                break;
-              }
-              case 403: {
-                self.handleError(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
-                break;
-              }
-              case 500: {
-                self.handleError(EError.INTERNAL_SERVER_ERROR);
-                break;
-              }
-              default: {
-                self.handleError(EError.UNKNOWN_ERROR);
-                break;
-              }
-            }
-          }
-        } catch (err) {
-          reject(err);
-        }
-      };
-      xhr.onerror = function () {
-        self.handleError(EError.VERIFICATION_UNAVAILABLE);
-      };
-
-      xhr.setRequestHeader('Content-type', 'text/plain');
-      xhr.setRequestHeader('authorization', 'bearer ' + self.accessToken);
-      xhr.send(hash);
+    const headers = new Headers({
+      'Content-type': 'text/plain',
+      authorization: 'bearer ' + self.accessToken,
     });
-  }
 
-  protected parseJSONResponse(result: string): IUbirchVerificationResponse {
-    if (!result) {
-      this.handleError(EError.VERIFICATION_FAILED_EMPTY_RESPONSE);
-    }
+    self.handleInfo(EInfo.PROCESSING_VERIFICATION_CALL);
 
-    let resultObj: IUbirchVerificationResponse;
+    return fetch(verificationUrl, { headers, method: 'POST', body: hash })
+      .catch((err) => {
+        self.handleError(EError.VERIFICATION_UNAVAILABLE, { errorMessage: err.message });
+      })
+      .then((response) => {
+        if (!response) return;
 
-    try {
-      resultObj = JSON.parse(result);
-    } catch (e) {
-      this.handleError(EError.JSON_PARSE_FAILED);
-    }
-
-    return resultObj;
+        switch (response.status) {
+          case 200: {
+            return response.json();
+          }
+          case 404: {
+            self.handleError(EError.CERTIFICATE_ID_CANNOT_BE_FOUND);
+            break;
+          }
+          case 403: {
+            self.handleError(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
+            break;
+          }
+          case 500: {
+            self.handleError(EError.INTERNAL_SERVER_ERROR);
+            break;
+          }
+          default: {
+            self.handleError(EError.UNKNOWN_ERROR);
+            break;
+          }
+        }
+      });
   }
 
   protected createInitialUbirchVerificationResult(hashP: string): IUbirchVerificationResult {

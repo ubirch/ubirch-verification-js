@@ -123,7 +123,7 @@ describe('Verification', () => {
 
       jest
         .spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
-        .mockImplementation((_) => Promise.resolve(responseJSON));
+        .mockImplementation((_) => Promise.resolve(JSON.parse(responseJSON)));
 
       return verifier
         .verifyHash(testhash_verifiable)
@@ -135,40 +135,6 @@ describe('Verification', () => {
             EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL
           );
           expect(response.failReason).toBeUndefined();
-        });
-    });
-
-    test('should throw an error if the json is empty', () => {
-      const responseJSON: string = '';
-      const errorCode = EError.VERIFICATION_FAILED_EMPTY_RESPONSE;
-
-      jest
-        .spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
-        .mockImplementation((_) => Promise.resolve(responseJSON));
-
-      return verifier
-        .verifyHash(testhash_verifiable)
-        .catch((errResponse: IUbirchVerificationResult) => {
-          expect(errResponse).toBeDefined();
-          expect(errResponse.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
-          expect(errResponse.failReason).toBe(errorCode);
-        });
-    });
-
-    test('should throw an error if the json is malformed', () => {
-      const responseJSON: string = 'not-a-json';
-      const errorCode = EError.JSON_PARSE_FAILED;
-
-      jest
-        .spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
-        .mockImplementation((_) => Promise.resolve(responseJSON));
-
-      return verifier
-        .verifyHash(testhash_verifiable)
-        .catch((errResponse: IUbirchVerificationResult) => {
-          expect(errResponse).toBeDefined();
-          expect(errResponse.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
-          expect(errResponse.failReason).toBe(errorCode);
         });
     });
 
@@ -208,11 +174,9 @@ describe('Verification', () => {
     });
 
     test('should send the hash successfully and return a VERIFICATION_SUCCESSFUL response', () => {
-      const response: string = JSON.stringify(verifyResult);
-
       jest
         .spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
-        .mockImplementation((_) => Promise.resolve(response));
+        .mockImplementation((_) => Promise.resolve(verifyResult));
 
       return verifier
         .verifyHash(testhash_verifiable)
@@ -239,13 +203,10 @@ describe('Verification', () => {
     });
 
     test('that watchInfosAndErrors observable is called', (done) => {
-      const response: string = JSON.stringify(verifyResult);
-
       let infoCounter: number = 0;
       const infoChain = [
         EInfo.START_VERIFICATION_CALL,
         EInfo.START_CHECKING_RESPONSE,
-        EInfo.RESPONSE_JSON_PARSED_SUCCESSFUL,
         EInfo.UPP_HAS_BEEN_FOUND,
         EInfo.BLXTXS_FOUND_SUCCESS,
         EVerificationState.VERIFICATION_SUCCESSFUL,
@@ -261,7 +222,7 @@ describe('Verification', () => {
 
       jest
         .spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
-        .mockImplementation((_) => Promise.resolve(response));
+        .mockImplementation((_) => Promise.resolve(verifyResult));
 
       verifier
         .verifyHash(testhash_verifiable)
