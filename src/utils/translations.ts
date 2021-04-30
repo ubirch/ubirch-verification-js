@@ -26,10 +26,5 @@ export const initTranslations = (translationsMap: TranslationMap): Promise<TFunc
         },
       },
       debug: false,
-    },
-    (err) => {
-      if (err) {
-        return console.log('something went wrong loading translation files', err);
-      }
     }
   );

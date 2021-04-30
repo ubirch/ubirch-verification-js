@@ -355,8 +355,6 @@ describe('Verification', () => {
     });
 
     test('should fail with UNKNOWN_ERROR', () => {
-      const responseJSON: string = '{"anchors":{"upper_blockchains":[]},"prev":"","upp":""}';
-
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         status: 200,
         json: 'malformed-api',
