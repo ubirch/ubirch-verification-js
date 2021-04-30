@@ -129,6 +129,8 @@ export class UbirchVerificationWidget {
   }
 
   private createIconString(src: string, id: string, width?: string, height?: string): string {
-    return `<img src="${src}" id="${id}" style="width: ${width}; height: ${height}" />`;
+    return `<img src="${src}" id="${id}" ${
+      width && height ? `style="width: ${width}; height: ${height}"` : ''
+    } />`;
   }
 }
