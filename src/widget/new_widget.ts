@@ -37,15 +37,14 @@ export class UbirchVerificationWidget {
     const host = document.querySelector(config.hostSelector);
     if (!host) throw new Error(EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND);
     this.host = host as HTMLElement;
-    config.messenger.subscribe(this.render);
+    config.messenger.subscribe((message) => {
+      if (message) this.render(message);
+    });
   }
 
   private render(message: UbirchMessage): void {
-    this.host.innerHTML = '';
     const headlineClassList = this.getClassName(styles.container__verification_headline, message);
-    this.host.insertAdjacentHTML(
-      'beforeend',
-      `<div class="${styles.container}">
+    this.host.innerHTML = `<div class="${styles.container}">
         <header class="${styles.container__row}">
           <h1 class="${headlineClassList}">
             ${this.getHeadlineText(message)}
@@ -60,8 +59,7 @@ export class UbirchVerificationWidget {
         <div class="${styles.container__row}">
           ${this.getErrorOutput(message)}
         </div>
-      </div>`
-    );
+      </div>`;
   }
 
   private getClassName(rootClassName: string, message: UbirchMessage): string {
