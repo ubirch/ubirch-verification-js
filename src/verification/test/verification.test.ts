@@ -157,6 +157,47 @@ describe('Verification', () => {
           expect(errResponse.failReason).toBe(error.code);
         });
     });
+    test('should fail with WARNING_EMPTY_BLXTX_FOUND if no no blockchain or network type is specifiedd', (done) => {
+      const response = {
+        ...JSON.parse(JSON.stringify(verifyResult)),
+        hash: testhash_verifiable,
+        verificationState: EVerificationState.VERIFICATION_PENDING,
+      };
+      response.anchors.upper_blockchains[0].properties.blockchain = '';
+
+      jest
+        .spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
+        .mockImplementation((_) => Promise.resolve(response));
+
+      let infoCounter: number = 0;
+      const infoChain = [
+        EInfo.START_VERIFICATION_CALL,
+        EInfo.START_CHECKING_RESPONSE,
+        EInfo.UPP_HAS_BEEN_FOUND,
+        EInfo.WARNING_EMPTY_BLXTX_FOUND,
+        EInfo.BLXTXS_FOUND_SUCCESS,
+        EVerificationState.VERIFICATION_SUCCESSFUL,
+      ];
+
+      messageSubject$.next(null);
+      const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+        if (message !== null) {
+          expect(message.code).toEqual(infoChain[infoCounter]);
+          infoCounter++;
+        }
+      });
+
+      return verifier
+        .verifyHash(testhash_verifiable)
+        .then((response: IUbirchVerificationResult) => {
+          expect(response).toBeDefined();
+          expect(response.verificationState).toBe(EVerificationState.VERIFICATION_SUCCESSFUL);
+          infoCounter === infoChain.length
+            ? done()
+            : done('finished without expected info messages');
+          subscription.unsubscribe();
+        });
+    });
     test('should fail with VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE if no upp is returned', () => {
       const responseJSON: string = '{"anchors":{"upper_blockchains":[]},"prev":"","upp":""}';
 
@@ -213,7 +254,7 @@ describe('Verification', () => {
       ];
 
       messageSubject$.next(null);
-      messageSubject$.subscribe((message: UbirchMessage) => {
+      const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
         if (message !== null) {
           expect(message.code).toEqual(infoChain[infoCounter]);
           infoCounter++;
@@ -224,13 +265,10 @@ describe('Verification', () => {
         .spyOn(UbirchVerificationMock.prototype, 'sendVerificationRequest')
         .mockImplementation((_) => Promise.resolve(verifyResult));
 
-      verifier
-        .verifyHash(testhash_verifiable)
-        .then((_) =>
-          infoCounter === infoChain.length
-            ? done()
-            : done('finished without expected info messages')
-        );
+      verifier.verifyHash(testhash_verifiable).then((_) => {
+        infoCounter === infoChain.length ? done() : done('finished without expected info messages');
+        subscription.unsubscribe();
+      });
     });
   });
 });
