@@ -1,6 +1,7 @@
 import { UbirchFormUtils } from '../form-utils';
 import { messageSubject$ } from '../../messenger';
-import { EError, EInfo, EVerificationState, UbirchMessage } from '../../models/models';
+import { EError, EMessageType, UbirchMessage } from '../../models/models';
+
 beforeEach(() => {});
 
 describe('Get params from URL', () => {
@@ -10,30 +11,35 @@ describe('Get params from URL', () => {
     const result = formUtils.getFormParamsFromUrl(global.window, ';');
     expect(result).toEqual({ a: '1', b: '2' });
   });
+
   test('should get param', () => {
     global.window.history.pushState({}, '', '?c=3');
     const formUtils = new UbirchFormUtils();
     const result = formUtils.getFormParamsFromUrl(global.window, ';');
     expect(result).toEqual({ c: '3' });
   });
+
   test('should get params with array', () => {
     global.window.history.pushState({}, '', '?d=4;e=5,6,7');
     const formUtils = new UbirchFormUtils();
     const result = formUtils.getFormParamsFromUrl(global.window, ';');
     expect(result).toEqual({ d: '4', e: ['5', '6', '7'] });
   });
+
   test('should get params started with hash and divided by ampersand', () => {
     global.window.history.pushState({}, '', '#d=4&e=5,6,7');
     const formUtils = new UbirchFormUtils();
     const result = formUtils.getFormParamsFromUrl(global.window, '&');
     expect(result).toEqual({ d: '4', e: ['5', '6', '7'] });
   });
+
   test("shouldn't get params", () => {
     global.window.history.pushState({}, '', '?');
     const formUtils = new UbirchFormUtils();
     const result = formUtils.getFormParamsFromUrl(global.window, ';');
     expect(result).toEqual({});
   });
+
   test('should emit error on not allowed chars', () => {
     global.window.history.pushState({}, '', '#a=^');
     const infoReceived: UbirchMessage[] = [];
@@ -46,19 +52,44 @@ describe('Get params from URL', () => {
     });
 
     const formUtils = new UbirchFormUtils();
-    expect(() => formUtils.getFormParamsFromUrl(global.window, ';')).toThrowError();
 
+    expect(() => formUtils.getFormParamsFromUrl(global.window, ';')).toThrowError();
     expect(infoReceived).toEqual([
       {
         code: EError.URL_PARAMS_CORRUPT,
         errorDetails: { notAllowedChars: ['^'] },
         message: undefined,
-        type: 'error',
+        type: EMessageType.ERROR,
       },
     ]);
     subscription.unsubscribe();
   });
-  test('should emit error on corrupt url params', () => {
+
+  test('should emit and throw error on malformmed location', () => {
+    const infoReceived: UbirchMessage[] = [];
+
+    messageSubject$.next(null);
+    const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+      if (message !== null) {
+        infoReceived.push(message);
+      }
+    });
+    const malformedWindow = {} as Window;
+    const formUtils = new UbirchFormUtils();
+
+    expect(() => formUtils.getFormParamsFromUrl(malformedWindow, ';')).toThrow();
+    expect(infoReceived).toEqual([
+      {
+        code: EError.LOCATION_MALFORMED,
+        errorDetails: undefined,
+        message: undefined,
+        type: EMessageType.ERROR,
+      },
+    ]);
+    subscription.unsubscribe();
+  });
+
+  test('should emit and throw error on corrupt url params', () => {
     global.window.history.pushState({}, '', '#a=%E0%A4%A');
     const infoReceived: UbirchMessage[] = [];
 
@@ -74,9 +105,11 @@ describe('Get params from URL', () => {
     expect(infoReceived).toEqual([
       {
         code: EError.URL_PARAMS_CORRUPT,
-        errorDetails: undefined,
+        errorDetails: {
+          errorMessage: 'URI malformed',
+        },
         message: undefined,
-        type: 'error',
+        type: EMessageType.ERROR,
       },
     ]);
     subscription.unsubscribe();
@@ -130,18 +163,91 @@ describe('Fill inputs with data', () => {
     expect((document.getElementById('c_1') as HTMLInputElement).value).toBeUndefined();
     expect((document.getElementById('c_2') as HTMLInputElement).value).toEqual('');
   });
+
+  test('should emit and throw error on malformmed document', () => {
+    const infoReceived: UbirchMessage[] = [];
+
+    messageSubject$.next(null);
+    const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+      if (message !== null) {
+        infoReceived.push(message);
+      }
+    });
+    const malformedDocument = {} as Document;
+    const formUtils = new UbirchFormUtils();
+    expect(() =>
+      formUtils.setDataIntoForm({ a: 'testA', c: ['testC0', 'testC2'] }, malformedDocument)
+    ).toThrow();
+    expect(infoReceived).toEqual([
+      {
+        code: EError.FILLING_FORM_WITH_PARAMS_FAILED,
+        errorDetails: {
+          errorMessage: 'documentRef.getElementById is not a function',
+        },
+        message: undefined,
+        type: EMessageType.ERROR,
+      },
+    ]);
+    subscription.unsubscribe();
+  });
 });
 
 describe('Form ids mapping', () => {
+  test('should set input fields due to mapping', () => {
+    document.body.innerHTML = `
+    <form>
+      <input id="Am"/>
+      <input id="Bm"/>
+      <input id="Cm_0"/>
+      <input id="Cm_1"/>
+    </form>
+    `;
+    const formUtils = new UbirchFormUtils({
+      formIds: ['Am', 'Bm', 'Cm'],
+      paramsFormIdsMapping: ['a', 'b', 'c'],
+    });
+    formUtils.setDataIntoForm({ a: 'testA', b: 'testB', c: ['testC0', 'testC1'] }, document);
+    expect((document.getElementById('Am') as HTMLInputElement).value).toEqual('testA');
+    expect((document.getElementById('Bm') as HTMLInputElement).value).toEqual('testB');
+    expect((document.getElementById('Cm_0') as HTMLInputElement).value).toEqual('testC0');
+    expect((document.getElementById('Cm_1') as HTMLInputElement).value).toEqual('testC1');
+  });
+
   test('should throw and emit error on wrong mappings counts', () => {
     expect(
       () =>
         new UbirchFormUtils({
-          formIds: ['a', 'b', 'c'],
-          paramsFormIdsMapping: ['A', 'B'],
+          formIds: ['Am', 'Bm', 'Cm'],
+          paramsFormIdsMapping: ['a', 'b'],
         })
     ).toThrowError(
       'If you provide paramsFormIdsMapping define a mapping for each formId; they need to be in the same order'
     );
+  });
+
+  test('should handle and console warning on not mmapping defined for parameter', () => {
+    document.body.innerHTML = `
+    <form>
+      <input id="Am"/>
+      <input id="Bm"/>
+      <input id="Cm_0"/>
+      <input id="Cm_1"/>
+    </form>
+    `;
+
+    const consoleWarnBuf = global.console.warn;
+    global.console.warn = jest.fn();
+    const formUtils = new UbirchFormUtils({
+      formIds: ['Am', 'Bm'],
+      paramsFormIdsMapping: ['a', 'b'],
+    });
+    formUtils.setDataIntoForm({ a: 'testA', b: 'testB', c: ['testC0', 'testC1'] }, document);
+    expect(global.console.warn).toBeCalledWith('No mapping defined for c');
+    expect((document.getElementById('Am') as HTMLInputElement).value).toEqual('testA');
+    expect((document.getElementById('Bm') as HTMLInputElement).value).toEqual('testB');
+    expect((document.getElementById('Cm_0') as HTMLInputElement).value).toEqual('');
+    expect((document.getElementById('Cm_1') as HTMLInputElement).value).toEqual('');
+
+    global.console.warn = consoleWarnBuf;
   });
 });
