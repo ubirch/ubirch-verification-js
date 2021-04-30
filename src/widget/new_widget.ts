@@ -15,14 +15,6 @@ import i18next from 'i18next';
 import styles from './widget.module.scss';
 
 initTranslations({ en, de });
-
-export enum WidgetClassNameSuffixes {
-  InfoText = 'info-text',
-  SealOutput = 'seal-output',
-  ResultOutput = 'result-output',
-  ErrorOutput = 'error-output',
-}
-
 export interface IUbirchVerificationWidgetConfig {
   hostSelector: string;
   language?: ELanguages;
