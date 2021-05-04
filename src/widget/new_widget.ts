@@ -6,8 +6,6 @@ import {
   ELanguages,
   EMessageType,
   EVerificationState,
-  IUbirchBlockchain,
-  IUbirchVerificationAnchorProperties,
   UbirchMessage,
 } from '../models/models';
 import { initTranslations } from '../utils/translations';
@@ -18,6 +16,7 @@ import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.js
 import styles from './widget.module.scss';
 
 initTranslations({ en, de });
+
 export interface IUbirchVerificationWidgetConfig {
   hostSelector: string;
   language?: ELanguages;
@@ -40,23 +39,35 @@ export class UbirchVerificationWidget {
   }
 
   private render(message: UbirchMessage): void {
-    const headlineClassList = this.getClassName(styles.container__verification_headline, message);
     this.host.innerHTML = `<div class="${styles.container}">
         <header class="${styles.container__row}">
-          <h1 class="${headlineClassList}">
-            ${this.getHeadlineText(message)}
-          </h1>
+          ${this.getHeadline(message)}
         </header>
         <div class="${styles.container__row}">
           <div class="${styles.container__seal_output}"></div>
         <div>
         <div class="${styles.container__row}">
-          <div class="${styles.container__result_output}"></div>
+          <div class="${styles.container__result_output}">
+            ${this.getResultOutput(message)}
+          </div>
         </div>
         <div class="${styles.container__row}">
           ${this.getErrorOutput(message)}
         </div>
       </div>`;
+  }
+
+  private getResultOutput(message: UbirchMessage): string {
+    switch (message.type) {
+      case EMessageType.INFO:
+        return i18next.t(message.code);
+      case EMessageType.ERROR:
+        return i18next.t(message.code);
+      case EMessageType.VERIFICATION_STATE:
+        return i18next.t(message.result.verificationState);
+      default:
+        return '';
+    }
   }
 
   private getClassName(rootClassName: string, message: UbirchMessage): string {
@@ -86,26 +97,34 @@ export class UbirchVerificationWidget {
     return '';
   }
 
-  private getHeadlineText(message: UbirchMessage): string {
+  private getHeadline(message: UbirchMessage): string {
+    const headlineClassList = this.getClassName(styles.container__verification_headline, message);
+    let msg: string;
+
     switch (message.type) {
       case EMessageType.INFO:
       case EMessageType.ERROR:
-        return message.message;
+        msg = message.message;
+        break;
       case EMessageType.VERIFICATION_STATE:
         switch (message.result.verificationState) {
           case EVerificationState.VERIFICATION_FAILED:
-            return i18next.t('FAIL.info');
+            msg = i18next.t('FAIL.info');
+            break;
           case EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL:
           case EVerificationState.VERIFICATION_SUCCESSFUL:
-            return i18next.t('SUCCESS.headline');
+            msg = i18next.t('SUCCESS.headline');
+            break;
           case EVerificationState.VERIFICATION_PENDING:
-            return i18next.t('PENDING.info');
+            msg = i18next.t('PENDING.info');
+            break;
           default:
-            return '';
+            msg = '';
         }
       default:
-        return '';
+        msg = '';
     }
+    return msg === '' ? '' : ` <h1 class="${headlineClassList}">${msg}</h1?`;
   }
 
   private showSeal(successful: boolean, hash: string, noLink: boolean = false) {
