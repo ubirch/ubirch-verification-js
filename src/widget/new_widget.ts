@@ -6,6 +6,7 @@ import {
   ELanguages,
   EMessageType,
   EVerificationState,
+  IUbirchError,
   UbirchMessage,
 } from '../models/models';
 import { initTranslations } from '../utils/translations';
@@ -57,46 +58,6 @@ export class UbirchVerificationWidget {
       </div>`;
   }
 
-  private getResultOutput(message: UbirchMessage): string {
-    switch (message.type) {
-      case EMessageType.INFO:
-        return i18next.t(message.code);
-      case EMessageType.ERROR:
-        return i18next.t(message.code);
-      case EMessageType.VERIFICATION_STATE:
-        return i18next.t(message.result.verificationState);
-      default:
-        return '';
-    }
-  }
-
-  private getClassName(rootClassName: string, message: UbirchMessage): string {
-    return classnames(rootClassName, {
-      [styles.container__verification_info]:
-        message.type === EMessageType.INFO ||
-        (message.type === EMessageType.VERIFICATION_STATE &&
-          message.result?.verificationState === EVerificationState.VERIFICATION_PENDING),
-      [styles.container__verification_success]:
-        message.type === EMessageType.VERIFICATION_STATE &&
-        message.result?.verificationState === EVerificationState.VERIFICATION_SUCCESSFUL,
-      [styles.container__verification_fail]:
-        message.type === EMessageType.ERROR ||
-        (message.type === EMessageType.VERIFICATION_STATE &&
-          message.result?.verificationState === EVerificationState.VERIFICATION_FAILED),
-    });
-  }
-
-  private getErrorOutput(message: UbirchMessage): string {
-    if (
-      message.type === EMessageType.ERROR ||
-      (message.type === EMessageType.VERIFICATION_STATE &&
-        message.result.verificationState === EVerificationState.VERIFICATION_FAILED)
-    ) {
-      return ` <p class="${styles.container__error_output}">${message.message}</p>`;
-    }
-    return '';
-  }
-
   private getHeadline(message: UbirchMessage): string {
     const headlineClassList = this.getClassName(styles.container__verification_headline, message);
     let msg: string;
@@ -125,6 +86,48 @@ export class UbirchVerificationWidget {
         msg = '';
     }
     return msg === '' ? '' : ` <h1 class="${headlineClassList}">${msg}</h1?`;
+  }
+
+  private getResultOutput(message: UbirchMessage): string {
+    switch (message.type) {
+      case EMessageType.INFO:
+        return i18next.t(message.code);
+      case EMessageType.ERROR:
+        return i18next.t(message.code);
+      case EMessageType.VERIFICATION_STATE:
+        return i18next.t(message.code);
+      default:
+        return '';
+    }
+  }
+
+  private getClassName(rootClassName: string, message: UbirchMessage): string {
+    return classnames(rootClassName, {
+      [styles.container__verification_info]:
+        message.type === EMessageType.INFO ||
+        (message.type === EMessageType.VERIFICATION_STATE &&
+          message.result?.verificationState === EVerificationState.VERIFICATION_PENDING),
+      [styles.container__verification_success]:
+        message.type === EMessageType.VERIFICATION_STATE &&
+        message.result?.verificationState === EVerificationState.VERIFICATION_SUCCESSFUL,
+      [styles.container__verification_fail]:
+        message.type === EMessageType.ERROR ||
+        (message.type === EMessageType.VERIFICATION_STATE &&
+          message.result?.verificationState === EVerificationState.VERIFICATION_FAILED),
+    });
+  }
+
+  private getErrorOutput(message: UbirchMessage): string {
+    if (
+      message.type === EMessageType.ERROR ||
+      (message.type === EMessageType.VERIFICATION_STATE &&
+        message.result.verificationState === EVerificationState.VERIFICATION_FAILED)
+    ) {
+      return ` <p class="${styles.container__error_output}">${
+        (message as IUbirchError).errorDetails.errorMessage
+      }</p>`;
+    }
+    return '';
   }
 
   private showSeal(successful: boolean, hash: string, noLink: boolean = false) {
