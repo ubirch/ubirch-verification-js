@@ -3,7 +3,6 @@ import {
   EError,
   EInfo,
   EMessageType,
-  EVerificationState,
   UbirchMessage,
 } from '../../models/models';
 import { UbirchVerificationWidget } from '../new_widget';

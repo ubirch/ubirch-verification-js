@@ -16,7 +16,10 @@ import environment from '../environment';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import styles from './widget.module.scss';
 
-initTranslations({ en, de });
+initTranslations({
+  en,
+  de,
+});
 
 export interface IUbirchVerificationWidgetConfig {
   hostSelector: string;
@@ -25,9 +28,20 @@ export interface IUbirchVerificationWidgetConfig {
   messenger: Observable<UbirchMessage>;
 }
 
+interface WidgetInfoTexts {
+  headline: string;
+  result: string;
+  error: string;
+}
+
 export class UbirchVerificationWidget {
   private host: HTMLElement;
   private openConsoleInSameTarget: boolean;
+  private prevTexts: WidgetInfoTexts = {
+    headline: '',
+    result: '',
+    error: '',
+  };
 
   constructor(config: IUbirchVerificationWidgetConfig) {
     const host = document.querySelector(config.hostSelector);
@@ -40,65 +54,36 @@ export class UbirchVerificationWidget {
   }
 
   private render(message: UbirchMessage): void {
+    const texts = this.updateTexts(message);
+    const headlineClassList = this.getClassName(styles.container__verification_headline, message);
     this.host.innerHTML = `<div class="${styles.container}">
         <header class="${styles.container__row}">
-          ${this.getHeadline(message)}
+          ${this.getHeadline(texts.headline, headlineClassList)}
         </header>
         <div class="${styles.container__row}">
           <div class="${styles.container__seal_output}"></div>
         <div>
         <div class="${styles.container__row}">
           <div class="${styles.container__result_output}">
-            ${this.getResultOutput(message)}
+            ${texts.result}
           </div>
         </div>
         <div class="${styles.container__row}">
-          ${this.getErrorOutput(message)}
+          ${this.getErrorOutput(texts.error)}
         </div>
       </div>`;
+    this.prevTexts = texts;
   }
 
-  private getHeadline(message: UbirchMessage): string {
-    const headlineClassList = this.getClassName(styles.container__verification_headline, message);
-    let msg: string;
-
-    switch (message.type) {
-      case EMessageType.INFO:
-      case EMessageType.ERROR:
-        msg = message.message;
-        break;
-      case EMessageType.VERIFICATION_STATE:
-        switch (message.result.verificationState) {
-          case EVerificationState.VERIFICATION_FAILED:
-            msg = i18next.t('FAIL.info');
-            break;
-          case EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL:
-          case EVerificationState.VERIFICATION_SUCCESSFUL:
-            msg = i18next.t('SUCCESS.headline');
-            break;
-          case EVerificationState.VERIFICATION_PENDING:
-            msg = i18next.t('PENDING.info');
-            break;
-          default:
-            msg = '';
-        }
-      default:
-        msg = '';
-    }
-    return msg === '' ? '' : ` <h1 class="${headlineClassList}">${msg}</h1?`;
+  private updateTexts(message: UbirchMessage) {
+    return {
+      ...this.prevTexts,
+      [message.type]: i18next.t(`${message.type}.${message.code}`),
+    };
   }
 
-  private getResultOutput(message: UbirchMessage): string {
-    switch (message.type) {
-      case EMessageType.INFO:
-        return i18next.t(message.code);
-      case EMessageType.ERROR:
-        return i18next.t(message.code);
-      case EMessageType.VERIFICATION_STATE:
-        return i18next.t(message.code);
-      default:
-        return '';
-    }
+  private getHeadline(headline: string, className: string): string {
+    return headline === '' ? '' : ` <h1 class="${className}">${headline}</h1?`;
   }
 
   private getClassName(rootClassName: string, message: UbirchMessage): string {
@@ -117,17 +102,10 @@ export class UbirchVerificationWidget {
     });
   }
 
-  private getErrorOutput(message: UbirchMessage): string {
-    if (
-      message.type === EMessageType.ERROR ||
-      (message.type === EMessageType.VERIFICATION_STATE &&
-        message.result.verificationState === EVerificationState.VERIFICATION_FAILED)
-    ) {
-      return ` <p class="${styles.container__error_output}">${
-        (message as IUbirchError).errorDetails.errorMessage
-      }</p>`;
-    }
-    return '';
+  private getErrorOutput(error: string): string {
+    return error === ''
+      ? ''
+      : `<p class="${styles.container__error_output}">${error}</p>`;
   }
 
   private showSeal(successful: boolean, hash: string, noLink: boolean = false) {
