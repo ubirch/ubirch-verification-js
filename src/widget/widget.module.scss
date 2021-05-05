@@ -5,6 +5,7 @@
 
   &__row {
     width: 100%;
+    display: flex;
   }
 
   &__seal_output {
@@ -18,7 +19,6 @@
 
   &__loading_message {
     font-size: 12px;
-    font-weight: bold;
     font-family: monospace;
   }
 
@@ -27,11 +27,11 @@
   &__error_output,
   &__heading_box {
     display: flex;
-    font-weight: bold;
   }
 
   &__verification_headline {
     color: black;
+    font-size: 20px;
   }
 
   &__verification_success {

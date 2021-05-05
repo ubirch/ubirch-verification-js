@@ -85,7 +85,7 @@ export class UbirchVerificationWidget {
   }
 
   private getHeadline(headline: string, className: string): string {
-    return headline === '' ? '' : ` <h5 class="${className}">${headline}</h5>`;
+    return headline === '' ? '' : ` <h4 class="${className}">${headline}</h4>`;
   }
 
   private getClassName(rootClassName: string, message: UbirchMessage): string {
