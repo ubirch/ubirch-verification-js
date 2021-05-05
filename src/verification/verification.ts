@@ -1,6 +1,7 @@
 import i18n from 'i18next';
 import { sha256 } from 'js-sha256';
 import { sha512 } from 'js-sha512';
+import {getUUIDFromUpp} from 'ubirch-protocol-js/src/verify'
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import * as de from '../assets/i18n/de.json';
 import * as en from '../assets/i18n/en.json';
@@ -89,6 +90,10 @@ export class UbirchVerification {
         verificationResult.verificationState = EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
 
         this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
+
+        const hwDeviceId = getUUIDFromUpp(ubirchUpp);
+
+        console.log(hwDeviceId);
 
         // TODO: check that upp contains given hash
         // TODO: check signature, ...
