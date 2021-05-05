@@ -1,9 +1,8 @@
-import i18next from 'i18next';
+import i18n from 'i18next';
 import { Observable } from 'rxjs';
 import classnames from 'classnames';
 import {
   EError,
-  EInfo,
   ELanguages,
   EMessageType,
   EVerificationState,
@@ -16,10 +15,7 @@ import environment from '../environment';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import styles from './widget.module.scss';
 
-initTranslations({
-  en,
-  de,
-});
+initTranslations({ de, en });
 
 export interface IUbirchVerificationWidgetConfig {
   hostSelector: string;
@@ -28,20 +24,16 @@ export interface IUbirchVerificationWidgetConfig {
   messenger: Observable<UbirchMessage>;
 }
 
-interface WidgetInfoTexts {
-  headline: string;
-  result: string;
-  error: string;
-}
+type WidgetInfoTexts = Partial<
+  {
+    [key in EMessageType]: string;
+  }
+>;
 
 export class UbirchVerificationWidget {
   private host: HTMLElement;
   private openConsoleInSameTarget: boolean;
-  private prevTexts: WidgetInfoTexts = {
-    headline: '',
-    result: '',
-    error: '',
-  };
+  private prevTexts: WidgetInfoTexts | null = null;
 
   constructor(config: IUbirchVerificationWidgetConfig) {
     const host = document.querySelector(config.hostSelector);
@@ -54,48 +46,44 @@ export class UbirchVerificationWidget {
   }
 
   private render(message: UbirchMessage): void {
-    const isLoading =
-      (message.type === EMessageType.INFO && message.code === EInfo.START_VERIFICATION_CALL) ||
-      EInfo.START_CHECKING_RESPONSE;
     const texts = this.updateTexts(message);
     const headlineClassList = this.getClassName(styles.container__verification_headline, message);
     this.host.innerHTML = `<div class="${styles.container}">
+      <div class="${styles.container__row}">
+        <div class="${styles.container__seal_output}"></div>
+        <div class="${styles.container__heading_box}">
+          ${this.getHeadline(texts[EMessageType.VERIFICATION_STATE], headlineClassList)}
+        </div>
+      </div>
+      <div class="${styles.container__row}">
         ${
-          isLoading
-            ? `
-            <p class="${styles.container__loadingMessage}">
-              ${message.message}
-            </p>
-            `
-            : `
-              <div class="${styles.container__row}">
-                <div class="${styles.container__seal_output}"></div>
-                <div class="${styles.container__heading_box}">
-                  ${this.getHeadline(texts.headline, headlineClassList)}
-                </div>
-              </div>
-              <div class="${styles.container__row}">
-                ${
-                  message.type === EMessageType.ERROR
-                    ? `${this.getErrorOutput(texts.error)}`
-                    : `<p class="${styles.container__result_output}">${texts.result}}</p>`
-                }
-              <div>
-            `
+          message.type === EMessageType.ERROR
+            ? `<p class="${styles.container__error_output}">${texts[EMessageType.ERROR]}</p>`
+            : ''
         }
+        ${
+          message.type === EMessageType.VERIFICATION_STATE
+            ? `<p class="${styles.container__result_output}">${
+                texts[EMessageType.VERIFICATION_STATE]
+              }</p>`
+            : ''
+        }
+      <div>
       </div>`;
     this.prevTexts = texts;
   }
 
   private updateTexts(message: UbirchMessage) {
-    return {
-      ...this.prevTexts,
-      [message.type]: i18next.t(`${message.type}.${message.code}`),
-    };
+    return this.prevTexts !== null
+      ? {
+          ...this.prevTexts,
+          [message.type]: i18n.t(`${message.type}.${message.code}`),
+        }
+      : { [message.type]: i18n.t(`${message.type}.${message.code}`) };
   }
 
   private getHeadline(headline: string, className: string): string {
-    return headline === '' ? '' : ` <h1 class="${className}">${headline}</h1?`;
+    return headline === '' ? '' : ` <h5 class="${className}">${headline}</h5>`;
   }
 
   private getClassName(rootClassName: string, message: UbirchMessage): string {
@@ -144,3 +132,5 @@ export class UbirchVerificationWidget {
     } />`;
   }
 }
+
+window['UbirchVerificationWidget'] = UbirchVerificationWidget;

@@ -16,11 +16,18 @@
     width: calc(100% - 50px);
   }
 
+  &__loading_message {
+    font-size: 12px;
+    font-weight: bold;
+    font-family: monospace;
+  }
+
   &__seal_output,
   &__result_output,
   &__error_output,
   &__heading_box {
     display: flex;
+    font-weight: bold;
   }
 
   &__verification_headline {

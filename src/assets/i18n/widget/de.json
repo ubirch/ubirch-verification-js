@@ -1,13 +1,14 @@
 {
-  "INFO": {
+  "info": {
     "START_VERIFICATION_CALL": "Daten werden zur Verifikation ans Backend gesendet",
     "START_CHECKING_RESPONSE": "Die Antwort der Verifikationsanfrage vom Backend wird jetzt geprüft",
     "UPP_HAS_BEEN_FOUND": "Ein UPP zu den Daten konnte im Ubirch Backend gefunden werden",
     "WARNING_EMPTY_BLXTX_FOUND": "Achtung! Leeren Blockchain Datensatz gefunden",
     "BLXTX_FOUND_SUCCESS": "Es wurden Blockchain Verankerungen gefunden",
+    "RESPONSE_JSON_PARSED_SUCCESSFULY": "Die Antwort der Verifikationsanfrage konnte erfolgreich in das interne Datenformat geparst werden",
     "NO_BLXTX_FOUND": "Die Daten wurden noch nicht in Blockchains verankert"
   },
-  "ERROR": {
+  "error": {
     "CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE": "403 - nicht authorisiert",
     "CERTIFICATE_ID_CANNOT_BE_FOUND": "Zertifikat konnte nicht gefunden werden!",
     "INTERNAL_SERVER_ERROR": "Interner Serverfehler. Ein unbekannter Fehler ist aufgetreten.",
@@ -15,7 +16,7 @@
     "VERIFICATION_UNAVAILABLE": "Verifikationsdienst ist nicht verfügbar! {{message}}",
     "VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE": "Verifikation fehlgeschlagen!! Zertifikat ist leer oder enthält kein Siegel"
   },
-  "VERIFICATION_RESULT": {
+  "verification-state": {
     "VERIFICATION_SUCCESSFUL": "Verifikation erfolgreich!",
     "VERIFICATION_PARTLY_SUCCESSFUL": "Verifikation war nur teilweise erfolgreich",
     "VERIFICATION_FAILED": "Die Verifikation ist fehlgeschlagen! Es konnte keine Verankerung der Daten gefunden werden!"

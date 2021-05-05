@@ -21,13 +21,15 @@
     <label for="output">Output:</label>
     <textarea rows="10" cols="80" placeholder="" type="text" id="output"></textarea>
   </div>
+  <div id="widget-root"></div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.8.0/sha512.min.js"></script>
-  <script src="./ubirch-verification.min.js"></script>
+  <script src="./index.js"></script>
   <!--  Use this if installed from NPM -->
   <!--  <script src="../node_modules/@ubirch/ubirch-verification-widget/dist/ubirch-verification-widget.min.js"></script> -->
   <script>
     let ubirchVerification;
+    let ubirchVerificationWidget;
 
     // verify JSON button click listener
     document.getElementById('set-token').addEventListener('click', function () {
@@ -38,6 +40,10 @@
           algorithm: 'sha256',
           stage: 'dev',
           accessToken: token,
+        });
+        ubirchVerificationWidget = new UbirchVerificationWidget({
+          hostSelector: '#widget-root',
+          messenger: window['UbirchMessenger$']
         });
       } else {
         // handle the error yourself and inform user about the missing token
