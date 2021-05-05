@@ -3,10 +3,10 @@ import { Observable } from 'rxjs';
 import classnames from 'classnames';
 import {
   EError,
+  EInfo,
   ELanguages,
   EMessageType,
   EVerificationState,
-  IUbirchError,
   UbirchMessage,
 } from '../models/models';
 import { initTranslations } from '../utils/translations';
@@ -54,23 +54,35 @@ export class UbirchVerificationWidget {
   }
 
   private render(message: UbirchMessage): void {
+    const isLoading =
+      (message.type === EMessageType.INFO && message.code === EInfo.START_VERIFICATION_CALL) ||
+      EInfo.START_CHECKING_RESPONSE;
     const texts = this.updateTexts(message);
     const headlineClassList = this.getClassName(styles.container__verification_headline, message);
     this.host.innerHTML = `<div class="${styles.container}">
-        <header class="${styles.container__row}">
-          ${this.getHeadline(texts.headline, headlineClassList)}
-        </header>
-        <div class="${styles.container__row}">
-          <div class="${styles.container__seal_output}"></div>
-        <div>
-        <div class="${styles.container__row}">
-          <div class="${styles.container__result_output}">
-            ${texts.result}
-          </div>
-        </div>
-        <div class="${styles.container__row}">
-          ${this.getErrorOutput(texts.error)}
-        </div>
+        ${
+          isLoading
+            ? `
+            <p class="${styles.container__loadingMessage}">
+              ${message.message}
+            </p>
+            `
+            : `
+              <div class="${styles.container__row}">
+                <div class="${styles.container__seal_output}"></div>
+                <div class="${styles.container__heading_box}">
+                  ${this.getHeadline(texts.headline, headlineClassList)}
+                </div>
+              </div>
+              <div class="${styles.container__row}">
+                ${
+                  message.type === EMessageType.ERROR
+                    ? `${this.getErrorOutput(texts.error)}`
+                    : `<p class="${styles.container__result_output}">${texts.result}}</p>`
+                }
+              <div>
+            `
+        }
       </div>`;
     this.prevTexts = texts;
   }
@@ -103,9 +115,7 @@ export class UbirchVerificationWidget {
   }
 
   private getErrorOutput(error: string): string {
-    return error === ''
-      ? ''
-      : `<p class="${styles.container__error_output}">${error}</p>`;
+    return error === '' ? '' : `<p class="${styles.container__error_output}">${error}</p>`;
   }
 
   private showSeal(successful: boolean, hash: string, noLink: boolean = false) {
