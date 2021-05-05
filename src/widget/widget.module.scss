@@ -34,15 +34,11 @@
     color: black;
   }
 
-  .__verification_success {
+  &__verification_success {
     color: green;
   }
 
-  .__verification_fail {
+  &__verification_fail {
     color: red;
-  }
-
-  .__ubirch-verification-info {
-    color: black;
   }
 }

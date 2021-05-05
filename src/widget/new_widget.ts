@@ -58,12 +58,14 @@ export class UbirchVerificationWidget {
       <div class="${styles.container__row}">
         ${
           message.type === EMessageType.ERROR
-            ? `<p class="${styles.container__error_output}">${texts[EMessageType.ERROR]}</p>`
+            ? `<p class="${this.getClassName(styles.container__error_output, message)}">${
+                texts[EMessageType.ERROR]
+              }</p>`
             : ''
         }
         ${
           message.type === EMessageType.VERIFICATION_STATE
-            ? `<p class="${styles.container__result_output}">${
+            ? `<p class="${this.getClassName(styles.container__result_output, message)}">${
                 texts[EMessageType.VERIFICATION_STATE]
               }</p>`
             : ''
@@ -87,7 +89,7 @@ export class UbirchVerificationWidget {
   }
 
   private getClassName(rootClassName: string, message: UbirchMessage): string {
-    return classnames(rootClassName, {
+    const classNames = classnames(rootClassName, {
       [styles.container__verification_info]:
         message.type === EMessageType.INFO ||
         (message.type === EMessageType.VERIFICATION_STATE &&
@@ -100,6 +102,7 @@ export class UbirchVerificationWidget {
         (message.type === EMessageType.VERIFICATION_STATE &&
           message.result?.verificationState === EVerificationState.VERIFICATION_FAILED),
     });
+    return classNames;
   }
 
   private getErrorOutput(error: string): string {
