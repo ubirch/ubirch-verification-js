@@ -48,14 +48,13 @@ export class UbirchVerificationWidget {
   private render(message: UbirchMessage): void {
     const texts = this.updateTexts(message);
     const headlineClassList = this.getClassName(styles.container__verification_headline, message);
-    this.host.innerHTML = '';
     this.host.innerHTML = `<div class="${styles.container}">
       <div class="${styles.container__row}">
         <div class="${styles.container__seal_output}">
           ${this.renderSealOutput(message)}
         </div>
         <div class="${styles.container__heading_box}">
-          ${this.getHeadline(texts[EMessageType.VERIFICATION_STATE], headlineClassList)}
+          ${this.getHeadline(texts[message.type], headlineClassList)}
         </div>
       </div>
       <div class="${styles.container__row}">
