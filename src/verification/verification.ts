@@ -47,7 +47,7 @@ export class UbirchVerification {
     }
     this.accessToken = config.accessToken;
     this.stage = config.stage || this.stage;
-    this.algorithm = config.algorithm;
+    this.algorithm = config.algorithm || this.algorithm;
     this.language = config.language || this.language;
   }
 
@@ -120,10 +120,10 @@ export class UbirchVerification {
       });
   }
 
-  public formatJSON(json: string): string {
+  public formatJSON(json: string, sort = true): string {
     try {
       const object: { [key: string]: any } = JSON.parse(json);
-      return JSON.stringify(this.sortObjectRecursive(object));
+      return JSON.stringify(sort ? this.sortObjectRecursive(object) : object);
     } catch (e) {
       this.handleError(EError.JSON_MALFORMED);
     }
