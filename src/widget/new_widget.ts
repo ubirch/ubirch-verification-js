@@ -24,16 +24,11 @@ export interface IUbirchVerificationWidgetConfig {
   messenger: Observable<UbirchMessage>;
 }
 
-type WidgetInfoTexts = Partial<
-  {
-    [key in EMessageType]: string;
-  }
->;
-
 export class UbirchVerificationWidget {
   private host: HTMLElement;
   private openConsoleInSameTarget: boolean;
-  private prevTexts: WidgetInfoTexts | null = null;
+  private headlineText: string = '';
+  private resultText: string = '';
 
   constructor(config: IUbirchVerificationWidgetConfig) {
     const host = document.querySelector(config.hostSelector);
@@ -41,12 +36,15 @@ export class UbirchVerificationWidget {
     this.host = host as HTMLElement;
     this.openConsoleInSameTarget = config.openConsoleInSameTarget || false;
     config.messenger.subscribe((message) => {
-      if (message) this.render(message);
+      if (message) {
+        this.updateHeadlineText(message);
+        this.updateResultText(message);
+        this.render(message);
+      }
     });
   }
 
   private render(message: UbirchMessage): void {
-    const texts = this.updateTexts(message);
     const headlineClassList = this.getClassName(styles.container__verification_headline, message);
     this.host.innerHTML = `<div class="${styles.container}">
       <div class="${styles.container__row}">
@@ -54,27 +52,30 @@ export class UbirchVerificationWidget {
           ${this.renderSealOutput(message)}
         </div>
         <div class="${styles.container__heading_box}">
-          ${this.getHeadline(texts[message.type], headlineClassList)}
+          ${this.getHeadline(this.headlineText, headlineClassList)}
         </div>
       </div>
       <div class="${styles.container__row}">
-        ${
-          message.type === EMessageType.ERROR
-            ? `<p class="${this.getClassName(styles.container__error_output, message)}">${
-                texts[EMessageType.ERROR]
-              }</p>`
-            : ''
-        }
-        ${
-          message.type === EMessageType.VERIFICATION_STATE
-            ? `<p class="${this.getClassName(styles.container__result_output, message)}">${
-                texts[EMessageType.VERIFICATION_STATE]
-              }</p>`
-            : ''
-        }
+        <p class="${this.getClassName(styles.container__result_output, message)}">
+          ${this.resultText}
+        </p>
       <div>
       </div>`;
-    this.prevTexts = texts;
+  }
+
+  private updateHeadlineText(message: UbirchMessage): void {
+    let suffix: string;
+    if (message.type === EMessageType.ERROR) suffix = 'VERIFICATION_FAILED';
+    else if (message.type === EMessageType.VERIFICATION_STATE)
+      suffix = message.result.verificationState;
+    else suffix = 'VERIFICATION_PENDING';
+    this.headlineText = i18n.t(`${EMessageType.VERIFICATION_STATE}.${suffix}`);
+  }
+
+  private updateResultText(message: UbirchMessage): void {
+    if (message.type !== EMessageType.VERIFICATION_STATE) {
+      this.resultText = i18n.t(`${message.type}.${message.code}`);
+    }
   }
 
   private renderSealOutput(message: UbirchMessage): string {
@@ -89,15 +90,6 @@ export class UbirchVerificationWidget {
     const iconSrcSuffix = BlockchainSettings.ubirchIcons[sealSuffix];
     const iconId = `ubirch-verification-${sealSuffix}-img`;
     return this.createIconString(`${environment.assets_url_prefix}${iconSrcSuffix}`, iconId);
-  }
-
-  private updateTexts(message: UbirchMessage) {
-    return this.prevTexts !== null
-      ? {
-          ...this.prevTexts,
-          [message.type]: i18n.t(`${message.type}.${message.code}`),
-        }
-      : { [message.type]: i18n.t(`${message.type}.${message.code}`) };
   }
 
   private getHeadline(headline: string, className: string): string {

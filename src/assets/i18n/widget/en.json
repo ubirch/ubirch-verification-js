@@ -17,6 +17,7 @@
     "VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE": "Verification Failed!! Empty certificate or missing seal"
   },
   "verification-state": {
+    "VERIFICATION_PENDING": "Verification pending...",
     "VERIFICATION_SUCCESSFUL": "Verification successful!",
     "VERIFICATION_PARTLY_SUCCESSFUL": "Verification only partly successful",
     "VERIFICATION_FAILED": "Verification failed! No anchor for that data can be found!"

@@ -17,6 +17,7 @@
     "VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE": "Verifikation fehlgeschlagen!! Zertifikat ist leer oder enthält kein Siegel"
   },
   "verification-state": {
+    "VERIFICATION_PENDING": "Verifikation wird durchgeführt...",
     "VERIFICATION_SUCCESSFUL": "Verifikation erfolgreich!",
     "VERIFICATION_PARTLY_SUCCESSFUL": "Verifikation war nur teilweise erfolgreich",
     "VERIFICATION_FAILED": "Die Verifikation ist fehlgeschlagen! Es konnte keine Verankerung der Daten gefunden werden!"
