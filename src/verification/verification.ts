@@ -1,7 +1,7 @@
 import i18n from 'i18next';
 import { sha256 } from 'js-sha256';
 import { sha512 } from 'js-sha512';
-import {getUUIDFromUpp} from 'ubirch-protocol-js/src/verify'
+import UbirchProtocol from 'ubirch-protocol-js/src/verify';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import * as de from '../assets/i18n/de.json';
 import * as en from '../assets/i18n/en.json';
@@ -73,6 +73,12 @@ export class UbirchVerification {
     return transId;
   }
 
+  public getHWDeviceId(upp: string): string {
+    const decodedUpp = UbirchProtocol.tools.upp(upp);
+    const hwDeviceId = UbirchProtocol.tools.getUUIDFromUpp(decodedUpp);
+    return hwDeviceId;
+  }
+
   public async verifyHash(hash: string): Promise<IUbirchVerificationResult> {
     const verificationResult: IUbirchVerificationResult = this.createInitialUbirchVerificationResult(
       hash
@@ -91,9 +97,9 @@ export class UbirchVerification {
 
         this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
 
-        const hwDeviceId = getUUIDFromUpp(ubirchUpp);
+        const hwDeviceId = this.getHWDeviceId(ubirchUpp.upp);
 
-        console.log(hwDeviceId);
+        console.log('qwe', hwDeviceId);
 
         // TODO: check that upp contains given hash
         // TODO: check signature, ...
