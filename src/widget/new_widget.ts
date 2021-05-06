@@ -48,9 +48,12 @@ export class UbirchVerificationWidget {
   private render(message: UbirchMessage): void {
     const texts = this.updateTexts(message);
     const headlineClassList = this.getClassName(styles.container__verification_headline, message);
+    this.host.innerHTML = '';
     this.host.innerHTML = `<div class="${styles.container}">
       <div class="${styles.container__row}">
-        <div class="${styles.container__seal_output}"></div>
+        <div class="${styles.container__seal_output}">
+          ${this.renderSealOutput(message)}
+        </div>
         <div class="${styles.container__heading_box}">
           ${this.getHeadline(texts[EMessageType.VERIFICATION_STATE], headlineClassList)}
         </div>
@@ -73,6 +76,20 @@ export class UbirchVerificationWidget {
       <div>
       </div>`;
     this.prevTexts = texts;
+  }
+
+  private renderSealOutput(message: UbirchMessage): string {
+    if (message.type !== EMessageType.VERIFICATION_STATE) {
+      return '';
+    }
+    const isSuccessful =
+      message.result.verificationState === EVerificationState.VERIFICATION_SUCCESSFUL ||
+      message.result.verificationState === EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+
+    const sealSuffix = isSuccessful ? 'seal' : 'no_seal';
+    const iconSrcSuffix = BlockchainSettings.ubirchIcons[sealSuffix];
+    const iconId = `ubirch-verification-${sealSuffix}-img`;
+    return this.createIconString(`${environment.assets_url_prefix}${iconSrcSuffix}`, iconId);
   }
 
   private updateTexts(message: UbirchMessage) {
@@ -105,11 +122,11 @@ export class UbirchVerificationWidget {
     return classNames;
   }
 
-  private getErrorOutput(error: string): string {
-    return error === '' ? '' : `<p class="${styles.container__error_output}">${error}</p>`;
+  private createIconString(src: string, id: string): string {
+    return `<img src="${src}" id="${id}" class="${styles.container__seal}" alt="seal icon" />`;
   }
 
-  private showSeal(successful: boolean, hash: string, noLink: boolean = false) {
+  private deprecated__showSeal(successful: boolean, hash: string, noLink: boolean = false) {
     const iconSrcSuffix: string = successful
       ? BlockchainSettings.ubirchIcons.seal
       : BlockchainSettings.ubirchIcons.no_seal;
@@ -127,12 +144,6 @@ export class UbirchVerificationWidget {
         </a>
       `;
     }
-  }
-
-  private createIconString(src: string, id: string, width?: string, height?: string): string {
-    return `<img src="${src}" id="${id}" ${
-      width && height ? `style="width: ${width}; height: ${height}"` : ''
-    } />`;
   }
 }
 

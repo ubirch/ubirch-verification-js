@@ -11,9 +11,14 @@
   &__seal_output {
     width: 50px;
     height: 50px;
+    display: flex;
+    box-sizing: border-box;
+    padding: 5px;
   }
 
   &__heading_box {
+    box-sizing: border-box;
+    padding: 5px;
     width: calc(100% - 50px);
   }
 
@@ -32,6 +37,7 @@
   &__verification_headline {
     color: black;
     font-size: 20px;
+    margin: 0;
   }
 
   &__verification_success {
@@ -40,5 +46,10 @@
 
   &__verification_fail {
     color: red;
+  }
+
+  &__seal {
+    width: 50px;
+    height: 50px;
   }
 }
