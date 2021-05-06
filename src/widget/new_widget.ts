@@ -104,6 +104,9 @@ export class UbirchVerificationWidget {
       [styles.container__verification_success]:
         message.type === EMessageType.VERIFICATION_STATE &&
         message.result?.verificationState === EVerificationState.VERIFICATION_SUCCESSFUL,
+      [styles.container__verification_part_success]:
+        message.type === EMessageType.VERIFICATION_STATE &&
+        message.result?.verificationState === EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
       [styles.container__verification_fail]:
         message.type === EMessageType.ERROR ||
         (message.type === EMessageType.VERIFICATION_STATE &&
