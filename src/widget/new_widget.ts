@@ -41,12 +41,13 @@ export class UbirchVerificationWidget {
 
   private render(message: UbirchMessage): void {
     const headlineClassList = this.getClassName(styles.container__verification_headline, message);
+    const noIconRow = message.type !== EMessageType.VERIFICATION_STATE;
     this.host.innerHTML = `<div class="${styles.container}">
       <div class="${styles.container__row}">
-        <div class="${styles.container__seal_output}">
-          ${this.renderSealOutput(message)}
-        </div>
-        <div class="${styles.container__heading_box}">
+        ${this.renderSealOutput(message)}
+        <div class="${classnames(styles.container__heading_box, {
+          [styles['container__heading_box--wide']]: noIconRow,
+        })}">
           ${this.getHeadline(this.headlineText, headlineClassList)}
         </div>
       </div>
@@ -84,11 +85,14 @@ export class UbirchVerificationWidget {
     const sealSuffix = isSuccessful ? 'seal' : 'no_seal';
     const iconSrcSuffix = BlockchainSettings.ubirchIcons[sealSuffix];
     const iconId = `ubirch-verification-${sealSuffix}-img`;
-    return this.createIconString(`${environment.assets_url_prefix}${iconSrcSuffix}`, iconId);
+    return `
+      <div class="${styles.container__seal_output}">
+        ${this.createIconString(`${environment.assets_url_prefix}${iconSrcSuffix}`, iconId)}
+      </div>`;
   }
 
   private getHeadline(headline: string, className: string): string {
-    return headline === '' ? '' : ` <h5 class="${className}">${headline}</h5>`;
+    return headline === '' ? '' : ` <h3 class="${className}">${headline}</h3>`;
   }
 
   private getClassName(rootClassName: string, message: UbirchMessage): string {
