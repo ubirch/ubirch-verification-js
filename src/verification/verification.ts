@@ -21,6 +21,7 @@ import {
   IUbirchBlockchainAnchorRAW,
   IUbirchInfo,
   IUbirchError,
+  IUbirchErrorDetails,
   IUbirchVerificationState,
   UbirchMessage,
   IUbirchUpp,
@@ -39,11 +40,6 @@ export class UbirchVerification {
   private algorithm: EHashAlgorithms = EHashAlgorithms.SHA256;
   private accessToken: string;
   private language?: ELanguages = ELanguages.en;
-  private debug?: boolean = false;
-
-  static createInstance(config: IUbirchVerificationConfig): UbirchVerification {
-    return new UbirchVerification(config);
-  }
 
   constructor(config: IUbirchVerificationConfig) {
     if (!config.accessToken) {
@@ -53,7 +49,6 @@ export class UbirchVerification {
     this.stage = config.stage || this.stage;
     this.algorithm = config.algorithm || this.algorithm;
     this.language = config.language || this.language;
-    this.debug = config.debug !== undefined ? config.debug : this.debug;
   }
 
   public createHash(json: string, hashAlgorithm: EHashAlgorithms = this.algorithm): string {
@@ -77,97 +72,71 @@ export class UbirchVerification {
     return transId;
   }
 
-  public verifyHash(hash: string): Promise<IUbirchVerificationResult> {
+  public async verifyHash(hash: string): Promise<IUbirchVerificationResult> {
     const verificationResult: IUbirchVerificationResult = this.createInitialUbirchVerificationResult(
       hash
     );
 
     this.handleInfo(EInfo.START_VERIFICATION_CALL);
 
-    return new Promise((resolve, reject) => {
-      this.sendVerificationRequest(hash)
-        .then((response: any) => {
-          try {
-            this.handleInfo(EInfo.START_CHECKING_RESPONSE);
+    return this.sendVerificationRequest(hash)
+      .then((verificationResponse: IUbirchVerificationResponse) => {
+        this.handleInfo(EInfo.START_CHECKING_RESPONSE);
 
-            const verificationResponse: IUbirchVerificationResponse = this.parseJSONResponse(
-              response
-            );
+        const ubirchUpp: IUbirchUpp = this.extractUpp(verificationResponse);
 
-            this.handleInfo(EInfo.RESPONSE_JSON_PARSED_SUCCESSFUL);
+        verificationResult.upp = ubirchUpp;
+        verificationResult.verificationState = EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
 
-            const ubirchUpp: IUbirchUpp = this.extractUpp(verificationResponse);
+        this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
 
-            if (ubirchUpp) {
-              verificationResult.upp = ubirchUpp;
-              verificationResult.verificationState =
-                EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+        // TODO: check that upp contains given hash
+        // TODO: check signature, ...
 
-              this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
-            } else {
-              // should never reach this block....
-              this.handleError(EError.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE);
-            }
+        const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(verificationResponse);
 
-            // TODO: check that upp contains given hash
-            // TODO: check signature, ...
+        if (blxAnchors.length > 0) {
+          verificationResult.anchors = blxAnchors;
+          verificationResult.upp.state = EUppStates.anchored;
+          verificationResult.verificationState = EVerificationState.VERIFICATION_SUCCESSFUL;
 
-            const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(
-              verificationResponse
-            );
+          this.handleInfo(EInfo.BLXTXS_FOUND_SUCCESS);
+        } else {
+          verificationResult.verificationState = EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
 
-            if (blxAnchors.length > 0) {
-              verificationResult.anchors = blxAnchors;
-              verificationResult.upp.state = EUppStates.anchored;
-              verificationResult.verificationState = EVerificationState.VERIFICATION_SUCCESSFUL;
+          this.handleInfo(EInfo.NO_BLXTX_FOUND);
+        }
 
-              this.handleInfo(EInfo.BLXTXS_FOUND_SUCCESS);
-            } else {
-              verificationResult.verificationState =
-                EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+        this.handleVerificationState(verificationResult.verificationState, verificationResult);
+        return verificationResult;
+      })
+      .catch((err) => {
+        verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
 
-              this.handleInfo(EInfo.NO_BLXTX_FOUND);
-            }
-          } catch (err) {
-            verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
-            if (err.code) {
-              verificationResult.failReason = err.code;
-            }
+        verificationResult.failReason = err.code || EError.UNKNOWN_ERROR;
 
-            this.handleVerificationState(verificationResult.verificationState, verificationResult);
-            reject(verificationResult);
-          }
-
-          this.handleVerificationState(verificationResult.verificationState, verificationResult);
-          resolve(verificationResult);
-        })
-        .catch((err) => {
-          verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
-
-          verificationResult.failReason = err.code || EError.UNKNOWN_ERROR;
-
-          this.handleVerificationState(verificationResult.verificationState, verificationResult);
-          reject(verificationResult);
-        });
-    });
+        this.handleVerificationState(verificationResult.verificationState, verificationResult);
+        return verificationResult;
+      });
   }
 
   public formatJSON(json: string, sort = true): string {
     try {
       const object: { [key: string]: any } = JSON.parse(json);
-      return JSON.stringify(sort ? this.sortObjectRecursive(object, sort) : object);
+      return JSON.stringify(sort ? this.sortObjectRecursive(object) : object);
     } catch (e) {
       this.handleError(EError.JSON_MALFORMED);
     }
   }
 
-  protected handleError(code: EError): void {
+  protected handleError(code: EError, errorDetails?: IUbirchErrorDetails): void {
     const errorMsg: string = i18n.t(code);
 
     const err: IUbirchError = {
       type: EMessageType.ERROR,
       message: errorMsg,
       code,
+      errorDetails,
     };
 
     this.log(err);
@@ -202,76 +171,43 @@ export class UbirchVerification {
     this.log(info);
   }
 
-  protected sendVerificationRequest(hash: string): Promise<any> {
+  protected async sendVerificationRequest(hash: string): Promise<IUbirchVerificationResponse> {
     const self = this;
     const verificationUrl =
       environment.verify_api_url[this.stage] + '/api' + API_VERSION + environment.verify_api_path;
 
-    return new Promise(function (resolve, reject) {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', verificationUrl, true);
+    const headers = {
+      'Content-type': 'text/plain',
+      authorization: 'bearer ' + self.accessToken,
+    };
 
-      xhr.onload = function () {
-        try {
-          if (this.readyState < 4) {
-            self.handleInfo(EInfo.PROCESSING_VERIFICATION_CALL);
-          } else {
-            switch (this.status) {
-              case 200: {
-                resolve(xhr.response);
-                break;
-              }
-              case 404: {
-                self.handleError(EError.CERTIFICATE_ID_CANNOT_BE_FOUND);
-                break;
-              }
-              case 403: {
-                self.handleError(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
-                break;
-              }
-              case 500: {
-                self.handleError(EError.INTERNAL_SERVER_ERROR);
-                break;
-              }
-              default: {
-                self.handleError(EError.UNKNOWN_ERROR);
-                break;
-              }
-            }
-          }
-        } catch (err) {
-          reject(err);
+    return fetch(verificationUrl, { headers, method: 'POST', body: hash })
+      .catch((err) => {
+        return err.message as string;
+      })
+      .then((response) => {
+        if (typeof response === 'string') {
+          return self.handleError(EError.VERIFICATION_UNAVAILABLE, { errorMessage: response });
         }
-      };
-      xhr.onerror = function () {
-        self.handleError(EError.VERIFICATION_UNAVAILABLE);
-      };
 
-      xhr.setRequestHeader('Content-type', 'text/plain');
-      xhr.setRequestHeader('authorization', 'bearer ' + self.accessToken);
-      xhr.send(hash);
-    });
-  }
-
-  protected parseJSONResponse(result: string): IUbirchVerificationResponse {
-    if (!result) {
-      this.handleError(EError.VERIFICATION_FAILED_EMPTY_RESPONSE);
-      return;
-    }
-
-    let resultObj: IUbirchVerificationResponse;
-
-    try {
-      resultObj = JSON.parse(result);
-    } catch (e) {
-      this.handleError(EError.JSON_PARSE_FAILED);
-    }
-
-    if (!resultObj) {
-      this.handleError(EError.VERIFICATION_FAILED_EMPTY_RESPONSE);
-      return;
-    }
-    return resultObj;
+        switch (response.status) {
+          case 200: {
+            return response.json();
+          }
+          case 404: {
+            self.handleError(EError.CERTIFICATE_ID_CANNOT_BE_FOUND);
+          }
+          case 403: {
+            self.handleError(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
+          }
+          case 500: {
+            self.handleError(EError.INTERNAL_SERVER_ERROR);
+          }
+          default: {
+            self.handleError(EError.UNKNOWN_ERROR);
+          }
+        }
+      });
   }
 
   protected createInitialUbirchVerificationResult(hashP: string): IUbirchVerificationResult {
@@ -291,7 +227,6 @@ export class UbirchVerification {
 
     if (!resultObj.upp || !resultObj.upp.length) {
       this.handleError(EError.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE);
-      return;
     }
 
     const ubirchUpp: IUbirchUpp = {
@@ -320,7 +255,9 @@ export class UbirchVerification {
 
   protected isBloxTXDataDefined(bloxTX: IUbirchBlockchainAnchorRAW): boolean {
     return (
-      bloxTX?.properties?.blockchain?.length > 0 && bloxTX?.properties?.network_type?.length > 0
+      bloxTX.properties &&
+      bloxTX.properties.blockchain?.length > 0 &&
+      bloxTX.properties.network_type?.length > 0
     );
   }
 
@@ -336,9 +273,7 @@ export class UbirchVerification {
     const blockchain: string = bloxTxProps.blockchain;
     const networkType: string = bloxTxProps.network_type;
 
-    const bloxTxData: IUbirchBlockchain = BlockchainSettings.blockchainSettings
-      ? BlockchainSettings.blockchainSettings[blockchain]
-      : undefined;
+    const bloxTxData: IUbirchBlockchain = BlockchainSettings.blockchainSettings[blockchain];
 
     if (!bloxTxData) {
       return undefined;
@@ -353,7 +288,6 @@ export class UbirchVerification {
     const titleStr: string = bloxTxProps.network_info
       ? bloxTxProps.network_info
       : bloxTxProps.blockchain;
-    const iconUrl: string = bloxTxData.nodeIcon ? bloxTxData.nodeIcon : undefined;
 
     const ubirchBlockchainAnchor: IUbirchBlockchainAnchor = {
       raw: bloxTxProps,
@@ -361,7 +295,7 @@ export class UbirchVerification {
       networkInfo: bloxTxProps.network_info,
       networkType: networkType,
       timestamp: bloxTxProps.timestamp,
-      iconUrl: iconUrl,
+      iconUrl: bloxTxData.nodeIcon,
       blxTxExplorerUrl: blxExplorerUrl,
       label: titleStr,
     };
@@ -369,18 +303,15 @@ export class UbirchVerification {
     return ubirchBlockchainAnchor;
   }
 
-  protected sortObjectRecursive(object: unknown, sort: boolean): unknown {
+  protected sortObjectRecursive(object: unknown): unknown {
     // recursive termination condition
     if (typeof object !== 'object' || Array.isArray(object)) {
       return object;
     } else {
       const objectSorted: { [key: string]: any } = {};
-      const keysOrdered: { [key: string]: any } = sort
-        ? Object.keys(object).sort()
-        : Object.keys(object);
-
+      const keysOrdered: { [key: string]: any } = Object.keys(object).sort();
       keysOrdered.forEach(
-        (key: string) => (objectSorted[key] = this.sortObjectRecursive(object[key], sort))
+        (key: string) => (objectSorted[key] = this.sortObjectRecursive(object[key]))
       );
 
       return objectSorted;

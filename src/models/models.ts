@@ -102,7 +102,6 @@ export interface IUbirchVerificationConfig {
   accessToken: string;
   stage?: EStages;
   language?: ELanguages;
-  debug?: boolean;
 }
 
 export interface IUbirchFormUtilsConfig {
@@ -190,4 +189,4 @@ export interface IUbirchBlockchainNet {
   url: string;
 }
 
-export type DataParams = { [index: string]: string };
+export type DataParams = { [index: string]: string | string[] };
