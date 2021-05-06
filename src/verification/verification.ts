@@ -79,6 +79,41 @@ export class UbirchVerification {
     return hwDeviceId;
   }
 
+  public verifySignature(pubKey: string, upp: string): string {
+    return UbirchProtocol.verify(pubKey, upp);
+  }
+
+  protected async getPubKey(hwDeviceId: string): Promise<string> {
+    const self = this;
+    const keyServiceUrl =
+      'https://key.dev.ubirch.com/api/keyService/v1/pubkey/current/hardwareId/' + hwDeviceId;
+
+    const headers = {
+      'Content-type': 'text/plain',
+      authorization: 'bearer ' + self.accessToken,
+    };
+
+    return fetch(keyServiceUrl, { headers })
+      .catch((err) => {
+        return err.message as string;
+      })
+      .then((response) => {
+        if (typeof response === 'string') {
+          return self.handleError(EError.VERIFICATION_UNAVAILABLE, { errorMessage: response });
+        }
+
+        switch (response.status) {
+          case 200: {
+            return response.json();
+          }
+          default: {
+            self.handleError(EError.UNKNOWN_ERROR);
+          }
+        }
+      })
+      .then((json) => json[0].pubKeyInfo.pubKey);
+  }
+
   public async verifyHash(hash: string): Promise<IUbirchVerificationResult> {
     const verificationResult: IUbirchVerificationResult = this.createInitialUbirchVerificationResult(
       hash
@@ -87,7 +122,7 @@ export class UbirchVerification {
     this.handleInfo(EInfo.START_VERIFICATION_CALL);
 
     return this.sendVerificationRequest(hash)
-      .then((verificationResponse: IUbirchVerificationResponse) => {
+      .then(async (verificationResponse: IUbirchVerificationResponse) => {
         this.handleInfo(EInfo.START_CHECKING_RESPONSE);
 
         const ubirchUpp: IUbirchUpp = this.extractUpp(verificationResponse);
@@ -103,6 +138,11 @@ export class UbirchVerification {
 
         // TODO: check that upp contains given hash
         // TODO: check signature, ...
+        const pubKey = await this.getPubKey(hwDeviceId);
+        console.log('qwe2', pubKey);
+
+        const signatureVerificaation = this.verifySignature(pubKey, ubirchUpp.upp);
+        console.log('qwe3', signatureVerificaation);
 
         const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(verificationResponse);
 
