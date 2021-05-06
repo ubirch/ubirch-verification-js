@@ -79,7 +79,7 @@ export class UbirchVerification {
     return hwDeviceId;
   }
 
-  public verifySignature(pubKey: string, upp: string): string {
+  protected verifyDevice(pubKey: string, upp: string): boolean {
     return UbirchProtocol.verify(pubKey, upp);
   }
 
@@ -114,6 +114,43 @@ export class UbirchVerification {
       .then((json) => json[0].pubKeyInfo.pubKey);
   }
 
+  protected async getDeviceName(hwDeviceId: string): Promise<string> {
+    const self = this;
+    const deviceServiceUrl =
+      'https://api.console.dev.ubirch.com/ubirch-web-ui/api/v1/devices/' + hwDeviceId;
+
+    const headers = {
+      'Content-type': 'text/plain',
+      authorization: 'bearer ' + self.accessToken,
+    };
+
+    return fetch(deviceServiceUrl, { headers })
+      .catch((err) => {
+        return err.message as string;
+      })
+      .then((response) => {
+        if (typeof response === 'string') {
+          return self.handleError(EError.VERIFICATION_UNAVAILABLE, { errorMessage: response });
+        }
+
+        switch (response.status) {
+          case 200: {
+            return response.json();
+          }
+          default: {
+            self.handleError(EError.UNKNOWN_ERROR);
+          }
+        }
+      })
+      .then((json) => json);
+  }
+
+  protected async verifySignature(upp: string, hwDeviceId: string): Promise<void> {
+    const pubKey = await this.getPubKey(hwDeviceId);
+    const verified = this.verifyDevice(pubKey, upp);
+    if (!verified) this.handleError(EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED);
+  }
+
   public async verifyHash(hash: string): Promise<IUbirchVerificationResult> {
     const verificationResult: IUbirchVerificationResult = this.createInitialUbirchVerificationResult(
       hash
@@ -133,16 +170,10 @@ export class UbirchVerification {
         this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
 
         const hwDeviceId = this.getHWDeviceId(ubirchUpp.upp);
+        this.verifySignature(ubirchUpp.upp, hwDeviceId);
 
-        console.log('qwe', hwDeviceId);
-
-        // TODO: check that upp contains given hash
-        // TODO: check signature, ...
-        const pubKey = await this.getPubKey(hwDeviceId);
-        console.log('qwe2', pubKey);
-
-        const signatureVerificaation = this.verifySignature(pubKey, ubirchUpp.upp);
-        console.log('qwe3', signatureVerificaation);
+        // const deviceName = await this.getDeviceName(hwDeviceId);
+        // console.log('qwe4', deviceName);
 
         const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(verificationResponse);
 
