@@ -170,7 +170,7 @@ export class UbirchVerification {
         this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
 
         const hwDeviceId = this.getHWDeviceId(ubirchUpp.upp);
-        this.verifySignature(ubirchUpp.upp, hwDeviceId);
+        await this.verifySignature(ubirchUpp.upp, hwDeviceId);
 
         // const deviceName = await this.getDeviceName(hwDeviceId);
         // console.log('qwe4', deviceName);

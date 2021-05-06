@@ -1,4 +1,6 @@
 import * as verifyResult from './verifyresult.json';
+import * as keyServiceResult from './keyService.json';
+// import UbirchProtocol from 'ubirch-protocol-js/src/verify';
 import {
   EError,
   EHashAlgorithms,
@@ -15,6 +17,14 @@ import { UbirchVerification } from '../verification';
 import { messageSubject$ } from '../../messenger';
 
 global.fetch = jest.fn();
+
+jest.mock('ubirch-protocol-js/src/verify', () => ({
+  tools: {
+    upp: jest.fn().mockReturnValue('a'),
+    getUUIDFromUpp: jest.fn().mockReturnValue('b'),
+  },
+  verify: jest.fn().mockReturnValue(true),
+}));
 
 const defaultSettings: IUbirchVerificationConfig = {
   algorithm: EHashAlgorithms.SHA256,
@@ -39,7 +49,7 @@ let verifier: UbirchVerificationMock;
 const deepCopy = <T>(obj: T) => JSON.parse(JSON.stringify(obj)) as T;
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  (global.fetch as jest.Mock).mockClear().mockReset();
   testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
   verifier = new UbirchVerificationMock(defaultSettings);
 });
@@ -124,10 +134,15 @@ describe('Verification', () => {
       const responseJSON: string =
         '{"anchors":{"upper_blockchains":[]},"prev":"","upp":"upp-must-not-be-null"}';
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => JSON.parse(responseJSON),
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => JSON.parse(responseJSON),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       return verifier
         .verifyHash(testhash_verifiable)
@@ -222,10 +237,15 @@ describe('Verification', () => {
       response.anchors.upper_blockchains[3].properties.network_type = '';
       response.anchors.upper_blockchains[4].properties.network_type = undefined;
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => response,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       const infoReceived = [];
       const infoChain = [
@@ -265,10 +285,15 @@ describe('Verification', () => {
       response.anchors.upper_blockchains[1].properties.network_type = 'unknown';
       response.anchors.upper_blockchains[2].properties.txid = undefined;
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => response,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       const infoReceived = [];
       const infoChain = [
@@ -303,10 +328,15 @@ describe('Verification', () => {
       const response = deepCopy(verifyResult);
       response.anchors = undefined;
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => response,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       const infoReceived = [];
       const infoChain = [
@@ -340,10 +370,15 @@ describe('Verification', () => {
     test('should fail with VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE if no upp is returned', () => {
       const responseJSON: string = '{"anchors":{"upper_blockchains":[]},"prev":"","upp":""}';
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => JSON.parse(responseJSON),
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => JSON.parse(responseJSON),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       return verifier
         .verifyHash(testhash_verifiable)
@@ -355,10 +390,15 @@ describe('Verification', () => {
     });
 
     test('should fail with UNKNOWN_ERROR', () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: 'malformed-api',
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: 'malformed-api',
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       return verifier
         .verifyHash(testhash_verifiable)
@@ -370,10 +410,15 @@ describe('Verification', () => {
     });
 
     test('should send the hash successfully and return a VERIFICATION_SUCCESSFUL response', () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => verifyResult,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => verifyResult,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       return verifier
         .verifyHash(testhash_verifiable)
@@ -402,10 +447,15 @@ describe('Verification', () => {
       const response = deepCopy(verifyResult);
       response.anchors.upper_blockchains[0].properties.network_info = undefined;
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => response,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       return verifier
         .verifyHash(testhash_verifiable)
@@ -432,10 +482,15 @@ describe('Verification', () => {
     });
 
     test('should send the hash to default production stage', () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => verifyResult,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => verifyResult,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       const prodVerifier = new UbirchVerificationMock({ ...defaultSettings, stage: undefined });
       return prodVerifier
@@ -472,10 +527,15 @@ describe('Verification', () => {
         }
       });
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => verifyResult,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => verifyResult,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       verifier.verifyHash(testhash_verifiable).then((_) => {
         expect(infoReceived).toEqual(infoChain);
