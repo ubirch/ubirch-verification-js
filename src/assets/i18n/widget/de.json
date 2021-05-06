@@ -6,7 +6,8 @@
     "WARNING_EMPTY_BLXTX_FOUND": "Achtung! Leeren Blockchain Datensatz gefunden",
     "BLXTX_FOUND_SUCCESS": "Es wurden Blockchain Verankerungen gefunden",
     "RESPONSE_JSON_PARSED_SUCCESSFULY": "Die Antwort der Verifikationsanfrage konnte erfolgreich in das interne Datenformat geparst werden",
-    "NO_BLXTX_FOUND": "Die Daten wurden noch nicht in Blockchains verankert"
+    "NO_BLXTX_FOUND": "Die Daten wurden noch nicht in Blockchains verankert",
+    "BLXTXS_FOUND_SUCCESS": "Die Daten wurden in Blockchains verankert"
   },
   "error": {
     "CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE": "403 - nicht authorisiert",

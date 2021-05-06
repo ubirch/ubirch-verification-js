@@ -1,4 +1,3 @@
-import i18n from 'i18next';
 import { Observable } from 'rxjs';
 import classnames from 'classnames';
 import {
@@ -8,14 +7,10 @@ import {
   EVerificationState,
   UbirchMessage,
 } from '../models/models';
-import { initTranslations } from '../utils/translations';
-import * as de from '../assets/i18n/widget/de.json';
-import * as en from '../assets/i18n/widget/en.json';
 import environment from '../environment';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
+import i18n from '../utils/translations';
 import styles from './widget.module.scss';
-
-initTranslations({ de, en });
 
 export interface IUbirchVerificationWidgetConfig {
   hostSelector: string;
@@ -69,12 +64,12 @@ export class UbirchVerificationWidget {
     else if (message.type === EMessageType.VERIFICATION_STATE)
       suffix = message.result.verificationState;
     else suffix = 'VERIFICATION_PENDING';
-    this.headlineText = i18n.t(`${EMessageType.VERIFICATION_STATE}.${suffix}`);
+    this.headlineText = i18n.t(`widget:${EMessageType.VERIFICATION_STATE}.${suffix}`);
   }
 
   private updateResultText(message: UbirchMessage): void {
     if (message.type !== EMessageType.VERIFICATION_STATE) {
-      this.resultText = i18n.t(`${message.type}.${message.code}`);
+      this.resultText = i18n.t(`widget:${message.type}.${message.code}`);
     }
   }
 
@@ -93,7 +88,7 @@ export class UbirchVerificationWidget {
   }
 
   private getHeadline(headline: string, className: string): string {
-    return headline === '' ? '' : ` <h4 class="${className}">${headline}</h4>`;
+    return headline === '' ? '' : ` <h5 class="${className}">${headline}</h5>`;
   }
 
   private getClassName(rootClassName: string, message: UbirchMessage): string {

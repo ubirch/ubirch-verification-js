@@ -9,7 +9,6 @@ import {
   IUbirchBlockchainNet,
   IUbirchVerificationAnchorProperties,
 } from '../models/models';
-import { initTranslations } from '../utils/translations';
 import environment from '../environment';
 
 export enum WidgetClassNameSuffixes {
@@ -24,8 +23,6 @@ export interface IUbirchVerificationWidgetConfig {
   language?: ELanguages;
   openConsoleInSameTarget?: boolean;
 }
-
-initTranslations({ de, en });
 
 export class UbirchVerificationWidget {
   private host: HTMLElement;

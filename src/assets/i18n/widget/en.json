@@ -6,7 +6,8 @@
     "WARNING_EMPTY_BLXTX_FOUND": "Attention! Empty Blockchain dataset found",
     "BLXTX_FOUND_SUCCESS": "Blockchain anchors found successfully",
     "RESPONSE_JSON_PARSED_SUCCESSFULY": "Verification response has been parsed successfully",
-    "NO_BLXTX_FOUND": "The data has not been anchored in any blockchain yet"
+    "NO_BLXTX_FOUND": "The data has not been anchored in any blockchain yet",
+    "BLXTXS_FOUND_SUCCESS": "The data has been anchored in the blockchain"
   },
   "error": {
     "CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE": "403 - unauthorized",
