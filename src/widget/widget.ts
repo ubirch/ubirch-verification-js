@@ -1,231 +1,141 @@
-import i18next from 'i18next';
-import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
-import * as de from '../assets/i18n/widget/de.json';
-import * as en from '../assets/i18n/widget/en.json';
+import { Observable } from 'rxjs';
+import classnames from 'classnames';
 import {
   EError,
   ELanguages,
-  IUbirchBlockchain,
-  IUbirchBlockchainNet,
-  IUbirchVerificationAnchorProperties,
+  EMessageType,
+  EVerificationState,
+  UbirchMessage,
 } from '../models/models';
 import environment from '../environment';
-
-export enum WidgetClassNameSuffixes {
-  InfoText = 'info-text',
-  SealOutput = 'seal-output',
-  ResultOutput = 'result-output',
-  ErrorOutput = 'error-output',
-}
+import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
+import i18n from '../utils/translations';
+import styles from './widget.module.scss';
 
 export interface IUbirchVerificationWidgetConfig {
-  elementSelector: string;
+  hostSelector: string;
   language?: ELanguages;
   openConsoleInSameTarget?: boolean;
+  messenger: Observable<UbirchMessage>;
 }
 
 export class UbirchVerificationWidget {
   private host: HTMLElement;
-  private sealInfoText: HTMLElement;
-  private sealOutput: HTMLElement;
-  private resultOutput: HTMLElement;
-  private errorOutput: HTMLElement;
-  public highlightPageAfterVerification: boolean = false;
-  public openConsoleInSameTarget: boolean;
+  private openConsoleInSameTarget: boolean;
+  private headlineText: string = '';
+  private resultText: string = '';
 
   constructor(config: IUbirchVerificationWidgetConfig) {
-    const host = document.querySelector(config.elementSelector);
+    const host = document.querySelector(config.hostSelector);
     if (!host) throw new Error(EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND);
-    this.openConsoleInSameTarget = config.openConsoleInSameTarget || false;
     this.host = host as HTMLElement;
-    this.host.insertAdjacentHTML('beforeend', this.template);
-    this.sealOutput = this.host.querySelector('.ubirch');
-    this.sealInfoText = this.host.querySelector(WidgetClassNameSuffixes.InfoText);
-    this.sealOutput = this.host.querySelector(WidgetClassNameSuffixes.SealOutput);
-    this.resultOutput = this.host.querySelector(WidgetClassNameSuffixes.ResultOutput);
-    this.errorOutput = this.host.querySelector(WidgetClassNameSuffixes.ErrorOutput);
+    this.openConsoleInSameTarget = config.openConsoleInSameTarget || false;
+    config.messenger.subscribe((message) => {
+      if (message) {
+        this.updateHeadlineText(message);
+        this.updateResultText(message);
+        this.render(message);
+      }
+    });
   }
 
-  public cleanupIcons(): void {
-    // remove seal and transaction_check icons IF exist
-    this.cleanAllChilds(this.resultOutput);
-    this.cleanAllChilds(this.sealOutput);
-    this.cleanAllChilds(this.sealInfoText);
+  private render(message: UbirchMessage): void {
+    const headlineClassList = this.getClassName(styles.container__verification_headline, message);
+    const noIconRow = message.type !== EMessageType.VERIFICATION_STATE;
+    this.host.innerHTML = `<div class="${styles.container}">
+      <div class="${styles.container__row}">
+        ${this.renderSealOutput(message)}
+        <div class="${classnames(styles.container__heading_box, {
+          [styles['container__heading_box--wide']]: noIconRow,
+        })}">
+          ${this.getHeadline(this.headlineText, headlineClassList)}
+        </div>
+      </div>
+      <div class="${styles.container__row}">
+        <p class="${this.getClassName(styles.container__result_output, message)}">
+          ${this.resultText}
+        </p>
+      <div>
+      </div>`;
   }
 
-  public showSeal(successful: boolean, hash: string, nolink: boolean = false): void {
-    let icon: HTMLElement;
+  private updateHeadlineText(message: UbirchMessage): void {
+    let suffix: string;
+    if (message.type === EMessageType.ERROR) suffix = 'VERIFICATION_FAILED';
+    else if (message.type === EMessageType.VERIFICATION_STATE)
+      suffix = message.result.verificationState;
+    else suffix = 'VERIFICATION_PENDING';
+    this.headlineText = i18n.t(`widget:${EMessageType.VERIFICATION_STATE}.${suffix}`);
+  }
 
-    if (successful) {
-      icon = this.createIconTag(
-        environment.assets_url_prefix + BlockchainSettings.ubirchIcons.seal,
-        'ubirch-verification-seal-img'
-      );
-    } else {
-      icon = this.createIconTag(
-        environment.assets_url_prefix + BlockchainSettings.ubirchIcons.no_seal,
-        'ubirch-verification-no-seal-img'
-      );
+  private updateResultText(message: UbirchMessage): void {
+    if (message.type !== EMessageType.VERIFICATION_STATE) {
+      this.resultText = i18n.t(`widget:${message.type}.${message.code}`);
     }
+  }
 
-    if (nolink) {
-      this.sealOutput.appendChild(icon);
+  private renderSealOutput(message: UbirchMessage): string {
+    if (message.type !== EMessageType.VERIFICATION_STATE) {
+      return '';
+    }
+    const isSuccessful =
+      message.result.verificationState === EVerificationState.VERIFICATION_SUCCESSFUL ||
+      message.result.verificationState === EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+
+    const sealSuffix = isSuccessful ? 'seal' : 'no_seal';
+    const iconSrcSuffix = BlockchainSettings.ubirchIcons[sealSuffix];
+    const iconId = `ubirch-verification-${sealSuffix}-img`;
+    return `
+      <div class="${styles.container__seal_output}">
+        ${this.createIconString(`${environment.assets_url_prefix}${iconSrcSuffix}`, iconId)}
+      </div>`;
+  }
+
+  private getHeadline(headline: string, className: string): string {
+    return headline === '' ? '' : ` <h3 class="${className}">${headline}</h3>`;
+  }
+
+  private getClassName(rootClassName: string, message: UbirchMessage): string {
+    const classNames = classnames(rootClassName, {
+      [styles.container__verification_info]:
+        message.type === EMessageType.INFO ||
+        (message.type === EMessageType.VERIFICATION_STATE &&
+          message.result?.verificationState === EVerificationState.VERIFICATION_PENDING),
+      [styles.container__verification_success]:
+        message.type === EMessageType.VERIFICATION_STATE &&
+        message.result?.verificationState === EVerificationState.VERIFICATION_SUCCESSFUL,
+      [styles.container__verification_part_success]:
+        message.type === EMessageType.VERIFICATION_STATE &&
+        message.result?.verificationState === EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
+      [styles.container__verification_fail]:
+        message.type === EMessageType.ERROR ||
+        (message.type === EMessageType.VERIFICATION_STATE &&
+          message.result?.verificationState === EVerificationState.VERIFICATION_FAILED),
+    });
+    return classNames;
+  }
+
+  private createIconString(src: string, id: string): string {
+    return `<img src="${src}" id="${id}" class="${styles.container__seal}" alt="seal icon" />`;
+  }
+
+  private deprecated__showSeal(successful: boolean, hash: string, noLink: boolean = false) {
+    const iconSrcSuffix: string = successful
+      ? BlockchainSettings.ubirchIcons.seal
+      : BlockchainSettings.ubirchIcons.no_seal;
+    const iconId = `ubirch-verification-${successful ? 'seal' : 'no-seal'}-img`;
+    const icon = this.createIconString(`${environment.assets_url_prefix}${iconSrcSuffix}`, iconId);
+
+    if (noLink) {
+      return icon;
     } else {
-      const link: HTMLElement = document.createElement('a');
-
       const encodedHash: string = encodeURIComponent(hash);
-
-      link.setAttribute('href', `${environment.console_verify_url}?hash=${encodedHash}`);
-      if (!this.openConsoleInSameTarget) {
-        link.setAttribute('target', '_blank');
-      }
-
-      link.appendChild(icon);
-
-      this.sealOutput.appendChild(link);
-    }
-  }
-
-  public showSuccess(): void {
-    this.resultOutput.innerHTML = '';
-    this.errorOutput.innerHTML = '';
-
-    this.resultOutput.appendChild(document.createElement('br'));
-    this.resultOutput.appendChild(
-      this.createTxtTag(i18next.t('SUCCESS.info'), 'ubirch-verification-success')
-    );
-    this.resultOutput.appendChild(document.createElement('br'));
-  }
-
-  public showBloxTXIcon(bloxTX: IUbirchVerificationAnchorProperties, index: number): void {
-    if (!bloxTX) {
-      return;
-    }
-
-    const blockchain: string = bloxTX.blockchain;
-    const networkType: string = bloxTX.network_type;
-
-    if (!blockchain || !networkType) {
-      return;
-    }
-
-    const blox: IUbirchBlockchain = BlockchainSettings.blockchainSettings
-      ? BlockchainSettings.blockchainSettings[blockchain]
-      : undefined;
-
-    if (!blox || !bloxTX.txid) {
-      return;
-    }
-
-    const bloxTXData: IUbirchBlockchainNet = blox.explorerUrl[networkType];
-
-    const linkTag: HTMLElement = document.createElement('a');
-
-    // add transactionId to url
-    if (bloxTXData.url) {
-      linkTag.setAttribute('href', bloxTXData.url + bloxTX.txid);
-    }
-
-    const titleStr: string = bloxTX.network_info ? bloxTX.network_info : bloxTX.blockchain;
-
-    linkTag.setAttribute('title', titleStr);
-    linkTag.setAttribute('target', '_blanc');
-
-    // if icon url is given add img, otherwise add text
-    if (blox.nodeIcon) {
-      const iconId = `blockchain_transid_check${index === undefined ? '' : '_' + index}`;
-      linkTag.appendChild(
-        this.createIconTag(environment.assets_url_prefix + blox.nodeIcon, iconId)
-      );
-    } else {
-      linkTag.innerHTML = titleStr;
-    }
-
-    this.resultOutput.appendChild(linkTag);
-  }
-
-  public addHeadlineAndInfotext(successful?: boolean, info?: string, errorMsg?: string): void {
-    if (successful === undefined) {
-      this.resultOutput.appendChild(
-        this.createTxtTag(
-          i18next.t('PENDING.info'),
-          'ubirch-verification-success ubirch-verification-headline'
-        )
-      );
-    } else {
-      if (successful) {
-        const textTag = this.createTxtTag(
-          'FAIL.headline',
-          'ubirch-verification-fail ubirch-verification-headline'
-        );
-        this.sealInfoText.appendChild(textTag);
-      } else {
-        const textTag = this.createTxtTag(
-          info ? info : i18next.t('FAIL.info'),
-          'ubirch-verification-fail'
-        );
-        this.resultOutput.appendChild(textTag);
-        if (errorMsg) {
-          const textTag = this.createTxtTag(errorMsg, 'ubirch-error-output');
-          this.errorOutput.appendChild(textTag);
-        }
-      }
-      // if HIGHLIGHT_PAGE_AFTER_VERIFICATION is set the whole page is flashed in green, if verification returned successful,
-      // or red, if verification failed
-      this.highlightPage(successful);
-    }
-  }
-
-  public createTxtTag(txt: string, className: string): HTMLElement {
-    const txtTag: HTMLElement = document.createElement('div');
-    txtTag.innerHTML = txt;
-    txtTag.setAttribute('class', className);
-
-    return txtTag;
-  }
-
-  private get template(): string {
-    return Object.values(WidgetClassNameSuffixes).reduce((template: string, val: string) => {
-      template += `<div class="ubirch-${val}"></div>`;
-      return template;
-    }, '');
-  }
-
-  private cleanAllChilds(element: HTMLElement): void {
-    if (element) {
-      while (element.firstChild) {
-        element.removeChild(element.firstChild);
-      }
-    }
-  }
-
-  private createIconTag(
-    src: string,
-    imgTagId: string,
-    width?: string,
-    height?: string
-  ): HTMLElement {
-    const imgTag: HTMLElement = document.createElement('img');
-    imgTag.setAttribute('width', width ? width : '50');
-    imgTag.setAttribute('height', height ? height : '50');
-    imgTag.setAttribute('src', src);
-
-    if (imgTagId) {
-      imgTag.setAttribute('id', imgTagId);
-    }
-    return imgTag;
-  }
-
-  private highlightPage(successful: boolean): void {
-    if (this.highlightPageAfterVerification) {
-      const highlightClass = successful ? 'flashgreen' : 'flashred';
-      const mainElement = document.getElementsByTagName('main')[0];
-      setTimeout((_) => {
-        mainElement.classList.toggle(highlightClass);
-      }, 100);
-      setTimeout((_) => {
-        mainElement.classList.toggle(highlightClass);
-      }, 2400);
+      const href = `${environment.console_verify_url}?hash=${encodedHash}`;
+      return `
+        <a href="${href}" ${!this.openConsoleInSameTarget ? 'target="_blank' : ''}>
+          ${icon}
+        </a>
+      `;
     }
   }
 }

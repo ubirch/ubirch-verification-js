@@ -5,7 +5,7 @@ import {
   EMessageType,
   UbirchMessage,
 } from '../../models/models';
-import { UbirchVerificationWidget } from '../new_widget';
+import { UbirchVerificationWidget } from '../widget';
 
 let root: HTMLElement;
 let subject: BehaviorSubject<UbirchMessage>;

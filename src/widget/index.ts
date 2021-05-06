@@ -1,3 +1,3 @@
-import { UbirchVerificationWidget } from './new_widget';
+import { UbirchVerificationWidget } from './widget';
 
 export default UbirchVerificationWidget;
