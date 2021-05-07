@@ -15,7 +15,19 @@
     "INTERNAL_SERVER_ERROR": "Internal Server Error. Something went wrong.",
     "UNKNOWN_ERROR": "An unexpected error occurred",
     "VERIFICATION_UNAVAILABLE": "Verification service is not available! {{message}}",
-    "VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE": "Verification Failed!! Empty certificate or missing seal"
+    "VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE": "Verification Failed!! Empty certificate or missing seal",
+    "URL_PARAMS_CORRUPT": "Called URL (from QRCode) contains at least one not allowed character that could corrupt this verification",
+    "LOCATION_MALFORMED": "Called URL (from QRCode) is not in a correct URL format",
+    "MANDATORY_FIELD_MISSING": "Mandatory form fields not set - if you scanned a QRCode it seems to be incorrect",
+    "FILLING_FORM_WITH_PARAMS_FAILED": "Unable to fill the form with the given parameters from called URL",
+    "JSON_PARSE_FAILED": "JSON could not be parsed",
+    "JSON_MALFORMED": "Building JSON from input fields failed",
+    "CANNOT_ACCESS_FORM_FIELD": "Unable to access input field",
+    "MISSING_PROPERTY_IN_UBRICH_VERIFICATION_INSTANCIATION": "Please, provide the `elementSelector` to UbirchVerification or UbirchFormVerification instance",
+    "ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND": "Element for widget selector not found",
+    "MISSING_PARAM_IDS": "Please, provide a string array with param ids",
+    "PARAM_ID_MAPPING_MISSMATCH": "If you provide paramsFormIdsMapping define a mapping for each formId; they need to be in the same order",
+    "MISSING_ACCESS_TOKEN": "You need to provide an accessToken to verify data"
   },
   "verification-state": {
     "VERIFICATION_PENDING": "Verification pending...",

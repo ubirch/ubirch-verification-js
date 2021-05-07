@@ -1,4 +1,3 @@
-import i18n from 'i18next';
 import {
   EError,
   EMessageType,
@@ -9,6 +8,7 @@ import {
   DataParams,
 } from '../models/models';
 import { messageSubject$ } from '../messenger';
+import i18n from '../utils/translations';
 
 const DEFAULT_CONFIG: IUbirchFormUtilsConfig = {
   formIds: [],
@@ -37,7 +37,7 @@ export class UbirchFormUtils {
   }
 
   static handleError = (code: EError, errorDetails?: IUbirchErrorDetails): void => {
-    const errorMsg: string = i18n.t(code);
+    const errorMsg: string = i18n.t(`widget:error.${code}`);
 
     const err: IUbirchError = {
       type: EMessageType.ERROR,
