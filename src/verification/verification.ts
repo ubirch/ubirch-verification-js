@@ -125,7 +125,7 @@ export class UbirchVerification {
   }
 
   protected handleError(code: EError, errorDetails?: IUbirchErrorDetails): void {
-    const errorMsg: string = i18n.t(code);
+    const errorMsg: string = i18n.t(`verification:${code}`);
 
     const err: IUbirchError = {
       type: EMessageType.ERROR,
