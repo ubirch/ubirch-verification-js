@@ -1,12 +1,12 @@
 import i18n from 'i18next';
 import { sha256 } from 'js-sha256';
 import { sha512 } from 'js-sha512';
-import UbirchProtocol from 'ubirch-protocol-js/src/verify';
+import UbirchProtocol from '@ubirch/ubirch-protocol-verifier';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import * as de from '../assets/i18n/de.json';
 import * as en from '../assets/i18n/en.json';
 import environment from '../environment';
-import { messageSubject$ } from '../messenger';
+import { messageSubject$, messenger$, UbirchObservable } from '../messenger';
 import {
   EError,
   EHashAlgorithms,
@@ -73,7 +73,11 @@ export class UbirchVerification {
     return transId;
   }
 
-  public getHWDeviceId(upp: string): string {
+  public getMessenger(): UbirchObservable {
+    return messenger$;
+  }
+
+  protected getHWDeviceId(upp: string): string {
     const decodedUpp = UbirchProtocol.tools.upp(upp);
     const hwDeviceId = UbirchProtocol.tools.getUUIDFromUpp(decodedUpp);
     return hwDeviceId;

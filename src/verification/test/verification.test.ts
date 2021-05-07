@@ -1,6 +1,6 @@
 import * as verifyResult from './verifyresult.json';
 import * as keyServiceResult from './keyService.json';
-import UbirchProtocol from 'ubirch-protocol-js/src/verify';
+import UbirchProtocol from '@ubirch/ubirch-protocol-verifier';
 import {
   EError,
   EHashAlgorithms,
@@ -18,7 +18,7 @@ import { messageSubject$ } from '../../messenger';
 
 global.fetch = jest.fn();
 
-jest.mock('ubirch-protocol-js/src/verify', () => ({
+jest.mock('@ubirch/ubirch-protocol-verifier', () => ({
   tools: {
     upp: jest.fn().mockReturnValue('a'),
     getUUIDFromUpp: jest.fn().mockReturnValue('b'),
@@ -52,6 +52,7 @@ beforeEach(() => {
   (global.fetch as jest.Mock).mockClear().mockReset();
   testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
   verifier = new UbirchVerificationMock(defaultSettings);
+  messageSubject$.next(null);
 });
 
 describe('Verification', () => {
@@ -260,8 +261,7 @@ describe('Verification', () => {
         EVerificationState.VERIFICATION_SUCCESSFUL,
       ];
 
-      messageSubject$.next(null);
-      const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+      const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
         if (message !== null) {
           infoReceived.push(message.code);
         }
@@ -304,8 +304,7 @@ describe('Verification', () => {
         EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
       ];
 
-      messageSubject$.next(null);
-      const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+      const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
         if (message !== null) {
           infoReceived.push(message.code);
         }
@@ -348,8 +347,7 @@ describe('Verification', () => {
         EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
       ];
 
-      messageSubject$.next(null);
-      const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+      const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
         if (message !== null) {
           infoReceived.push(message.code);
         }
@@ -522,8 +520,7 @@ describe('Verification', () => {
         EVerificationState.VERIFICATION_SUCCESSFUL,
       ];
 
-      messageSubject$.next(null);
-      const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+      const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
         if (message !== null) {
           infoReceived.push(message.code);
         }
@@ -557,8 +554,7 @@ describe('Verification', () => {
       EVerificationState.VERIFICATION_FAILED,
     ];
 
-    messageSubject$.next(null);
-    const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+    const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
       if (message !== null) {
         infoReceived.push(message.code);
       }
@@ -587,8 +583,7 @@ describe('Verification', () => {
       EVerificationState.VERIFICATION_FAILED,
     ];
 
-    messageSubject$.next(null);
-    const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+    const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
       if (message !== null) {
         infoReceived.push(message.code);
       }
@@ -621,8 +616,7 @@ describe('Verification', () => {
       EVerificationState.VERIFICATION_FAILED,
     ];
 
-    messageSubject$.next(null);
-    const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+    const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
       if (message !== null) {
         infoReceived.push(message.code);
       }
@@ -655,8 +649,7 @@ describe('Verification', () => {
       EVerificationState.VERIFICATION_FAILED,
     ];
 
-    messageSubject$.next(null);
-    const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+    const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
       if (message !== null) {
         infoReceived.push(message.code);
       }
@@ -692,8 +685,7 @@ describe('Verification', () => {
       EVerificationState.VERIFICATION_FAILED,
     ];
 
-    messageSubject$.next(null);
-    const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+    const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
       if (message !== null) {
         infoReceived.push(message.code);
       }
