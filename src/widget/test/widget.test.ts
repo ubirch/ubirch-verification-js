@@ -47,7 +47,12 @@ describe('Widget', () => {
       new UbirchVerificationWidget({ hostSelector: 'body', messenger });
       messages.forEach((msg: UbirchMessage) => {
         subject.next(msg);
+        const headline = root.querySelector('#ubirch-verification-widget-headline');
         const result = root.querySelector('#ubirch-verification-widget-result-text');
+        expect(headline).not.toBe(null);
+        expect(headline.textContent.includes(en['verification-state']['VERIFICATION_PENDING'])).toBe(
+          true
+        );
         expect(result).not.toBe(null);
         expect(result.textContent.includes(msg.message)).toBe(true);
       });
