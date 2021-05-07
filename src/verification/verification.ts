@@ -83,72 +83,14 @@ export class UbirchVerification {
     return UbirchProtocol.verify(pubKey, upp);
   }
 
-  protected async getPubKey(hwDeviceId: string): Promise<string> {
-    const self = this;
-    const keyServiceUrl =
-      'https://key.dev.ubirch.com/api/keyService/v1/pubkey/current/hardwareId/' + hwDeviceId;
-
-    const headers = {
-      'Content-type': 'text/plain',
-      authorization: 'bearer ' + self.accessToken,
-    };
-
-    return fetch(keyServiceUrl, { headers })
-      .catch((err) => {
-        return err.message as string;
-      })
-      .then((response) => {
-        if (typeof response === 'string') {
-          return self.handleError(EError.VERIFICATION_UNAVAILABLE, { errorMessage: response });
-        }
-
-        switch (response.status) {
-          case 200: {
-            return response.json();
-          }
-          default: {
-            self.handleError(EError.UNKNOWN_ERROR);
-          }
-        }
-      })
-      .then((json) => json[0].pubKeyInfo.pubKey);
-  }
-
-  protected async getDeviceName(hwDeviceId: string): Promise<string> {
-    const self = this;
-    const deviceServiceUrl =
-      'https://api.console.dev.ubirch.com/ubirch-web-ui/api/v1/devices/' + hwDeviceId;
-
-    const headers = {
-      'Content-type': 'text/plain',
-      authorization: 'bearer ' + self.accessToken,
-    };
-
-    return fetch(deviceServiceUrl, { headers })
-      .catch((err) => {
-        return err.message as string;
-      })
-      .then((response) => {
-        if (typeof response === 'string') {
-          return self.handleError(EError.VERIFICATION_UNAVAILABLE, { errorMessage: response });
-        }
-
-        switch (response.status) {
-          case 200: {
-            return response.json();
-          }
-          default: {
-            self.handleError(EError.UNKNOWN_ERROR);
-          }
-        }
-      })
-      .then((json) => json);
-  }
-
   protected async verifySignature(upp: string, hwDeviceId: string): Promise<void> {
     const pubKey = await this.getPubKey(hwDeviceId);
-    const verified = this.verifyDevice(pubKey, upp);
-    if (!verified) this.handleError(EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED);
+    const verified = !!pubKey && this.verifyDevice(pubKey, upp);
+
+    if (!verified) {
+      this.handleError(EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED);
+    }
+    this.handleInfo(EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY);
   }
 
   public async verifyHash(hash: string): Promise<IUbirchVerificationResult> {
@@ -158,48 +100,46 @@ export class UbirchVerification {
 
     this.handleInfo(EInfo.START_VERIFICATION_CALL);
 
-    return this.sendVerificationRequest(hash)
-      .then(async (verificationResponse: IUbirchVerificationResponse) => {
-        this.handleInfo(EInfo.START_CHECKING_RESPONSE);
+    try {
+      const verificationResponse = await this.sendVerificationRequest(hash);
 
-        const ubirchUpp: IUbirchUpp = this.extractUpp(verificationResponse);
+      this.handleInfo(EInfo.START_CHECKING_RESPONSE);
 
-        verificationResult.upp = ubirchUpp;
+      const ubirchUpp: IUbirchUpp = this.extractUpp(verificationResponse);
+
+      verificationResult.upp = ubirchUpp;
+      verificationResult.verificationState = EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+
+      this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
+
+      const hwDeviceId = this.getHWDeviceId(ubirchUpp.upp);
+      await this.verifySignature(ubirchUpp.upp, hwDeviceId);
+
+      // const deviceName = await this.getDeviceName(hwDeviceId);
+
+      const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(verificationResponse);
+
+      if (blxAnchors.length > 0) {
+        verificationResult.anchors = blxAnchors;
+        verificationResult.upp.state = EUppStates.anchored;
+        verificationResult.verificationState = EVerificationState.VERIFICATION_SUCCESSFUL;
+
+        this.handleInfo(EInfo.BLXTXS_FOUND_SUCCESS);
+      } else {
         verificationResult.verificationState = EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
 
-        this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
+        this.handleInfo(EInfo.NO_BLXTX_FOUND);
+      }
 
-        const hwDeviceId = this.getHWDeviceId(ubirchUpp.upp);
-        await this.verifySignature(ubirchUpp.upp, hwDeviceId);
+      this.handleVerificationState(verificationResult.verificationState, verificationResult);
+      return verificationResult;
+    } catch (err) {
+      verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
+      verificationResult.failReason = err.code || EError.UNKNOWN_ERROR;
 
-        // const deviceName = await this.getDeviceName(hwDeviceId);
-        // console.log('qwe4', deviceName);
-
-        const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(verificationResponse);
-
-        if (blxAnchors.length > 0) {
-          verificationResult.anchors = blxAnchors;
-          verificationResult.upp.state = EUppStates.anchored;
-          verificationResult.verificationState = EVerificationState.VERIFICATION_SUCCESSFUL;
-
-          this.handleInfo(EInfo.BLXTXS_FOUND_SUCCESS);
-        } else {
-          verificationResult.verificationState = EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
-
-          this.handleInfo(EInfo.NO_BLXTX_FOUND);
-        }
-
-        this.handleVerificationState(verificationResult.verificationState, verificationResult);
-        return verificationResult;
-      })
-      .catch((err) => {
-        verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
-
-        verificationResult.failReason = err.code || EError.UNKNOWN_ERROR;
-
-        this.handleVerificationState(verificationResult.verificationState, verificationResult);
-        return verificationResult;
-      });
+      this.handleVerificationState(verificationResult.verificationState, verificationResult);
+      return verificationResult;
+    }
   }
 
   public formatJSON(json: string): string {
@@ -264,9 +204,7 @@ export class UbirchVerification {
     };
 
     return fetch(verificationUrl, { headers, method: 'POST', body: hash })
-      .catch((err) => {
-        return err.message as string;
-      })
+      .catch((err) => err.message as string)
       .then((response) => {
         if (typeof response === 'string') {
           return self.handleError(EError.VERIFICATION_UNAVAILABLE, { errorMessage: response });
@@ -291,6 +229,58 @@ export class UbirchVerification {
         }
       });
   }
+
+  protected async getPubKey(hwDeviceId: string): Promise<string> {
+    const self = this;
+    const keyServiceUrl = `${environment.key_service_url[this.stage]}${hwDeviceId}`;
+
+    const headers = {
+      'Content-type': 'text/plain',
+      authorization: 'bearer ' + self.accessToken,
+    };
+
+    return fetch(keyServiceUrl, { headers })
+      .catch((err) => err.message as string)
+      .then((response) => {
+        if (typeof response === 'string') {
+          return self.handleError(EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED, {
+            errorMessage: response,
+          });
+        }
+
+        if (response.status === 200) {
+          return response.json();
+        }
+
+        self.handleError(EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED);
+      })
+      .then((json) => json[0].pubKeyInfo.pubKey);
+  }
+
+  // protected async getDeviceName(hwDeviceId: string): Promise<string> {
+  //   const self = this;
+  //   const deviceServiceUrl = `${environment.device_service_url[this.stage]}${hwDeviceId}`;
+
+  //   const headers = {
+  //     'Content-type': 'text/plain',
+  //     authorization: 'bearer ' + self.accessToken,
+  //   };
+
+  //   return fetch(deviceServiceUrl, { headers })
+  //     .catch((err) => err.message as string)
+  //     .then((response) => {
+  //       if (typeof response === 'string') {
+  //         return self.handleError(EError.VERIFICATION_UNAVAILABLE, { errorMessage: response });
+  //       }
+
+  //       if (response.status === 200) {
+  //         return response.json();
+  //       }
+
+  //       self.handleError(EError.UNKNOWN_ERROR);
+  //     })
+  //     .then((json) => json);
+  // }
 
   protected createInitialUbirchVerificationResult(hashP: string): IUbirchVerificationResult {
     const result: IUbirchVerificationResult = {

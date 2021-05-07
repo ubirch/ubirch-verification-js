@@ -36,6 +36,7 @@ export enum EInfo {
   NO_BLXTX_FOUND = 'NO_BLXTX_FOUND',
   BLXTXS_FOUND_SUCCESS = 'BLXTXS_FOUND_SUCCESS',
   WARNING_EMPTY_BLXTX_FOUND = 'WARNING_EMPTY_BLXTX_FOUND',
+  SIGNATURE_VERIFICATION_SUCCESSFULLY = 'SIGNATURE_VERIFICATION_SUCCESSFULLY',
 }
 
 export enum EError {
@@ -122,6 +123,8 @@ export interface IUbirchVerificationEnvConfig {
   verify_api_path: string;
   console_verify_url: IUbirchStagesURLs;
   console_verify_path: string;
+  key_service_url: IUbirchStagesURLs;
+  device_service_url: IUbirchStagesURLs;
 }
 
 export interface IUbirchVerificationResponse {
