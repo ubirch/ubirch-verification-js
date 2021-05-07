@@ -21,7 +21,7 @@ export interface IUbirchVerificationWidgetConfig {
 
 export class UbirchVerificationWidget {
   private host: HTMLElement;
-  private openConsoleInSameTarget: boolean;
+  // private openConsoleInSameTarget: boolean;
   private headlineText: string = '';
   private resultText: string = '';
 
@@ -29,7 +29,7 @@ export class UbirchVerificationWidget {
     const host = document.querySelector(config.hostSelector);
     if (!host) throw new Error(EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND);
     this.host = host as HTMLElement;
-    this.openConsoleInSameTarget = config.openConsoleInSameTarget || false;
+    // this.openConsoleInSameTarget = config.openConsoleInSameTarget || false;
     config.messenger.subscribe((message) => {
       if (message) {
         this.updateHeadlineText(message);
@@ -73,7 +73,12 @@ export class UbirchVerificationWidget {
 
   private updateResultText(message: UbirchMessage): void {
     if (message.type !== EMessageType.VERIFICATION_STATE) {
-      this.resultText = i18n.t(`widget:${message.type}.${message.code}`);
+      this.resultText =
+        message.code === EError.VERIFICATION_UNAVAILABLE
+          ? i18n.t(`widget:${message.type}.${message.code}`, {
+              message: message.errorDetails.errorMessage,
+            })
+          : i18n.t(`widget:${message.type}.${message.code}`);
     }
   }
 
