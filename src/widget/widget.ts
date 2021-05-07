@@ -52,7 +52,10 @@ export class UbirchVerificationWidget {
         </div>
       </div>
       <div class="${styles.container__row}">
-        <p class="${this.getClassName(styles.container__result_output, message)}">
+        <p class="${this.getClassName(
+          styles.container__result_output,
+          message
+        )}" id="ubirch-verification-widget-result-text">
           ${this.resultText}
         </p>
       <div>
@@ -92,7 +95,9 @@ export class UbirchVerificationWidget {
   }
 
   private getHeadline(headline: string, className: string): string {
-    return headline === '' ? '' : ` <h3 class="${className}">${headline}</h3>`;
+    return headline === ''
+      ? ''
+      : ` <h3 class="${className}" id="ubirch-verification-widget-headline">${headline}</h3>`;
   }
 
   private getClassName(rootClassName: string, message: UbirchMessage): string {
@@ -119,25 +124,72 @@ export class UbirchVerificationWidget {
     return `<img src="${src}" id="${id}" class="${styles.container__seal}" alt="seal icon" />`;
   }
 
-  private deprecated__showSeal(successful: boolean, hash: string, noLink: boolean = false) {
-    const iconSrcSuffix: string = successful
-      ? BlockchainSettings.ubirchIcons.seal
-      : BlockchainSettings.ubirchIcons.no_seal;
-    const iconId = `ubirch-verification-${successful ? 'seal' : 'no-seal'}-img`;
-    const icon = this.createIconString(`${environment.assets_url_prefix}${iconSrcSuffix}`, iconId);
+  // private deprecated__showSeal(successful: boolean, hash: string, noLink: boolean = false) {
+  //   const iconSrcSuffix: string = successful
+  //     ? BlockchainSettings.ubirchIcons.seal
+  //     : BlockchainSettings.ubirchIcons.no_seal;
+  //   const iconId = `ubirch-verification-${successful ? 'seal' : 'no-seal'}-img`;
+  //   const icon = this.createIconString(`${environment.assets_url_prefix}${iconSrcSuffix}`, iconId);
 
-    if (noLink) {
-      return icon;
-    } else {
-      const encodedHash: string = encodeURIComponent(hash);
-      const href = `${environment.console_verify_url}?hash=${encodedHash}`;
-      return `
-        <a href="${href}" ${!this.openConsoleInSameTarget ? 'target="_blank' : ''}>
-          ${icon}
-        </a>
-      `;
-    }
-  }
+  //   if (noLink) {
+  //     return icon;
+  //   } else {
+  //     const encodedHash: string = encodeURIComponent(hash);
+  //     const href = `${environment.console_verify_url}?hash=${encodedHash}`;
+  //     return `
+  //       <a href="${href}" ${!this.openConsoleInSameTarget ? 'target="_blank' : ''}>
+  //         ${icon}
+  //       </a>
+  //     `;
+  //   }
+  // }
+
+  // public showBloxTXIcon(bloxTX: IUbirchVerificationAnchorProperties, index: number): void {
+  //   if (!bloxTX) {
+  //     return;
+  //   }
+
+  //   const blockchain: string = bloxTX.blockchain;
+  //   const networkType: string = bloxTX.network_type;
+
+  //   if (!blockchain || !networkType) {
+  //     return;
+  //   }
+
+  //   const blox: IUbirchBlockchain = BlockchainSettings.blockchainSettings
+  //     ? BlockchainSettings.blockchainSettings[blockchain]
+  //     : undefined;
+
+  //   if (!blox || !bloxTX.txid) {
+  //     return;
+  //   }
+
+  //   const bloxTXData: IUbirchBlockchainNet = blox.explorerUrl[networkType];
+
+  //   const linkTag: HTMLElement = document.createElement('a');
+
+  //   // add transactionId to url
+  //   if (bloxTXData.url) {
+  //     linkTag.setAttribute('href', bloxTXData.url + bloxTX.txid);
+  //   }
+
+  //   const titleStr: string = bloxTX.network_info ? bloxTX.network_info : bloxTX.blockchain;
+
+  //   linkTag.setAttribute('title', titleStr);
+  //   linkTag.setAttribute('target', '_blanc');
+
+  //   // if icon url is given add img, otherwise add text
+  //   if (blox.nodeIcon) {
+  //     const iconId = `blockchain_transid_check${index === undefined ? '' : '_' + index}`;
+  //     linkTag.appendChild(
+  //       this.createIconTag(environment.assets_url_prefix + blox.nodeIcon, iconId)
+  //     );
+  //   } else {
+  //     linkTag.innerHTML = titleStr;
+  //   }
+
+  //   this.resultOutput.appendChild(linkTag);
+  // }
 }
 
 window['UbirchVerificationWidget'] = UbirchVerificationWidget;
