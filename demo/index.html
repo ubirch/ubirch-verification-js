@@ -36,7 +36,7 @@
       const token = document.getElementById('token-input').value;
       if (token) {
         // create UbirchVerification instance
-        ubirchVerification = UbirchVerification.createInstance({
+        ubirchVerification = new UbirchVerification({
           algorithm: 'sha256',
           stage: 'dev',
           accessToken: token,
