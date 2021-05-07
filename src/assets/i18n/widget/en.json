@@ -4,10 +4,9 @@
     "START_CHECKING_RESPONSE": "Verification response received - start checking response",
     "UPP_HAS_BEEN_FOUND": "UPP for that data has been found on Ubirch server",
     "WARNING_EMPTY_BLXTX_FOUND": "Attention! Empty Blockchain dataset found",
-    "BLXTX_FOUND_SUCCESS": "Blockchain anchors found successfully",
+    "BLXTXS_FOUND_SUCCESS": "Blockchain anchors found successfully",
     "RESPONSE_JSON_PARSED_SUCCESSFULY": "Verification response has been parsed successfully",
     "NO_BLXTX_FOUND": "The data has not been anchored in any blockchain yet",
-    "BLXTXS_FOUND_SUCCESS": "The data has been anchored in the blockchain",
     "VERIFICATION_SUCCESSFUL_INFO": "For more information about anchoring click the ubirch icon to open verification details in ubirch console \nor click the blockchain icons to open corresponding blockchain explorer"
   },
   "error": {

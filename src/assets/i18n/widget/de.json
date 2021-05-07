@@ -4,10 +4,9 @@
     "START_CHECKING_RESPONSE": "Die Antwort der Verifikationsanfrage vom Backend wird jetzt geprüft",
     "UPP_HAS_BEEN_FOUND": "Ein UPP zu den Daten konnte im Ubirch Backend gefunden werden",
     "WARNING_EMPTY_BLXTX_FOUND": "Achtung! Leeren Blockchain Datensatz gefunden",
-    "BLXTX_FOUND_SUCCESS": "Es wurden Blockchain Verankerungen gefunden",
+    "BLXTXS_FOUND_SUCCESS": "Es wurden Blockchain Verankerungen gefunden",
     "RESPONSE_JSON_PARSED_SUCCESSFULY": "Die Antwort der Verifikationsanfrage konnte erfolgreich in das interne Datenformat geparst werden",
     "NO_BLXTX_FOUND": "Die Daten wurden noch nicht in Blockchains verankert",
-    "BLXTXS_FOUND_SUCCESS": "Die Daten wurden in Blockchains verankert",
     "VERIFICATION_SUCCESSFUL_INFO": "Für zusätzliche Informationen zur Verankerung klicken Sie auf das ubirch Icon um die Details der Verifikation in der \n ubirch Konsole anzuzeigen oder auf die Blockchain Icons um den jeweiligen Blockchain-Explorer zu öffnen"
   },
   "error": {
