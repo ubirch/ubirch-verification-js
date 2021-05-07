@@ -3,6 +3,7 @@ import {
   EError,
   EInfo,
   EMessageType,
+  EVerificationState,
   UbirchMessage,
 } from '../../models/models';
 import { UbirchVerificationWidget } from '../widget';
@@ -75,6 +76,23 @@ describe('Widget', () => {
         expect(headline.textContent.includes(en['verification-state']['VERIFICATION_FAILED'])).toBe(true);
         expect(errorOutput).not.toBe(null);
         expect(errorOutput.textContent.includes(msg.message)).toBe(true);
+      });
+    });
+
+    test('Should properly update html on verification state messages', () => {
+      const messages: UbirchMessage[] = Object.entries(en['verification-state']).map(
+        ([key, value]) => ({
+          type: EMessageType.VERIFICATION_STATE,
+          code: EVerificationState[key],
+          message: value,
+        })
+      );
+      new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      messages.forEach((msg) => {
+        subject.next(msg);
+        const headline = root.querySelector('#ubirch-verification-widget-headline');
+        expect(headline).not.toBe(null);
+        expect(headline.textContent.includes(en['verification-state'][msg.code]));
       });
     });
   });
