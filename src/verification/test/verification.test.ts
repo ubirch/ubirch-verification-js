@@ -448,6 +448,7 @@ describe('Verification', () => {
           expect(response.verificationState).toBe(EVerificationState.VERIFICATION_SUCCESSFUL);
           expect(response.anchors).toBeDefined();
           expect(response.anchors).toHaveLength(3);
+          expect(response.firstAnchorTimestamp).toBe('2020-10-21T10:13:16.548Z');
 
           const firstAnchor: IUbirchBlockchainAnchor = response.anchors[0];
           expect(firstAnchor.iconUrl).toBeDefined();
@@ -484,7 +485,8 @@ describe('Verification', () => {
           expect(response.upp.state).toBe(EUppStates.anchored);
           expect(response.verificationState).toBe(EVerificationState.VERIFICATION_SUCCESSFUL);
           expect(response.anchors).toBeDefined();
-          expect(response.anchors.length).toBeGreaterThan(0);
+          expect(response.anchors).toHaveLength(3);
+          expect(response.firstAnchorTimestamp).toBe('2020-10-21T10:13:16.548Z');
 
           const firstAnchor: IUbirchBlockchainAnchor = response.anchors[0];
           expect(firstAnchor.blxTxExplorerUrl).toBeDefined();
@@ -497,6 +499,28 @@ describe('Verification', () => {
           expect(firstAnchor.raw).toBeDefined();
 
           expect(response.failReason).toBeUndefined();
+        });
+    });
+
+
+    test('should return a VERIFICATION_SUCCESSFUL response with timestamp of first available anchor', () => {
+      const response = deepCopy(verifyResult);
+      response.anchors.upper_blockchains[2].properties.timestamp = '2000-09-21T10:13:16.548Z';
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
+
+      return verifier
+        .verifyHash(testhash_verifiable)
+        .then((response: IUbirchVerificationResult) => {
+          expect(response.firstAnchorTimestamp).toBe('2000-09-21T10:13:16.548Z');
         });
     });
 

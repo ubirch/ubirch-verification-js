@@ -79,7 +79,7 @@ export class UbirchVerification {
 
   protected getHWDeviceId(upp: string): string {
     const decodedUpp = UbirchProtocol.tools.upp(upp);
-    const hwDeviceId = UbirchProtocol.tools.getUUIDFromUpp(decodedUpp)
+    const hwDeviceId = UbirchProtocol.tools.getUUIDFromUpp(decodedUpp);
     return hwDeviceId;
   }
 
@@ -332,10 +332,14 @@ export class UbirchVerification {
     return ubirchBlxTxAnchors;
   }
 
-  protected findFirstAnchorTimestamp(ubirchBlxTxAnchors: IUbirchBlockchainAnchor[]): string {
-    const timestamps = ubirchBlxTxAnchors.map(({ timestamp }) => timestamp);
+  protected findFirstAnchorTimestamp(ubirchBlxTxAnchors: IUbirchBlockchainAnchor[]): string | null {
+    const timestamps = ubirchBlxTxAnchors
+      .map(({ timestamp }) => timestamp)
+      .map(Date.parse)
+      .sort((a, b) => a - b)
+      .map(unix => new Date(unix).toISOString())
 
-    return timestamps[0];
+    return timestamps[0] || null;
   }
 
   protected isBloxTXDataDefined(bloxTX: IUbirchBlockchainAnchorRAW): boolean {
