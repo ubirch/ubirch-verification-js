@@ -69,9 +69,8 @@ describe('Widget', () => {
           key === EError.VERIFICATION_UNAVAILABLE
             ? i18n.t(`widget:error.${key}`, { message: 'Lorem ipsum' })
             : i18n.t(`widget:error.${key}`),
-        failReason: key === EError.VERIFICATION_UNAVAILABLE
-          ? { errorMessage: 'Lorem ipsum' }
-          : undefined
+        errorDetails:
+          key === EError.VERIFICATION_UNAVAILABLE ? { errorMessage: 'Lorem ipsum' } : undefined,
       }));
 
       new UbirchVerificationWidget({ hostSelector: 'body', messenger });
@@ -85,7 +84,6 @@ describe('Widget', () => {
           true
         );
         expect(result).not.toBe(null);
-        console.log(msg, result.textContent);
         expect(result.textContent.includes(msg.message)).toBe(true);
       });
     });
