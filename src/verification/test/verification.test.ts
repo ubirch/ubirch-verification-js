@@ -1,6 +1,6 @@
 import * as verifyResult from './verifyresult.json';
 import * as keyServiceResult from './keyService.json';
-import UbirchProtocol from '@ubirch/ubirch-protocol-verifier';
+import UbirchProtocol from '@ubirch/ubirch-protocol-verifier/src/verify';
 import {
   EError,
   EHashAlgorithms,
@@ -18,7 +18,7 @@ import { messageSubject$ } from '../../messenger';
 
 global.fetch = jest.fn();
 
-jest.mock('@ubirch/ubirch-protocol-verifier', () => ({
+jest.mock('@ubirch/ubirch-protocol-verifier/src/verify', () => ({
   tools: {
     upp: jest.fn().mockReturnValue('a'),
     getUUIDFromUpp: jest.fn().mockReturnValue('b'),

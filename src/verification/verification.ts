@@ -1,7 +1,7 @@
 import i18n from 'i18next';
 import { sha256 } from 'js-sha256';
 import { sha512 } from 'js-sha512';
-import UbirchProtocol from '@ubirch/ubirch-protocol-verifier';
+import UbirchProtocol from '@ubirch/ubirch-protocol-verifier/src/verify';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import * as de from '../assets/i18n/de.json';
 import * as en from '../assets/i18n/en.json';
@@ -79,7 +79,7 @@ export class UbirchVerification {
 
   protected getHWDeviceId(upp: string): string {
     const decodedUpp = UbirchProtocol.tools.upp(upp);
-    const hwDeviceId = UbirchProtocol.tools.getUUIDFromUpp(decodedUpp);
+    const hwDeviceId = UbirchProtocol.tools.getUUIDFromUpp(decodedUpp)
     return hwDeviceId;
   }
 
@@ -122,9 +122,11 @@ export class UbirchVerification {
       // const deviceName = await this.getDeviceName(hwDeviceId);
 
       const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(verificationResponse);
+      const firstAnchorTimestamp = this.findFirstAnchorTimestamp(blxAnchors);
 
       if (blxAnchors.length > 0) {
         verificationResult.anchors = blxAnchors;
+        verificationResult.firstAnchorTimestamp = firstAnchorTimestamp;
         verificationResult.upp.state = EUppStates.anchored;
         verificationResult.verificationState = EVerificationState.VERIFICATION_SUCCESSFUL;
 
@@ -291,6 +293,7 @@ export class UbirchVerification {
       hash: hashP,
       upp: undefined,
       anchors: [],
+      firstAnchorTimestamp: null,
       verificationState: EVerificationState.VERIFICATION_PENDING,
     };
 
@@ -322,11 +325,17 @@ export class UbirchVerification {
       return [];
     }
 
-    const ubirchBlxTxAnchor: IUbirchBlockchainAnchor[] = blxTXs
+    const ubirchBlxTxAnchors: IUbirchBlockchainAnchor[] = blxTXs
       .map((rawAnchor: IUbirchBlockchainAnchorRAW) => this.createBlockchainAnchor(rawAnchor))
       .filter((probablyAnchor: IUbirchBlockchainAnchor) => probablyAnchor !== undefined);
 
-    return ubirchBlxTxAnchor;
+    return ubirchBlxTxAnchors;
+  }
+
+  protected findFirstAnchorTimestamp(ubirchBlxTxAnchors: IUbirchBlockchainAnchor[]): string {
+    const timestamps = ubirchBlxTxAnchors.map(({ timestamp }) => timestamp);
+
+    return timestamps[0];
   }
 
   protected isBloxTXDataDefined(bloxTX: IUbirchBlockchainAnchorRAW): boolean {

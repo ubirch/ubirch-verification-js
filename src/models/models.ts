@@ -158,6 +158,7 @@ export interface IUbirchVerificationResult {
   hash: string;
   upp: IUbirchUpp;
   anchors: IUbirchBlockchainAnchor[];
+  firstAnchorTimestamp: string | null;
   verificationState: EVerificationState;
   failReason?: EError;
 }

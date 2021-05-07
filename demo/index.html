@@ -17,7 +17,7 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
     <div class="input-field">
       <label for="json-input">JSON:</label>
       <textarea rows="10" cols="80" placeholder="" type="text" id="json-input">
-{"f":"\\nNewline\\\\n\\\\\\n","g":"<p>Hällo</p>","i":"Altötting","r":"BioNTech / Pfizer Corminaty®","b":"19111111","d":["20210104","20210127"],"t":"vaccination","p":"#%;,.<>-+*\"'?$&:*","s":"2kmsq5fzqiu"}</textarea
+{"b":"19111111","d":["20210104","20210127"],"f":"\\nNewline\\\\n\\\\\\n","g":"<p>Hällo</p>","i":"Altötting","p":"#%;,.<>-+*\"'?$&:*","r":"BioNTech / Pfizer Corminaty®","s":"2kmsq5fzqiu","t":"vaccination"}</textarea
       >
     </div>
     <button id="verify-json">Verify JSON</button>
@@ -31,7 +31,7 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.8.0/sha512.min.js"></script>
-    <script src="../dist/index.js"></script>
+    <script src="./index.js"></script>
     <!--  Use this if installed from NPM -->
     <!--  <script src="../node_modules/@ubirch/ubirch-verification-widget/dist/ubirch-verification-widget.min.js"></script> -->
     <script>
@@ -81,22 +81,15 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
             ubirchVerification
               .verifyHash(hash)
               .then((response) => {
-                const msg =
-                  'Verification success!!\n\nVerificationResult:\n' +
-                  response.upp +
-                  '\n' +
-                  response.upp.state +
-                  '\n' +
-                  response.verificationState;
+                const msg = 'Verification Result:\n' + JSON.stringify(response);
                 document.getElementById('output').value = msg;
+                console.log(response);
               })
               .catch((errResponse) => {
                 const msg =
-                  'Verification failed!!\n\nErrorResponse:\n' +
-                  errResponse.verificationState +
-                  ', ' +
-                  errResponse.failReason;
-                window.alert(msg);
+                  'Verification failed!!\n\nErrorResponse:\n' + JSON.stringify(errResponse);
+                document.getElementById('output').value = msg;
+                console.log(errResponse);
               });
           } catch (e) {
             // handle the error yourself and inform user about the missing fields
