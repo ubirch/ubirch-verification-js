@@ -11,7 +11,7 @@ import {
 import { messageSubject$ } from '../messenger';
 
 const DEFAULT_CONFIG: IUbirchFormUtilsConfig = {
-  formIds: ['created', 'name', 'workshop'],
+  formIds: [],
 };
 
 export class UbirchFormUtils {
@@ -21,9 +21,6 @@ export class UbirchFormUtils {
   private paramsFormIdsMapping: string[];
 
   constructor(config: IUbirchFormUtilsConfig = DEFAULT_CONFIG) {
-    if (!config.formIds) {
-      throw new Error('Please, provide a string array with param ids');
-    }
     this.formIds = config.formIds;
     if (config.paramsFormIdsMapping) {
       if (config.paramsFormIdsMapping.length !== this.formIds.length) {
@@ -57,6 +54,7 @@ export class UbirchFormUtils {
     const foundNotAllowedChars: string[] = [...Array.from(urlStr)].filter(
       (char) => !UbirchFormUtils.allowedCharacters.includes(char)
     );
+
     const uniqueFoundNotAllowedChars = foundNotAllowedChars.filter(
       (char, index) => foundNotAllowedChars.indexOf(char) === index
     );
@@ -74,23 +72,12 @@ export class UbirchFormUtils {
   static handleFragment = (windowRef: Window): string | undefined => {
     let hash: string;
     try {
-      hash = windowRef.location.hash;
+      hash = windowRef.location.hash || windowRef.location.search;
     } catch (e) {
       UbirchFormUtils.handleError(EError.LOCATION_MALFORMED);
     }
 
     return hash ? UbirchFormUtils.sanitizeUrlAndQuery(hash.slice(1)) : undefined;
-  };
-
-  static handleQuery = (windowRef: Window): string | undefined => {
-    let query: string;
-    try {
-      query = windowRef.location.search;
-    } catch (e) {
-      UbirchFormUtils.handleError(EError.LOCATION_MALFORMED);
-    }
-
-    return query.length > 0 ? UbirchFormUtils.sanitizeUrlAndQuery(query.substr(1)) : undefined;
   };
 
   private static handleUrlParamValue(val: string, arraySeparator: string): string[] | string {
@@ -102,7 +89,7 @@ export class UbirchFormUtils {
         return decodeURIComponent(val);
       }
     } catch (e) {
-      UbirchFormUtils.handleError(EError.URL_PARAMS_CORRUPT);
+      UbirchFormUtils.handleError(EError.URL_PARAMS_CORRUPT, { errorMessage: e.message });
     }
   }
 
@@ -117,7 +104,7 @@ export class UbirchFormUtils {
 
     if (!paramsString) return {};
 
-    return Object.fromEntries(paramsString.split(separator).map(splitDataset)) || {};
+    return Object.fromEntries(paramsString.split(separator).map(splitDataset));
   };
 
   /**
@@ -126,17 +113,14 @@ export class UbirchFormUtils {
    * @param separator data separator string
    */
   public getFormParamsFromUrl = (windowRef: Window, separator: string): DataParams =>
-    UbirchFormUtils.parseParams(
-      UbirchFormUtils.handleFragment(windowRef) || UbirchFormUtils.handleQuery(windowRef),
-      separator
-    );
+    UbirchFormUtils.parseParams(UbirchFormUtils.handleFragment(windowRef), separator);
 
   /**
    * put params into form fields
    * @param params object that contains field params
    * @param documentRef Reference to document
    */
-  public setDataIntoForm(params: DataParams = {}, documentRef: Document): void {
+  public setDataIntoForm(params: DataParams, documentRef: Document): void {
     try {
       Object.entries(params).forEach(([key, value]) => {
         if (this.paramsFormIdsMapping && this.paramsFormIdsMapping.length > 0) {

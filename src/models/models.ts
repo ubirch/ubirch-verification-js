@@ -103,7 +103,6 @@ export interface IUbirchVerificationConfig {
   accessToken: string;
   stage?: EStages;
   language?: ELanguages;
-  debug?: boolean;
 }
 
 export interface IUbirchFormUtilsConfig {
@@ -205,4 +204,5 @@ export interface IUbirchVerificationAnchorProperties {
   timestamp: string;
   txid: string;
 }
-export type DataParams = { [index: string]: string };
+
+export type DataParams = { [index: string]: string | string[] };
