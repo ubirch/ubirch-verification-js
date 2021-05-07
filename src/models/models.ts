@@ -100,7 +100,7 @@ export interface IUbirchVerificationState {
 export type UbirchMessage = IUbirchInfo | IUbirchError | IUbirchVerificationState;
 
 export interface IUbirchVerificationConfig {
-  algorithm: EHashAlgorithms;
+  algorithm?: EHashAlgorithms;
   accessToken: string;
   stage?: EStages;
   language?: ELanguages;

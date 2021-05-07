@@ -27,7 +27,6 @@ jest.mock('@ubirch/ubirch-protocol-verifier/src/verify', () => ({
 }));
 
 const defaultSettings: IUbirchVerificationConfig = {
-  algorithm: EHashAlgorithms.SHA256,
   accessToken:
     'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiZDYzZWNjMDMtZjVhNy00ZDQzLTkxZDAtYTMwZDAzNGQ4ZGEzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2MTk4MjA2MzAsImlhdCI6MTYxMjQzNTI4MCwianRpIjoiOGJkMzExZDItZGEyYi00ZWJhLWExMmMtODYxYjRiYWU2MjliIiwidGFyZ2V0X2lkZW50aXRpZXMiOiIqIiwicm9sZSI6InZlcmlmaWVyIiwic2NvcGUiOiJ2ZXIiLCJwdXJwb3NlIjoiVWJpcmNoIERlZmF1bHQgVG9rZW4iLCJvcmlnaW5fZG9tYWlucyI6W119.tDovGseqjwaJZNX0ZtoGmZVvkcdVltR1nXYYAFpF4DHGAQ8MiRAfeJIYL0TNHsqBt_-60fw2j65neje_ThJ7Eg',
   stage: EStages.dev,
@@ -86,6 +85,15 @@ describe('Verification', () => {
       );
     });
 
+    test("shouldn't sort JSON params recursively", () => {
+      const jsonString =
+        '{"b": "2", "x": { "1": "hallo", "3": "bello", "2": {"A": "x", "B": "xx"}}, "a": "-1"}';
+      const result = verifier.formatJSON(jsonString, false);
+      expect(result).toEqual(
+        '{"b":"2","x":{"1":"hallo","2":{"A":"x","B":"xx"},"3":"bello"},"a":"-1"}'
+      );
+    });
+
     test('should NOT sort arrays as JSON params', () => {
       const jsonString = '{"a": [6, 4, 9]}';
       const result = verifier.formatJSON(jsonString);
@@ -120,10 +128,22 @@ describe('Verification', () => {
       expect(result).toEqual('9LrnCLgPcUiQpM+YabkmW/BhT7/9R7TssIBrX6zUXs8=');
     });
 
-    test('should create a correct sha512 hash from json data', () => {
+    test('should create a correct sha512 hash from json data due to parameter', () => {
       const trimmedAndSortedJson =
         '{"a":"-1","b":"2","x":{"1":"hallo","2":{"A":"x","B":"xx"},"3":"bello"}}';
       const result = verifier.createHash(trimmedAndSortedJson, EHashAlgorithms.SHA512);
+      expect(result).toEqual(
+        'l5y7KYeeAmASU76WhTsOfy4+L/o+r1LHg1Uqv/rClxgivyveUAJo/WCwZTsfBaK54zg4MKs08serUXKuFQgu+A=='
+      );
+    });
+    test('should create a correct sha512 hash from json data due to config', () => {
+      const verifier512 = new UbirchVerificationMock({
+        ...defaultSettings,
+        algorithm: EHashAlgorithms.SHA512,
+      });
+      const trimmedAndSortedJson =
+        '{"a":"-1","b":"2","x":{"1":"hallo","2":{"A":"x","B":"xx"},"3":"bello"}}';
+      const result = verifier512.createHash(trimmedAndSortedJson);
       expect(result).toEqual(
         'l5y7KYeeAmASU76WhTsOfy4+L/o+r1LHg1Uqv/rClxgivyveUAJo/WCwZTsfBaK54zg4MKs08serUXKuFQgu+A=='
       );
