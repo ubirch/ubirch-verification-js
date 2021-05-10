@@ -1,10 +1,7 @@
-import i18n from 'i18next';
 import { sha256 } from 'js-sha256';
 import { sha512 } from 'js-sha512';
 import UbirchProtocol from '@ubirch/ubirch-protocol-verifier/src/verify';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
-import * as de from '../assets/i18n/de.json';
-import * as en from '../assets/i18n/en.json';
 import environment from '../environment';
 import { messageSubject$, messenger$, UbirchObservable } from '../messenger';
 import {
@@ -30,9 +27,7 @@ import {
   IUbirchVerificationResponse,
   IUbirchVerificationResult,
 } from '../models/models';
-import { initTranslations } from '../utils/translations';
-
-initTranslations({ de, en });
+import i18n from '../utils/translations';
 
 const API_VERSION = '/v2';
 
@@ -158,7 +153,10 @@ export class UbirchVerification {
   }
 
   protected handleError(code: EError, errorDetails?: IUbirchErrorDetails): void {
-    const errorMsg: string = i18n.t(code);
+    const errorMsg: string =
+      code === EError.VERIFICATION_UNAVAILABLE && errorDetails
+        ? i18n.t(`verification:${code}`, { message: errorDetails.errorMessage })
+        : i18n.t(`verification:${code}`);
 
     const err: IUbirchError = {
       type: EMessageType.ERROR,
@@ -172,7 +170,7 @@ export class UbirchVerification {
   }
 
   protected handleInfo(code: EInfo): void {
-    const infoMsg: string = i18n.t(code);
+    const infoMsg: string = i18n.t(`verification:${code}`);
 
     const info: IUbirchInfo = {
       type: EMessageType.INFO,
@@ -187,7 +185,7 @@ export class UbirchVerification {
     code: EVerificationState,
     result?: IUbirchVerificationResult
   ): void {
-    const infoMsg: string = i18n.t(code);
+    const infoMsg: string = i18n.t(`verification:${code}`);
 
     const info: IUbirchVerificationState = {
       type: EMessageType.VERIFICATION_STATE,

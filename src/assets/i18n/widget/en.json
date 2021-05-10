@@ -1,0 +1,40 @@
+{
+  "info": {
+    "START_VERIFICATION_CALL": "Sending data to backend for verification",
+    "START_CHECKING_RESPONSE": "Verification response received - start checking response",
+    "UPP_HAS_BEEN_FOUND": "UPP for that data has been found on Ubirch server",
+    "WARNING_EMPTY_BLXTX_FOUND": "Attention! Empty Blockchain dataset found",
+    "BLXTXS_FOUND_SUCCESS": "Blockchain anchors found successfully",
+    "RESPONSE_JSON_PARSED_SUCCESSFULY": "Verification response has been parsed successfully",
+    "NO_BLXTX_FOUND": "The data has not been anchored in any blockchain yet",
+    "VERIFICATION_SUCCESSFUL_INFO": "For more information about anchoring click the ubirch icon to open verification details in ubirch console \nor click the blockchain icons to open corresponding blockchain explorer"
+  },
+  "error": {
+    "CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE": "403 - unauthorized",
+    "CERTIFICATE_ID_CANNOT_BE_FOUND": "Certificate cannot be found!",
+    "INTERNAL_SERVER_ERROR": "Internal Server Error. Something went wrong.",
+    "UNKNOWN_ERROR": "An unexpected error occurred",
+    "VERIFICATION_UNAVAILABLE": "Verification service is not available! {{message}}",
+    "VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE": "Verification Failed!! Empty certificate or missing seal",
+    "URL_PARAMS_CORRUPT": "Called URL (from QRCode) contains at least one not allowed character that could corrupt this verification",
+    "LOCATION_MALFORMED": "Called URL (from QRCode) is not in a correct URL format",
+    "MANDATORY_FIELD_MISSING": "Mandatory form fields not set - if you scanned a QRCode it seems to be incorrect",
+    "FILLING_FORM_WITH_PARAMS_FAILED": "Unable to fill the form with the given parameters from called URL",
+    "JSON_PARSE_FAILED": "JSON could not be parsed",
+    "JSON_MALFORMED": "Building JSON from input fields failed",
+    "CANNOT_ACCESS_FORM_FIELD": "Unable to access input field",
+    "MISSING_PROPERTY_IN_UBRICH_VERIFICATION_INSTANCIATION": "Please, provide the `elementSelector` to UbirchVerification or UbirchFormVerification instance",
+    "ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND": "Element for widget selector not found",
+    "MISSING_PARAM_IDS": "Please, provide a string array with param ids",
+    "PARAM_ID_MAPPING_MISSMATCH": "If you provide paramsFormIdsMapping define a mapping for each formId; they need to be in the same order",
+    "MISSING_ACCESS_TOKEN": "You need to provide an accessToken to verify data",
+    "CERTIFICATE_DATA_MISSING": "Missing data - please fill out form completely or scan your QR code!",
+    "VERIFICATION_NOT_POSSIBLE": "Errors in given data found - verification not possible"
+  },
+  "verification-state": {
+    "VERIFICATION_PENDING": "Verification pending...",
+    "VERIFICATION_SUCCESSFUL": "Verification successful!",
+    "VERIFICATION_PARTLY_SUCCESSFUL": "Verification only partly successful",
+    "VERIFICATION_FAILED": "Verification failed! No anchor for that data can be found!"
+  }
+}

@@ -58,7 +58,8 @@ describe('Get params from URL', () => {
       {
         code: EError.URL_PARAMS_CORRUPT,
         errorDetails: { notAllowedChars: ['^'] },
-        message: undefined,
+        message:
+          'Called URL (from QRCode) contains at least one not allowed character that could corrupt this verification',
         type: EMessageType.ERROR,
       },
     ]);
@@ -82,7 +83,7 @@ describe('Get params from URL', () => {
       {
         code: EError.LOCATION_MALFORMED,
         errorDetails: undefined,
-        message: undefined,
+        message: 'Called URL (from QRCode) is not in a correct URL format',
         type: EMessageType.ERROR,
       },
     ]);
@@ -108,7 +109,8 @@ describe('Get params from URL', () => {
         errorDetails: {
           errorMessage: 'URI malformed',
         },
-        message: undefined,
+        message:
+          'Called URL (from QRCode) contains at least one not allowed character that could corrupt this verification',
         type: EMessageType.ERROR,
       },
     ]);
@@ -186,7 +188,7 @@ describe('Fill inputs with data', () => {
         errorDetails: {
           errorMessage: 'documentRef.getElementById is not a function',
         },
-        message: undefined,
+        message: 'Unable to fill the form with the given parameters from called URL',
         type: EMessageType.ERROR,
       },
     ]);

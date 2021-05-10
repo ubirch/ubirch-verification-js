@@ -5,3 +5,5 @@ export type UbirchObservable = Observable<UbirchMessage>;
 
 export const messageSubject$ = new BehaviorSubject<UbirchMessage>(null);
 export const messenger$: UbirchObservable = messageSubject$.asObservable();
+
+window['UbirchMessenger$'] = messenger$;
