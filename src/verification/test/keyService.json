@@ -1,0 +1,14 @@
+[
+  {
+    "pubKeyInfo": {
+      "algorithm": "ecdsa-p256v1",
+      "created": "2021-01-21T08:33:54.131Z",
+      "hwDeviceId": "cf93f9ee-8bf4-4cc1-b715-7bf41d88e616",
+      "pubKey": "vuA1W2m+kNG9AZBsFvgTlW9iuAMspPifvWxXhq6s45UWAdoAuPeYpMzyg7sdRESH8wlkJdRLVh+lhk6wkc9ZVg==",
+      "pubKeyId": "vuA1W2m+kNG9AZBsFvgTlW9iuAMspPifvWxXhq6s45UWAdoAuPeYpMzyg7sdRESH8wlkJdRLVh+lhk6wkc9ZVg==",
+      "validNotAfter": "2031-01-19T08:33:54.131Z",
+      "validNotBefore": "2021-01-21T08:33:54.131Z"
+    },
+    "signature": "jzayYA99egwfwgC3gUvEGezAvtBelAn6iGVHZ4GBkDygvsVgeC3dRHsMfKKHpaE1Q+RPYdbKUv4XOJOBtq6uAQ=="
+  }
+]

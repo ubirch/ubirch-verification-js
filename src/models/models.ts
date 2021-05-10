@@ -38,6 +38,7 @@ export enum EInfo {
   BLXTXS_FOUND_SUCCESS = 'BLXTXS_FOUND_SUCCESS',
   VERIFICATION_SUCCESSFUL_INFO = 'VERIFICATION_SUCCESSFUL_INFO',
   PROCESSING_VERIFICATION_CALL = 'PROCESSING_VERIFICATION_CALL',
+  SIGNATURE_VERIFICATION_SUCCESSFULLY = 'SIGNATURE_VERIFICATION_SUCCESSFULLY',
 }
 
 export enum EError {
@@ -66,6 +67,10 @@ export enum EError {
   VERIFICATION_FAILED_EMPTY_RESPONSE = 'VERIFICATION_FAILED_EMPTY_RESPONSE',
   VERIFICATION_FAILED = 'VERIFICATION_FAILED',
   VERIFICATION_CURRENTLY_UNAVAILABLE = 'VERIFICATION_CURRENTLY_UNAVAILABLE',
+  VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED = 'VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED',
+  CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE = 'CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE',
+  INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
 
 export enum EMessageType {
@@ -80,20 +85,20 @@ export interface IUbirchErrorDetails {
 }
 
 export interface IUbirchInfo {
-  type: EMessageType.INFO,
+  type: EMessageType.INFO;
   message: string;
   code: EInfo;
 }
 
 export interface IUbirchError {
-  type: EMessageType.ERROR,
+  type: EMessageType.ERROR;
   message: string;
   code: EError;
   errorDetails?: IUbirchErrorDetails;
 }
 
 export interface IUbirchVerificationState {
-  type: EMessageType.VERIFICATION_STATE,
+  type: EMessageType.VERIFICATION_STATE;
   message: string;
   code: EVerificationState;
   result?: IUbirchVerificationResult;
@@ -102,7 +107,7 @@ export interface IUbirchVerificationState {
 export type UbirchMessage = IUbirchInfo | IUbirchError | IUbirchVerificationState;
 
 export interface IUbirchVerificationConfig {
-  algorithm: EHashAlgorithms;
+  algorithm?: EHashAlgorithms;
   accessToken: string;
   stage?: EStages;
   language?: ELanguages;
@@ -125,6 +130,8 @@ export interface IUbirchVerificationEnvConfig {
   verify_api_path: string;
   console_verify_url: IUbirchStagesURLs;
   console_verify_path: string;
+  key_service_url: IUbirchStagesURLs;
+  device_service_url: IUbirchStagesURLs;
   assets_url_prefix: string;
 }
 
@@ -159,6 +166,7 @@ export interface IUbirchVerificationResult {
   hash: string;
   upp: IUbirchUpp;
   anchors: IUbirchBlockchainAnchor[];
+  firstAnchorTimestamp: string | null;
   verificationState: EVerificationState;
   failReason?: EError;
 }
