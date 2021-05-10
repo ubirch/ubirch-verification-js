@@ -73,7 +73,7 @@ export class UbirchVerification {
     return transId;
   }
 
-  public getMessenger(): UbirchObservable {
+  public get messenger(): UbirchObservable {
     return messenger$;
   }
 
@@ -334,8 +334,7 @@ export class UbirchVerification {
 
   protected findFirstAnchorTimestamp(ubirchBlxTxAnchors: IUbirchBlockchainAnchor[]): string | null {
     const timestamps = ubirchBlxTxAnchors
-      .map(({ timestamp }) => timestamp)
-      .map(Date.parse)
+      .map(({ timestamp }) => Date.parse(timestamp))
       .sort((a, b) => a - b)
       .map(unix => new Date(unix).toISOString())
 

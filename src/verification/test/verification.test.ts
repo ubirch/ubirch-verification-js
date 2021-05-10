@@ -281,7 +281,7 @@ describe('Verification', () => {
         EVerificationState.VERIFICATION_SUCCESSFUL,
       ];
 
-      const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
         if (message !== null) {
           infoReceived.push(message.code);
         }
@@ -324,7 +324,7 @@ describe('Verification', () => {
         EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
       ];
 
-      const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
         if (message !== null) {
           infoReceived.push(message.code);
         }
@@ -367,7 +367,7 @@ describe('Verification', () => {
         EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
       ];
 
-      const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
         if (message !== null) {
           infoReceived.push(message.code);
         }
@@ -502,7 +502,6 @@ describe('Verification', () => {
         });
     });
 
-
     test('should return a VERIFICATION_SUCCESSFUL response with timestamp of first available anchor', () => {
       const response = deepCopy(verifyResult);
       response.anchors.upper_blockchains[2].properties.timestamp = '2000-09-21T10:13:16.548Z';
@@ -564,7 +563,7 @@ describe('Verification', () => {
         EVerificationState.VERIFICATION_SUCCESSFUL,
       ];
 
-      const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
         if (message !== null) {
           infoReceived.push(message.code);
         }
@@ -598,7 +597,7 @@ describe('Verification', () => {
       EVerificationState.VERIFICATION_FAILED,
     ];
 
-    const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
+    const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
       if (message !== null) {
         infoReceived.push(message.code);
       }
@@ -627,7 +626,7 @@ describe('Verification', () => {
       EVerificationState.VERIFICATION_FAILED,
     ];
 
-    const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
+    const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
       if (message !== null) {
         infoReceived.push(message.code);
       }
@@ -660,7 +659,7 @@ describe('Verification', () => {
       EVerificationState.VERIFICATION_FAILED,
     ];
 
-    const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
+    const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
       if (message !== null) {
         infoReceived.push(message.code);
       }
@@ -693,7 +692,7 @@ describe('Verification', () => {
       EVerificationState.VERIFICATION_FAILED,
     ];
 
-    const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
+    const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
       if (message !== null) {
         infoReceived.push(message.code);
       }
@@ -729,7 +728,7 @@ describe('Verification', () => {
       EVerificationState.VERIFICATION_FAILED,
     ];
 
-    const subscription = verifier.getMessenger().subscribe((message: UbirchMessage) => {
+    const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
       if (message !== null) {
         infoReceived.push(message.code);
       }
