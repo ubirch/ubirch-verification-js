@@ -27,7 +27,7 @@ export class UbirchVerificationWidget {
 
   constructor(config: IUbirchVerificationWidgetConfig) {
     const host = document.querySelector(config.hostSelector);
-    if (!host) throw new Error(EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND);
+    if (!host) throw new Error(i18n.t(`widget:error.${EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND}`));
     this.host = host as HTMLElement;
     // this.openConsoleInSameTarget = config.openConsoleInSameTarget || false;
     config.messenger.subscribe((message) => {
