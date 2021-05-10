@@ -139,6 +139,7 @@ describe('Widget', () => {
             },
             anchors: [],
             verificationState: EVerificationState.VERIFICATION_SUCCESSFUL,
+            firstAnchorTimestamp: '',
           },
         },
       ];
@@ -192,6 +193,7 @@ describe('Widget', () => {
             },
             anchors: [],
             verificationState: EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
+            firstAnchorTimestamp: '',
           },
         },
       ];
@@ -240,6 +242,7 @@ describe('Widget', () => {
             },
             anchors: [],
             verificationState: EVerificationState.VERIFICATION_FAILED,
+            firstAnchorTimestamp: '',
           },
         },
       ];
@@ -290,6 +293,7 @@ describe('Widget', () => {
             },
             anchors: [],
             verificationState: EVerificationState.VERIFICATION_FAILED,
+            firstAnchorTimestamp: '',
           },
         },
       ];
@@ -341,6 +345,7 @@ describe('Widget', () => {
             },
             anchors: [],
             verificationState: EVerificationState.VERIFICATION_FAILED,
+            firstAnchorTimestamp: '',
           },
         },
       ];
@@ -389,6 +394,7 @@ describe('Widget', () => {
             },
             anchors: [],
             verificationState: EVerificationState.VERIFICATION_FAILED,
+            firstAnchorTimestamp: '',
           },
         },
       ];
@@ -437,6 +443,7 @@ describe('Widget', () => {
             },
             anchors: [],
             verificationState: EVerificationState.VERIFICATION_FAILED,
+            firstAnchorTimestamp: '',
           },
         },
       ];
@@ -471,7 +478,9 @@ describe('Widget', () => {
         {
           type: EMessageType.ERROR,
           code: EError.VERIFICATION_UNAVAILABLE,
-          message: i18n.t(`widget:error.${EError.VERIFICATION_UNAVAILABLE}`, { message: 'Lorem ipsum'}),
+          message: i18n.t(`widget:error.${EError.VERIFICATION_UNAVAILABLE}`, {
+            message: 'Lorem ipsum',
+          }),
           errorDetails: {
             errorMessage: 'Lorem ipsum',
           },
@@ -488,6 +497,7 @@ describe('Widget', () => {
             },
             anchors: [],
             verificationState: EVerificationState.VERIFICATION_FAILED,
+            firstAnchorTimestamp: '',
           },
         },
       ];
