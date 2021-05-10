@@ -1,4 +1,6 @@
 import * as verifyResult from './verifyresult.json';
+import * as keyServiceResult from './keyService.json';
+import UbirchProtocol from '@ubirch/ubirch-protocol-verifier/src/verify';
 import {
   EError,
   EHashAlgorithms,
@@ -16,8 +18,15 @@ import { messageSubject$ } from '../../messenger';
 
 global.fetch = jest.fn();
 
+jest.mock('@ubirch/ubirch-protocol-verifier/src/verify', () => ({
+  tools: {
+    upp: jest.fn().mockReturnValue('a'),
+    getUUIDFromUpp: jest.fn().mockReturnValue('b'),
+  },
+  verify: jest.fn().mockReturnValue(true),
+}));
+
 const defaultSettings: IUbirchVerificationConfig = {
-  algorithm: EHashAlgorithms.SHA256,
   accessToken:
     'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiZDYzZWNjMDMtZjVhNy00ZDQzLTkxZDAtYTMwZDAzNGQ4ZGEzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2MTk4MjA2MzAsImlhdCI6MTYxMjQzNTI4MCwianRpIjoiOGJkMzExZDItZGEyYi00ZWJhLWExMmMtODYxYjRiYWU2MjliIiwidGFyZ2V0X2lkZW50aXRpZXMiOiIqIiwicm9sZSI6InZlcmlmaWVyIiwic2NvcGUiOiJ2ZXIiLCJwdXJwb3NlIjoiVWJpcmNoIERlZmF1bHQgVG9rZW4iLCJvcmlnaW5fZG9tYWlucyI6W119.tDovGseqjwaJZNX0ZtoGmZVvkcdVltR1nXYYAFpF4DHGAQ8MiRAfeJIYL0TNHsqBt_-60fw2j65neje_ThJ7Eg',
   stage: EStages.dev,
@@ -39,9 +48,10 @@ let verifier: UbirchVerificationMock;
 const deepCopy = <T>(obj: T) => JSON.parse(JSON.stringify(obj)) as T;
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  (global.fetch as jest.Mock).mockClear().mockReset();
   testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
   verifier = new UbirchVerificationMock(defaultSettings);
+  messageSubject$.next(null);
 });
 
 describe('Verification', () => {
@@ -72,6 +82,15 @@ describe('Verification', () => {
       const result = verifier.formatJSON(jsonString);
       expect(result).toEqual(
         '{"a":"-1","b":"2","x":{"1":"hallo","2":{"A":"x","B":"xx"},"3":"bello"}}'
+      );
+    });
+
+    test("shouldn't sort JSON params recursively", () => {
+      const jsonString =
+        '{"b": "2", "x": { "1": "hallo", "3": "bello", "2": {"A": "x", "B": "xx"}}, "a": "-1"}';
+      const result = verifier.formatJSON(jsonString, false);
+      expect(result).toEqual(
+        '{"b":"2","x":{"1":"hallo","2":{"A":"x","B":"xx"},"3":"bello"},"a":"-1"}'
       );
     });
 
@@ -109,10 +128,22 @@ describe('Verification', () => {
       expect(result).toEqual('9LrnCLgPcUiQpM+YabkmW/BhT7/9R7TssIBrX6zUXs8=');
     });
 
-    test('should create a correct sha512 hash from json data', () => {
+    test('should create a correct sha512 hash from json data due to parameter', () => {
       const trimmedAndSortedJson =
         '{"a":"-1","b":"2","x":{"1":"hallo","2":{"A":"x","B":"xx"},"3":"bello"}}';
       const result = verifier.createHash(trimmedAndSortedJson, EHashAlgorithms.SHA512);
+      expect(result).toEqual(
+        'l5y7KYeeAmASU76WhTsOfy4+L/o+r1LHg1Uqv/rClxgivyveUAJo/WCwZTsfBaK54zg4MKs08serUXKuFQgu+A=='
+      );
+    });
+    test('should create a correct sha512 hash from json data due to config', () => {
+      const verifier512 = new UbirchVerificationMock({
+        ...defaultSettings,
+        algorithm: EHashAlgorithms.SHA512,
+      });
+      const trimmedAndSortedJson =
+        '{"a":"-1","b":"2","x":{"1":"hallo","2":{"A":"x","B":"xx"},"3":"bello"}}';
+      const result = verifier512.createHash(trimmedAndSortedJson);
       expect(result).toEqual(
         'l5y7KYeeAmASU76WhTsOfy4+L/o+r1LHg1Uqv/rClxgivyveUAJo/WCwZTsfBaK54zg4MKs08serUXKuFQgu+A=='
       );
@@ -124,10 +155,15 @@ describe('Verification', () => {
       const responseJSON: string =
         '{"anchors":{"upper_blockchains":[]},"prev":"","upp":"upp-must-not-be-null"}';
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => JSON.parse(responseJSON),
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => JSON.parse(responseJSON),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       return verifier
         .verifyHash(testhash_verifiable)
@@ -185,9 +221,7 @@ describe('Verification', () => {
     });
 
     test('should handle error if VERIFICATION_UNAVAILABLE', () => {
-      (global.fetch as jest.Mock).mockRejectedValueOnce({
-        message: 'connection-error',
-      });
+      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('connection-error'));
 
       return verifier
         .verifyHash(testhash_verifiable)
@@ -222,16 +256,22 @@ describe('Verification', () => {
       response.anchors.upper_blockchains[3].properties.network_type = '';
       response.anchors.upper_blockchains[4].properties.network_type = undefined;
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => response,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       const infoReceived = [];
       const infoChain = [
         EInfo.START_VERIFICATION_CALL,
         EInfo.START_CHECKING_RESPONSE,
         EInfo.UPP_HAS_BEEN_FOUND,
+        EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY,
         EInfo.WARNING_EMPTY_BLXTX_FOUND,
         EInfo.WARNING_EMPTY_BLXTX_FOUND,
         EInfo.WARNING_EMPTY_BLXTX_FOUND,
@@ -241,8 +281,7 @@ describe('Verification', () => {
         EVerificationState.VERIFICATION_SUCCESSFUL,
       ];
 
-      messageSubject$.next(null);
-      const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
         if (message !== null) {
           infoReceived.push(message.code);
         }
@@ -265,22 +304,27 @@ describe('Verification', () => {
       response.anchors.upper_blockchains[1].properties.network_type = 'unknown';
       response.anchors.upper_blockchains[2].properties.txid = undefined;
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => response,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       const infoReceived = [];
       const infoChain = [
         EInfo.START_VERIFICATION_CALL,
         EInfo.START_CHECKING_RESPONSE,
         EInfo.UPP_HAS_BEEN_FOUND,
+        EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY,
         EInfo.NO_BLXTX_FOUND,
         EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
       ];
 
-      messageSubject$.next(null);
-      const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
         if (message !== null) {
           infoReceived.push(message.code);
         }
@@ -303,22 +347,27 @@ describe('Verification', () => {
       const response = deepCopy(verifyResult);
       response.anchors = undefined;
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => response,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       const infoReceived = [];
       const infoChain = [
         EInfo.START_VERIFICATION_CALL,
         EInfo.START_CHECKING_RESPONSE,
         EInfo.UPP_HAS_BEEN_FOUND,
+        EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY,
         EInfo.NO_BLXTX_FOUND,
         EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
       ];
 
-      messageSubject$.next(null);
-      const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
         if (message !== null) {
           infoReceived.push(message.code);
         }
@@ -340,10 +389,15 @@ describe('Verification', () => {
     test('should fail with VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE if no upp is returned', () => {
       const responseJSON: string = '{"anchors":{"upper_blockchains":[]},"prev":"","upp":""}';
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => JSON.parse(responseJSON),
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => JSON.parse(responseJSON),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       return verifier
         .verifyHash(testhash_verifiable)
@@ -355,10 +409,15 @@ describe('Verification', () => {
     });
 
     test('should fail with UNKNOWN_ERROR', () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: 'malformed-api',
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: 'malformed-api',
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       return verifier
         .verifyHash(testhash_verifiable)
@@ -370,10 +429,15 @@ describe('Verification', () => {
     });
 
     test('should send the hash successfully and return a VERIFICATION_SUCCESSFUL response', () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => verifyResult,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => verifyResult,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       return verifier
         .verifyHash(testhash_verifiable)
@@ -384,6 +448,7 @@ describe('Verification', () => {
           expect(response.verificationState).toBe(EVerificationState.VERIFICATION_SUCCESSFUL);
           expect(response.anchors).toBeDefined();
           expect(response.anchors).toHaveLength(3);
+          expect(response.firstAnchorTimestamp).toBe('2020-10-21T10:13:16.548Z');
 
           const firstAnchor: IUbirchBlockchainAnchor = response.anchors[0];
           expect(firstAnchor.iconUrl).toBeDefined();
@@ -402,10 +467,15 @@ describe('Verification', () => {
       const response = deepCopy(verifyResult);
       response.anchors.upper_blockchains[0].properties.network_info = undefined;
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => response,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       return verifier
         .verifyHash(testhash_verifiable)
@@ -415,7 +485,8 @@ describe('Verification', () => {
           expect(response.upp.state).toBe(EUppStates.anchored);
           expect(response.verificationState).toBe(EVerificationState.VERIFICATION_SUCCESSFUL);
           expect(response.anchors).toBeDefined();
-          expect(response.anchors.length).toBeGreaterThan(0);
+          expect(response.anchors).toHaveLength(3);
+          expect(response.firstAnchorTimestamp).toBe('2020-10-21T10:13:16.548Z');
 
           const firstAnchor: IUbirchBlockchainAnchor = response.anchors[0];
           expect(firstAnchor.blxTxExplorerUrl).toBeDefined();
@@ -431,11 +502,37 @@ describe('Verification', () => {
         });
     });
 
+    test('should return a VERIFICATION_SUCCESSFUL response with timestamp of first available anchor', () => {
+      const response = deepCopy(verifyResult);
+      response.anchors.upper_blockchains[2].properties.timestamp = '2000-09-21T10:13:16.548Z';
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
+
+      return verifier
+        .verifyHash(testhash_verifiable)
+        .then((response: IUbirchVerificationResult) => {
+          expect(response.firstAnchorTimestamp).toBe('2000-09-21T10:13:16.548Z');
+        });
+    });
+
     test('should send the hash to default production stage', () => {
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => verifyResult,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => verifyResult,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       const prodVerifier = new UbirchVerificationMock({ ...defaultSettings, stage: undefined });
       return prodVerifier
@@ -461,27 +558,198 @@ describe('Verification', () => {
         EInfo.START_VERIFICATION_CALL,
         EInfo.START_CHECKING_RESPONSE,
         EInfo.UPP_HAS_BEEN_FOUND,
+        EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY,
         EInfo.BLXTXS_FOUND_SUCCESS,
         EVerificationState.VERIFICATION_SUCCESSFUL,
       ];
 
-      messageSubject$.next(null);
-      const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
         if (message !== null) {
           infoReceived.push(message.code);
         }
       });
 
-      (global.fetch as jest.Mock).mockResolvedValueOnce({
-        status: 200,
-        json: () => verifyResult,
-      });
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => verifyResult,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
       verifier.verifyHash(testhash_verifiable).then((_) => {
         expect(infoReceived).toEqual(infoChain);
         subscription.unsubscribe();
         done();
       });
+    });
+  });
+
+  test('pubKey request rejected', (done) => {
+    const infoReceived = [];
+    const infoChain = [
+      EInfo.START_VERIFICATION_CALL,
+      EInfo.START_CHECKING_RESPONSE,
+      EInfo.UPP_HAS_BEEN_FOUND,
+      EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
+      EVerificationState.VERIFICATION_FAILED,
+    ];
+
+    const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
+      if (message !== null) {
+        infoReceived.push(message.code);
+      }
+    });
+
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        status: 200,
+        json: () => verifyResult,
+      })
+      .mockRejectedValueOnce(new Error('connection-error'));
+
+    verifier.verifyHash(testhash_verifiable).then((_) => {
+      expect(infoReceived).toEqual(infoChain);
+      subscription.unsubscribe();
+      done();
+    });
+  });
+
+  test('molformed pubKey response recieved', (done) => {
+    const infoReceived = [];
+    const infoChain = [
+      EInfo.START_VERIFICATION_CALL,
+      EInfo.START_CHECKING_RESPONSE,
+      EInfo.UPP_HAS_BEEN_FOUND,
+      EVerificationState.VERIFICATION_FAILED,
+    ];
+
+    const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
+      if (message !== null) {
+        infoReceived.push(message.code);
+      }
+    });
+
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        status: 200,
+        json: () => verifyResult,
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        json: () => 'malformed-response',
+      });
+
+    verifier.verifyHash(testhash_verifiable).then((_) => {
+      expect(infoReceived).toEqual(infoChain);
+      subscription.unsubscribe();
+      done();
+    });
+  });
+
+  test('pubKey response recieved with not success code', (done) => {
+    const infoReceived = [];
+    const infoChain = [
+      EInfo.START_VERIFICATION_CALL,
+      EInfo.START_CHECKING_RESPONSE,
+      EInfo.UPP_HAS_BEEN_FOUND,
+      EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
+      EVerificationState.VERIFICATION_FAILED,
+    ];
+
+    const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
+      if (message !== null) {
+        infoReceived.push(message.code);
+      }
+    });
+
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        status: 200,
+        json: () => verifyResult,
+      })
+      .mockResolvedValueOnce({
+        status: 999,
+        json: () => keyServiceResult,
+      });
+
+    verifier.verifyHash(testhash_verifiable).then((_) => {
+      expect(infoReceived).toEqual(infoChain);
+      subscription.unsubscribe();
+      done();
+    });
+  });
+
+  test('undefined pubKey recieved', (done) => {
+    const infoReceived = [];
+    const infoChain = [
+      EInfo.START_VERIFICATION_CALL,
+      EInfo.START_CHECKING_RESPONSE,
+      EInfo.UPP_HAS_BEEN_FOUND,
+      EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
+      EVerificationState.VERIFICATION_FAILED,
+    ];
+
+    const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
+      if (message !== null) {
+        infoReceived.push(message.code);
+      }
+    });
+
+    const keyServiceResultMalformed = deepCopy(keyServiceResult);
+    keyServiceResultMalformed[0].pubKeyInfo.pubKey = undefined;
+
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        status: 200,
+        json: () => verifyResult,
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        json: () => keyServiceResultMalformed,
+      });
+
+    verifier.verifyHash(testhash_verifiable).then((_) => {
+      expect(infoReceived).toEqual(infoChain);
+      subscription.unsubscribe();
+      done();
+    });
+  });
+
+  test('unverified pubKey received', (done) => {
+    const infoReceived = [];
+    const infoChain = [
+      EInfo.START_VERIFICATION_CALL,
+      EInfo.START_CHECKING_RESPONSE,
+      EInfo.UPP_HAS_BEEN_FOUND,
+      EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
+      EVerificationState.VERIFICATION_FAILED,
+    ];
+
+    const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
+      if (message !== null) {
+        infoReceived.push(message.code);
+      }
+    });
+
+    (UbirchProtocol.verify as jest.Mock).mockReturnValueOnce(false);
+
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        status: 200,
+        json: () => verifyResult,
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        json: () => keyServiceResult,
+      });
+
+    verifier.verifyHash(testhash_verifiable).then((_) => {
+      expect(infoReceived).toEqual(infoChain);
+      subscription.unsubscribe();
+      done();
     });
   });
 });

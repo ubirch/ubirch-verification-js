@@ -36,6 +36,7 @@ export enum EInfo {
   NO_BLXTX_FOUND = 'NO_BLXTX_FOUND',
   BLXTXS_FOUND_SUCCESS = 'BLXTXS_FOUND_SUCCESS',
   WARNING_EMPTY_BLXTX_FOUND = 'WARNING_EMPTY_BLXTX_FOUND',
+  SIGNATURE_VERIFICATION_SUCCESSFULLY = 'SIGNATURE_VERIFICATION_SUCCESSFULLY',
 }
 
 export enum EError {
@@ -59,6 +60,7 @@ export enum EError {
   // MISSING_PARAM_IDS = 'MISSING_PARAM_IDS',
   // PARAM_ID_MAPPING_MISSMATCH = 'PARAM_ID_MAPPING_MISSMATCH',
   MISSING_ACCESS_TOKEN = 'MISSING_ACCESS_TOKEN',
+  VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED = 'VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED',
   CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE = 'CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE',
   INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
@@ -76,20 +78,20 @@ export interface IUbirchErrorDetails {
 }
 
 export interface IUbirchInfo {
-  type: EMessageType.INFO,
+  type: EMessageType.INFO;
   message: string;
   code: EInfo;
 }
 
 export interface IUbirchError {
-  type: EMessageType.ERROR,
+  type: EMessageType.ERROR;
   message: string;
   code: EError;
   errorDetails?: IUbirchErrorDetails;
 }
 
 export interface IUbirchVerificationState {
-  type: EMessageType.VERIFICATION_STATE,
+  type: EMessageType.VERIFICATION_STATE;
   message: string;
   code: EVerificationState;
   result?: IUbirchVerificationResult;
@@ -98,7 +100,7 @@ export interface IUbirchVerificationState {
 export type UbirchMessage = IUbirchInfo | IUbirchError | IUbirchVerificationState;
 
 export interface IUbirchVerificationConfig {
-  algorithm: EHashAlgorithms;
+  algorithm?: EHashAlgorithms;
   accessToken: string;
   stage?: EStages;
   language?: ELanguages;
@@ -121,6 +123,8 @@ export interface IUbirchVerificationEnvConfig {
   verify_api_path: string;
   console_verify_url: IUbirchStagesURLs;
   console_verify_path: string;
+  key_service_url: IUbirchStagesURLs;
+  device_service_url: IUbirchStagesURLs;
 }
 
 export interface IUbirchVerificationResponse {
@@ -154,6 +158,7 @@ export interface IUbirchVerificationResult {
   hash: string;
   upp: IUbirchUpp;
   anchors: IUbirchBlockchainAnchor[];
+  firstAnchorTimestamp: string | null;
   verificationState: EVerificationState;
   failReason?: EError;
 }
