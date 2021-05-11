@@ -29,6 +29,7 @@ export class UbirchVerificationWidget {
     const host = document.querySelector(config.hostSelector);
     if (!host) throw new Error(i18n.t(`default:error.${EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND}`));
     this.host = host as HTMLElement;
+    if (config.language) this.setLanguage(config.language);
     // this.openConsoleInSameTarget = config.openConsoleInSameTarget || false;
     config.messenger.subscribe((message) => {
       if (message) {
@@ -37,6 +38,10 @@ export class UbirchVerificationWidget {
         this.render(message);
       }
     });
+  }
+
+  public setLanguage(language: ELanguages): void {
+    i18n.changeLanguage(language);
   }
 
   private render(message: UbirchMessage): void {
