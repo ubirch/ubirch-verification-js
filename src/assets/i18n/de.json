@@ -29,7 +29,8 @@
     "PARAM_ID_MAPPING_MISSMATCH": "If you provide paramsFormIdsMapping define a mapping for each formId; they need to be in the same order",
     "MISSING_ACCESS_TOKEN": "Fehler beim Erstellen der Ubirch(Form)Verification Instanz auf der Seite: es wurde kein `accessToken` zum Verifizieren der Daten angegeben",
     "CERTIFICATE_DATA_MISSING": "Zertifikatsdaten fehlen - bitte füllen Sie das Formular aus oder scannen Sie Ihren QR-Code!",
-    "VERIFICATION_NOT_POSSIBLE": "Die eingegebenen Daten sind fehlerhaft und konnten nicht verifiziert werden"
+    "VERIFICATION_NOT_POSSIBLE": "Die eingegebenen Daten sind fehlerhaft und konnten nicht verifiziert werden",
+    "VERIFICATION_FAILED_EMPTY_RESPONSE": "Verifikation fehlgeschlagen! Zertifikat ist leer oder enthält kein Siegel"
   },
   "verification-state": {
     "VERIFICATION_PENDING": "Verifikation wird durchgeführt...",

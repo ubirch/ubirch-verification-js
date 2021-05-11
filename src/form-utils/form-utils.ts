@@ -37,7 +37,7 @@ export class UbirchFormUtils {
   }
 
   static handleError = (code: EError, errorDetails?: IUbirchErrorDetails): void => {
-    const errorMsg: string = i18n.t(`widget:error.${code}`);
+    const errorMsg: string = i18n.t(`default:error.${code}`);
 
     const err: IUbirchError = {
       type: EMessageType.ERROR,

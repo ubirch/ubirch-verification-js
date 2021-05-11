@@ -8,7 +8,7 @@ import {
   UbirchMessage,
 } from '../../models/models';
 import { UbirchVerificationWidget } from '../widget';
-import * as en from '../../assets/i18n/widget/en.json';
+import * as en from '../../assets/i18n/en.json';
 import i18n from '../../utils/translations';
 
 let root: HTMLElement;
@@ -43,7 +43,7 @@ describe('Widget', () => {
     test('Should properly update HTML on INFO messages', () => {
       const messages: UbirchMessage[] = Object.keys(en.info).map((key) => ({
         type: EMessageType.INFO,
-        message: i18n.t(`widget:info.${key}`),
+        message: i18n.t(`default:info.${key}`),
         code: EInfo[key],
       }));
 
@@ -67,8 +67,8 @@ describe('Widget', () => {
         code: EError[key],
         message:
           key === EError.VERIFICATION_UNAVAILABLE
-            ? i18n.t(`widget:error.${key}`, { message: 'Lorem ipsum' })
-            : i18n.t(`widget:error.${key}`),
+            ? i18n.t(`default:error.${key}`, { message: 'Lorem ipsum' })
+            : i18n.t(`default:error.${key}`),
         errorDetails:
           key === EError.VERIFICATION_UNAVAILABLE ? { errorMessage: 'Lorem ipsum' } : undefined,
       }));
@@ -478,7 +478,7 @@ describe('Widget', () => {
         {
           type: EMessageType.ERROR,
           code: EError.VERIFICATION_UNAVAILABLE,
-          message: i18n.t(`widget:error.${EError.VERIFICATION_UNAVAILABLE}`, {
+          message: i18n.t(`default:error.${EError.VERIFICATION_UNAVAILABLE}`, {
             message: 'Lorem ipsum',
           }),
           errorDetails: {
@@ -510,7 +510,7 @@ describe('Widget', () => {
 
         const expectedHeadline = headlineText(msg);
         const resultText = getResultText(
-          i18n.t(`widget:error.${EError.VERIFICATION_UNAVAILABLE}`, { message: 'Lorem ipsum' }),
+          i18n.t(`default:error.${EError.VERIFICATION_UNAVAILABLE}`, { message: 'Lorem ipsum' }),
           msg
         );
         expect(headline).not.toBe(null);

@@ -27,7 +27,7 @@ export class UbirchVerificationWidget {
 
   constructor(config: IUbirchVerificationWidgetConfig) {
     const host = document.querySelector(config.hostSelector);
-    if (!host) throw new Error(i18n.t(`widget:error.${EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND}`));
+    if (!host) throw new Error(i18n.t(`default:error.${EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND}`));
     this.host = host as HTMLElement;
     // this.openConsoleInSameTarget = config.openConsoleInSameTarget || false;
     config.messenger.subscribe((message) => {
@@ -68,17 +68,17 @@ export class UbirchVerificationWidget {
     else if (message.type === EMessageType.VERIFICATION_STATE)
       suffix = message.result.verificationState;
     else suffix = 'VERIFICATION_PENDING';
-    this.headlineText = i18n.t(`widget:${EMessageType.VERIFICATION_STATE}.${suffix}`);
+    this.headlineText = i18n.t(`default:${EMessageType.VERIFICATION_STATE}.${suffix}`);
   }
 
   private updateResultText(message: UbirchMessage): void {
     if (message.type !== EMessageType.VERIFICATION_STATE) {
       this.resultText =
         message.code === EError.VERIFICATION_UNAVAILABLE
-          ? i18n.t(`widget:${message.type}.${message.code}`, {
+          ? i18n.t(`default:${message.type}.${message.code}`, {
               message: message.errorDetails.errorMessage,
             })
-          : i18n.t(`widget:${message.type}.${message.code}`);
+          : i18n.t(`default:${message.type}.${message.code}`);
     }
   }
 
