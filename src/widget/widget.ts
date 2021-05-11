@@ -22,12 +22,13 @@ export interface IUbirchVerificationWidgetConfig {
 export class UbirchVerificationWidget {
   private host: HTMLElement;
   // private openConsoleInSameTarget: boolean;
-  private headlineText: string = '';
-  private resultText: string = '';
+  private headlineText = '';
+  private resultText = '';
 
   constructor(config: IUbirchVerificationWidgetConfig) {
     const host = document.querySelector(config.hostSelector);
-    if (!host) throw new Error(i18n.t(`widget:error.${EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND}`));
+    if (!host)
+      throw new Error(i18n.t(`widget:error.${EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND}`));
     this.host = host as HTMLElement;
     // this.openConsoleInSameTarget = config.openConsoleInSameTarget || false;
     config.messenger.subscribe((message) => {
@@ -63,11 +64,9 @@ export class UbirchVerificationWidget {
   }
 
   private updateHeadlineText(message: UbirchMessage): void {
-    let suffix: string;
-    if (message.type === EMessageType.ERROR) suffix = 'VERIFICATION_FAILED';
-    else if (message.type === EMessageType.VERIFICATION_STATE)
-      suffix = message.result.verificationState;
-    else suffix = 'VERIFICATION_PENDING';
+    if (message.type !== EMessageType.VERIFICATION_STATE) return;
+
+    const suffix = message.code;
     this.headlineText = i18n.t(`widget:${EMessageType.VERIFICATION_STATE}.${suffix}`);
   }
 
@@ -83,12 +82,15 @@ export class UbirchVerificationWidget {
   }
 
   private renderSealOutput(message: UbirchMessage): string {
-    if (message.type !== EMessageType.VERIFICATION_STATE) {
+    if (
+      message.type !== EMessageType.VERIFICATION_STATE ||
+      message.code === EVerificationState.VERIFICATION_PENDING
+    ) {
       return '';
     }
     const isSuccessful =
-      message.result.verificationState === EVerificationState.VERIFICATION_SUCCESSFUL ||
-      message.result.verificationState === EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+      message.code === EVerificationState.VERIFICATION_SUCCESSFUL ||
+      message.code === EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
 
     const sealSuffix = isSuccessful ? 'seal' : 'no_seal';
     const iconSrcSuffix = BlockchainSettings.ubirchIcons[sealSuffix];
