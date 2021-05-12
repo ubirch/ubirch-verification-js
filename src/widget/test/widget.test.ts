@@ -50,14 +50,8 @@ describe('Widget', () => {
       new UbirchVerificationWidget({ hostSelector: 'body', messenger });
       messages.forEach((msg: UbirchMessage) => {
         subject.next(msg);
-        const headline = root.querySelector('#ubirch-verification-widget-headline');
         const result = root.querySelector('#ubirch-verification-widget-result-text');
-        expect(headline).not.toBe(null);
-        expect(
-          headline.textContent.includes(en['verification-state']['VERIFICATION_PENDING'])
-        ).toBe(true);
-        expect(result).not.toBe(null);
-        expect(result.textContent.includes(msg.message)).toBe(true);
+        expect(result.textContent).toContain(msg.message);
       });
     });
 
@@ -77,12 +71,7 @@ describe('Widget', () => {
 
       messages.forEach((msg) => {
         subject.next(msg);
-        const headline = root.querySelector('#ubirch-verification-widget-headline');
         const result = root.querySelector('#ubirch-verification-widget-result-text');
-        expect(headline).not.toBe(null);
-        expect(headline.textContent.includes(en['verification-state']['VERIFICATION_FAILED'])).toBe(
-          true
-        );
         expect(result).not.toBe(null);
         expect(result.textContent.includes(msg.message)).toBe(true);
       });
@@ -99,10 +88,13 @@ describe('Widget', () => {
       new UbirchVerificationWidget({ hostSelector: 'body', messenger });
       messages.forEach((msg) => {
         subject.next(msg);
-        const headline = root.querySelector('#ubirch-verification-widget-headline');
-        expect(headline).not.toBe(null);
-        expect(headline.textContent.includes(en['verification-state'][msg.code]));
       });
+
+      const headline = root.querySelector('#ubirch-verification-widget-headline');
+
+      expect(headline.textContent).toContain(
+        'Verification failed! No anchor for that data can be found!'
+      );
     });
 
     test('Should properly reflect successful verification', () => {
@@ -148,15 +140,13 @@ describe('Widget', () => {
 
       messages.forEach((msg) => {
         subject.next(msg);
-        const headline = root.querySelector('#ubirch-verification-widget-headline');
-        const result = root.querySelector('#ubirch-verification-widget-result-text');
-        const resultText = getResultText(en.info.BLXTXS_FOUND_SUCCESS, msg);
-        const expectedHeadline = headlineText(msg);
-        expect(headline).not.toBe(null);
-        expect(headline.textContent.includes(expectedHeadline));
-        expect(result).not.toBe(null);
-        expect(result.textContent.includes(resultText)).toBe(true);
       });
+
+      const headline = root.querySelector('#ubirch-verification-widget-headline');
+      const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+      expect(headline.textContent).toContain('Verification successful!');
+      expect(result.textContent).toContain('Blockchain anchors found successfully');
     });
 
     test('Should properly reflect partly successful verification', () => {
@@ -202,15 +192,13 @@ describe('Widget', () => {
 
       messages.forEach((msg) => {
         subject.next(msg);
-        const headline = root.querySelector('#ubirch-verification-widget-headline');
-        const result = root.querySelector('#ubirch-verification-widget-result-text');
-        const resultText = getResultText(en.info.NO_BLXTX_FOUND, msg);
-        const expectedHeadline = headlineText(msg);
-        expect(headline).not.toBe(null);
-        expect(headline.textContent.includes(expectedHeadline));
-        expect(result).not.toBe(null);
-        expect(result.textContent.includes(resultText)).toBe(true);
       });
+
+      const headline = root.querySelector('#ubirch-verification-widget-headline');
+      const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+      expect(headline.textContent).toContain('Verification only partly successful');
+      expect(result.textContent).toContain('The data has not been anchored in any blockchain yet');
     });
 
     test('Should properly reflect failed verification (UPP undefined)', () => {
@@ -242,7 +230,7 @@ describe('Widget', () => {
             },
             anchors: [],
             verificationState: EVerificationState.VERIFICATION_FAILED,
-            firstAnchorTimestamp: ''
+            firstAnchorTimestamp: '',
           },
         },
       ];
@@ -250,18 +238,17 @@ describe('Widget', () => {
       new UbirchVerificationWidget({ hostSelector: 'body', messenger });
       messages.forEach((msg) => {
         subject.next(msg);
-        const headline = root.querySelector('#ubirch-verification-widget-headline');
-        const result = root.querySelector('#ubirch-verification-widget-result-text');
-        const resultText = getResultText(
-          en.error.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE,
-          msg
-        );
-        const expectedHeadline = headlineText(msg);
-        expect(headline).not.toBe(null);
-        expect(headline.textContent.includes(expectedHeadline));
-        expect(result).not.toBe(null);
-        expect(result.textContent.includes(resultText)).toBe(true);
       });
+
+      const headline = root.querySelector('#ubirch-verification-widget-headline');
+      const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+      expect(headline.textContent).toContain(
+        'Verification failed! No anchor for that data can be found!'
+      );
+      expect(result.textContent).toContain(
+        'Verification Failed!! Empty certificate or missing seal'
+      );
     });
 
     test('Should properly reflect failed verification (403)', () => {
@@ -301,19 +288,15 @@ describe('Widget', () => {
       new UbirchVerificationWidget({ hostSelector: 'body', messenger });
       messages.forEach((msg) => {
         subject.next(msg);
-        const headline = root.querySelector('#ubirch-verification-widget-headline');
-        const result = root.querySelector('#ubirch-verification-widget-result-text');
-
-        const expectedHeadline = headlineText(msg);
-        const resultText = getResultText(
-          en.error.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE,
-          msg
-        );
-        expect(headline).not.toBe(null);
-        expect(headline.textContent.includes(expectedHeadline));
-        expect(result).not.toBe(null);
-        expect(result.textContent.includes(resultText)).toBe(true);
       });
+
+      const headline = root.querySelector('#ubirch-verification-widget-headline');
+      const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+      expect(headline.textContent).toContain(
+        'Verification failed! No anchor for that data can be found!'
+      );
+      expect(result.textContent).toContain('403 - unauthorized');
     });
 
     test('Should properly reflect failed verification (404)', () => {
@@ -353,16 +336,15 @@ describe('Widget', () => {
       new UbirchVerificationWidget({ hostSelector: 'body', messenger });
       messages.forEach((msg) => {
         subject.next(msg);
-        const headline = root.querySelector('#ubirch-verification-widget-headline');
-        const result = root.querySelector('#ubirch-verification-widget-result-text');
-
-        const expectedHeadline = headlineText(msg);
-        const resultText = getResultText(en.error.CERTIFICATE_ID_CANNOT_BE_FOUND, msg);
-        expect(headline).not.toBe(null);
-        expect(headline.textContent.includes(expectedHeadline));
-        expect(result).not.toBe(null);
-        expect(result.textContent.includes(resultText)).toBe(true);
       });
+
+      const headline = root.querySelector('#ubirch-verification-widget-headline');
+      const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+      expect(headline.textContent).toContain(
+        'Verification failed! No anchor for that data can be found!'
+      );
+      expect(result.textContent).toContain('Certificate cannot be found!');
     });
 
     test('Should properly reflect failed verification (500)', () => {
@@ -402,16 +384,14 @@ describe('Widget', () => {
       new UbirchVerificationWidget({ hostSelector: 'body', messenger });
       messages.forEach((msg) => {
         subject.next(msg);
-        const headline = root.querySelector('#ubirch-verification-widget-headline');
-        const result = root.querySelector('#ubirch-verification-widget-result-text');
-
-        const expectedHeadline = headlineText(msg);
-        const resultText = getResultText(en.error.INTERNAL_SERVER_ERROR, msg);
-        expect(headline).not.toBe(null);
-        expect(headline.textContent.includes(expectedHeadline));
-        expect(result).not.toBe(null);
-        expect(result.textContent.includes(resultText)).toBe(true);
       });
+      const headline = root.querySelector('#ubirch-verification-widget-headline');
+      const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+      expect(headline.textContent).toContain(
+        'Verification failed! No anchor for that data can be found!'
+      );
+      expect(result.textContent).toContain('Internal Server Error. Something went wrong.');
     });
 
     test('Should properly reflect failed verification (Unknown error)', () => {
@@ -451,16 +431,15 @@ describe('Widget', () => {
       new UbirchVerificationWidget({ hostSelector: 'body', messenger });
       messages.forEach((msg) => {
         subject.next(msg);
-        const headline = root.querySelector('#ubirch-verification-widget-headline');
-        const result = root.querySelector('#ubirch-verification-widget-result-text');
-
-        const expectedHeadline = headlineText(msg);
-        const resultText = getResultText(en.error.UNKNOWN_ERROR, msg);
-        expect(headline).not.toBe(null);
-        expect(headline.textContent.includes(expectedHeadline));
-        expect(result).not.toBe(null);
-        expect(result.textContent.includes(resultText)).toBe(true);
       });
+
+      const headline = root.querySelector('#ubirch-verification-widget-headline');
+      const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+      expect(headline.textContent).toContain(
+        'Verification failed! No anchor for that data can be found!'
+      );
+      expect(result.textContent).toContain('An unexpected error occurred');
     });
 
     test('Should properly reflect failed verification (verification unavailable)', () => {
@@ -505,32 +484,15 @@ describe('Widget', () => {
       new UbirchVerificationWidget({ hostSelector: 'body', messenger });
       messages.forEach((msg) => {
         subject.next(msg);
-        const headline = root.querySelector('#ubirch-verification-widget-headline');
-        const result = root.querySelector('#ubirch-verification-widget-result-text');
-
-        const expectedHeadline = headlineText(msg);
-        const resultText = getResultText(
-          i18n.t(`widget:error.${EError.VERIFICATION_UNAVAILABLE}`, { message: 'Lorem ipsum' }),
-          msg
-        );
-        expect(headline).not.toBe(null);
-        expect(headline.textContent.includes(expectedHeadline));
-        expect(result).not.toBe(null);
-        expect(result.textContent.includes(resultText)).toBe(true);
       });
+
+      const headline = root.querySelector('#ubirch-verification-widget-headline');
+      const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+      expect(headline.textContent).toContain(
+        'Verification failed! No anchor for that data can be found!'
+      );
+      expect(result.textContent).toContain('Verification service is not available! Lorem ipsu');
     });
   });
 });
-
-function headlineText(message: UbirchMessage): string {
-  let suffix: string = '';
-  if (message.type === EMessageType.ERROR) suffix = 'VERIFICATION_FAILED';
-  else if (message.type === EMessageType.VERIFICATION_STATE)
-    suffix = message.result.verificationState;
-  else suffix = 'VERIFICATION_PENDING';
-  return en[EMessageType.VERIFICATION_STATE][suffix];
-}
-
-function getResultText(verificationText: string, msg: UbirchMessage): string {
-  return msg.type === EMessageType.VERIFICATION_STATE ? verificationText : msg.message;
-}
