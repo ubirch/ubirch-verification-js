@@ -49,7 +49,7 @@ parameter | description | possible values | default value
 **stage** | the environment of verification service |`local`, `dev`, `demo`, `prod` | `prod` 
 
 #### `verifyHash(hash: string): Promise<IUbirchVerificationResult>`
-Starts verification process of givven hash. Returns verification result object:  
+Starts verification process of given hash. Returns verification result object:  
 parameter | description | possible values | default value
 ------ | ------ | ------ | ------
 **hash** | hash string being verified
