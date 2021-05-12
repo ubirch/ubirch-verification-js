@@ -35,11 +35,39 @@ import { UbirchVerification } from '@ubirch/ubirch-verification-js';
 </body>
 ```
 
-## Utils
+## API
 
-Package contains `UbirchFormUtils` class with following public methods:
-- `getFormParamsFromUrl(windowRef: Window, separator: string): DataParams` - resolves data paramms object from url string.
-- `setDataIntoForm(params: DataParams = {}, documentRef: Document): void` - inserts the data from data params object to input fields.
+### UbirchVerification
+
+#### `constructor(config: IUbirchVerificationConfig)`
+Create instance of `UbirchVerification` class with given config:
+parameter | description | possible values | default value
+------ | ------ | ------ | ------
+**accessToken** | token | string | *required*
+**algorithm** | default algorith used for hashing | `sha256`, `sha512` | `sha256`
+**language** | language of the messenger messages | `en`, `de` | `en`
+**stage** | the environment of verification service |`local`, `dev`, `demo`, `prod` | `prod` 
+
+#### `verifyHash(hash: string): Promise<IUbirchVerificationResult>`
+Starts verification process of givven hash. Returns verification result object:  
+parameter | description | possible values | default value
+------ | ------ | ------ | ------
+**hash** | hash string being verified
+**upp** | Ubirch upp
+**anchors** | list of available blockchain anchors
+**firstAnchorTimestammp** | ISO time string of earliest anchoring
+**verificationState** | state flag of verification: `VERIFICATION_SUCCESSFUL`, `VERIFICATION_PARTLY_SUCCESSFUL` or `VERIFICATION_FAILED`
+**failReason** | error flag if verification failed or `undefined`
+
+#### `createHash(json: string, hashAlgorithm?: EHashAlgorithms): string`
+Returns given JSON string hashed with given algorythm. Possible algorythms are `sha256` and `sha512`. If algorithm os not given the one specified in config will be used.
+
+### UbirchFormUtils
+Helper methods for data resolving
+#### `getFormParamsFromUrl(windowRef: Window, separator: string): DataParams`
+Resolves data paramms object from url string.
+#### `setDataIntoForm(params: DataParams = {}, documentRef: Document): void`
+Inserts the data from data params object to input fields.
 
 ## Building from sources.
 
