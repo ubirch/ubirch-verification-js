@@ -106,7 +106,7 @@ describe('Widget', () => {
       });
     });
 
-    test('Should properly reflect successful verification', async () => {
+    test('Should properly reflect successful verification', () => {
       const messages: UbirchMessage[] = [
         {
           type: EMessageType.INFO,
@@ -162,7 +162,6 @@ describe('Widget', () => {
 
       const anchorIcons = root.querySelector('#ubirch-verification-anchor-icons');
       expect(anchorIcons.childNodes.length).toBeGreaterThan(0);
-      console.log('aaa');
       expect(anchorIcons.querySelector('[title="Gov_Digital Mainnet Network"]')).not.toBe(null);
       expect(
         anchorIcons.querySelector('[title="Ethererum Classic Kotti Testnet Network"]')
