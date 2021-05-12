@@ -10,6 +10,7 @@ import {
 import { UbirchVerificationWidget } from '../widget';
 import * as en from '../../assets/i18n/en.json';
 import i18n from '../../utils/translations';
+import * as testAnchors from './anchors.json';
 
 let root: HTMLElement;
 let subject: BehaviorSubject<UbirchMessage>;
@@ -105,7 +106,7 @@ describe('Widget', () => {
       });
     });
 
-    test('Should properly reflect successful verification', () => {
+    test('Should properly reflect successful verification', async () => {
       const messages: UbirchMessage[] = [
         {
           type: EMessageType.INFO,
@@ -132,14 +133,15 @@ describe('Widget', () => {
           code: EVerificationState.VERIFICATION_SUCCESSFUL,
           message: en['verification-state'].VERIFICATION_SUCCESSFUL,
           result: {
-            hash: '',
+            hash: 'fDqiCojhrAUSaDPIUi52msChXyB3VRWFWAT+V0WhFiQ=',
             upp: {
-              upp: '',
+              upp:
+                'liPEEM+T+e6L9EzBtxV79B2I5hbEQLKeDjxuX6RTp6/kKnsJR+cd3exsAqA/8oJXdYjzVvfWG3I3QXeqzTdAgJj8No6sL0ltaSGWjzEwBAy+fx+ZdCkAxCB8OqIKiOGsBRJoM8hSLnaawKFfIHdVFYVYBP5XRaEWJMRAPYfV3BJ4goY6HUxSNcB6Wu48Y+5iRqsuRdUT4dlidzaD9bjub7DxN75sXzf5uOgn26lZ1asuPsfKPWaYuciXTQ==',
               state: EUppStates.anchored,
             },
-            anchors: [],
+            anchors: testAnchors,
             verificationState: EVerificationState.VERIFICATION_SUCCESSFUL,
-            firstAnchorTimestamp: '',
+            firstAnchorTimestamp: '2021-01-27T17:37:16.543Z',
           },
         },
       ];
@@ -157,6 +159,15 @@ describe('Widget', () => {
         expect(result).not.toBe(null);
         expect(result.textContent.includes(resultText)).toBe(true);
       });
+
+      const anchorIcons = root.querySelector('#ubirch-verification-anchor-icons');
+      expect(anchorIcons.childNodes.length).toBeGreaterThan(0);
+      console.log('aaa');
+      expect(anchorIcons.querySelector('[title="Gov_Digital Mainnet Network"]')).not.toBe(null);
+      expect(
+        anchorIcons.querySelector('[title="Ethererum Classic Kotti Testnet Network"]')
+      ).not.toBe(null);
+      expect(anchorIcons.querySelector('[title="Rinkeby Testnet Network"]')).not.toBe(null);
     });
 
     test('Should properly reflect partly successful verification', () => {

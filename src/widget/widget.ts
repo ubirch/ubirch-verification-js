@@ -76,7 +76,7 @@ export class UbirchVerificationWidget {
           ${this.resultText}
         </p>
       </div>
-      <div class="${styles.container__row}">
+      <div class="${styles.container__row}" id="ubirch-verification-anchor-icons">
         ${this.blockchainIconsAnchors}
       </div>
     </div>`;
