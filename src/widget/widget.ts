@@ -4,6 +4,7 @@ import {
   EError,
   ELanguages,
   EMessageType,
+  EStages,
   EVerificationState,
   IUbirchBlockchainAnchor,
   UbirchMessage,
@@ -15,10 +16,11 @@ import styles from './widget.module.scss';
 
 export interface IUbirchVerificationWidgetConfig {
   hostSelector: string;
-  language?: ELanguages;
-  linkToConsole?: boolean;
   openConsoleInSameTarget?: boolean;
   messenger: Observable<UbirchMessage>;
+  language?: ELanguages;
+  linkToConsole?: boolean;
+  stage?: EStages;
 }
 
 export class UbirchVerificationWidget {
@@ -28,6 +30,7 @@ export class UbirchVerificationWidget {
   private headlineText: string = '';
   private resultText: string = '';
   private blockchainIconsAnchors: string = '';
+  private stage: EStages = EStages.dev;
 
   constructor(config: IUbirchVerificationWidgetConfig) {
     const host = document.querySelector(config.hostSelector);
@@ -38,7 +41,7 @@ export class UbirchVerificationWidget {
     if (typeof config.openConsoleInSameTarget === 'boolean')
       this.linkToConsole = config.openConsoleInSameTarget;
     if (config.language) this.setLanguage(config.language);
-    // this.openConsoleInSameTarget = config.openConsoleInSameTarget || false;
+    if (config.stage) this.stage = config.stage;
     config.messenger.subscribe((message) => {
       if (message) {
         this.updateHeadlineText(message);
@@ -81,10 +84,10 @@ export class UbirchVerificationWidget {
 
   private updateHeadlineText(message: UbirchMessage): void {
     let suffix: string;
-    if (message.type === EMessageType.ERROR) suffix = 'VERIFICATION_FAILED';
+    if (message.type === EMessageType.ERROR) suffix = EVerificationState.VERIFICATION_FAILED;
     else if (message.type === EMessageType.VERIFICATION_STATE)
       suffix = message.result.verificationState;
-    else suffix = 'VERIFICATION_PENDING';
+    else suffix = EVerificationState.VERIFICATION_PENDING;
     this.headlineText = i18n.t(`default:${EMessageType.VERIFICATION_STATE}.${suffix}`);
   }
 
@@ -117,7 +120,7 @@ export class UbirchVerificationWidget {
     let output: string;
     if (message.type === EMessageType.VERIFICATION_STATE && this.linkToConsole) {
       const encodedHash: string = encodeURIComponent(message.result?.hash);
-      const href = `${environment.console_verify_url.dev}?hash=${encodedHash}`;
+      const href = `${environment.console_verify_url[this.stage]}?hash=${encodedHash}`;
       output = `<a href="${href}" ${!this.openConsoleInSameTarget ? 'target="_blank"' : ''}>
           ${iconString}
         </a>`;
