@@ -5,6 +5,7 @@ import {
   ELanguages,
   EMessageType,
   EVerificationState,
+  IUbirchBlockchainAnchor,
   UbirchMessage,
 } from '../models/models';
 import environment from '../environment';
@@ -15,26 +16,34 @@ import styles from './widget.module.scss';
 export interface IUbirchVerificationWidgetConfig {
   hostSelector: string;
   language?: ELanguages;
+  linkToConsole?: boolean;
   openConsoleInSameTarget?: boolean;
   messenger: Observable<UbirchMessage>;
 }
 
 export class UbirchVerificationWidget {
   private host: HTMLElement;
-  // private openConsoleInSameTarget: boolean;
+  private linkToConsole: boolean = false;
+  private openConsoleInSameTarget: boolean;
   private headlineText: string = '';
   private resultText: string = '';
+  private blockchainIconsAnchors: string = '';
 
   constructor(config: IUbirchVerificationWidgetConfig) {
     const host = document.querySelector(config.hostSelector);
-    if (!host) throw new Error(i18n.t(`default:error.${EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND}`));
+    if (!host)
+      throw new Error(i18n.t(`default:error.${EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND}`));
     this.host = host as HTMLElement;
+    if (typeof config.linkToConsole === 'boolean') this.linkToConsole = config.linkToConsole;
+    if (typeof config.openConsoleInSameTarget === 'boolean')
+      this.linkToConsole = config.openConsoleInSameTarget;
     if (config.language) this.setLanguage(config.language);
     // this.openConsoleInSameTarget = config.openConsoleInSameTarget || false;
     config.messenger.subscribe((message) => {
       if (message) {
         this.updateHeadlineText(message);
         this.updateResultText(message);
+        this.updateBlockchainAnchors(message);
         this.render(message);
       }
     });
@@ -63,8 +72,11 @@ export class UbirchVerificationWidget {
         )}" id="ubirch-verification-widget-result-text">
           ${this.resultText}
         </p>
-      <div>
-      </div>`;
+      </div>
+      <div class="${styles.container__row}">
+        ${this.blockchainIconsAnchors}
+      </div>
+    </div>`;
   }
 
   private updateHeadlineText(message: UbirchMessage): void {
@@ -98,10 +110,52 @@ export class UbirchVerificationWidget {
     const sealSuffix = isSuccessful ? 'seal' : 'no_seal';
     const iconSrcSuffix = BlockchainSettings.ubirchIcons[sealSuffix];
     const iconId = `ubirch-verification-${sealSuffix}-img`;
+    const iconString = this.createIconString(
+      `${environment.assets_url_prefix}${iconSrcSuffix}`,
+      iconId
+    );
+    let output: string;
+    if (message.type === EMessageType.VERIFICATION_STATE && this.linkToConsole) {
+      const encodedHash: string = encodeURIComponent(message.result?.hash);
+      const href = `${environment.console_verify_url.dev}?hash=${encodedHash}`;
+      output = `<a href="${href}" ${!this.openConsoleInSameTarget ? 'target="_blank"' : ''}>
+          ${iconString}
+        </a>`;
+    } else {
+      output = iconString;
+    }
     return `
       <div class="${styles.container__seal_output}">
-        ${this.createIconString(`${environment.assets_url_prefix}${iconSrcSuffix}`, iconId)}
+        ${output}
       </div>`;
+  }
+
+  private updateBlockchainAnchors(message: UbirchMessage): void {
+    if (message.type === EMessageType.VERIFICATION_STATE) {
+      this.blockchainIconsAnchors = message.result.anchors
+        .map((anchor: IUbirchBlockchainAnchor, index: number) => {
+          const { raw } = anchor;
+          const { blockchain, network_type } = raw;
+          const blox = BlockchainSettings.blockchainSettings[blockchain] || undefined;
+          if (!blox || !raw.txid) {
+            return '';
+          }
+
+          const { url } = blox.explorerUrl[network_type];
+          const iconId = `blockchain_transid_check${index === undefined ? '' : '_' + index}`;
+          const titleString = raw.network_info ? raw.network_info : raw.blockchain;
+          return `
+            <a href="${url}${raw.txid}" title="${titleString}" target="_blank">
+              ${
+                blox?.nodeIcon
+                  ? this.createIconString(environment.assets_url_prefix + blox?.nodeIcon, iconId)
+                  : titleString
+              }
+            </a>
+          `;
+        })
+        .join(' ');
+    }
   }
 
   private getHeadline(headline: string, className: string): string {
@@ -133,73 +187,6 @@ export class UbirchVerificationWidget {
   private createIconString(src: string, id: string): string {
     return `<img src="${src}" id="${id}" class="${styles.container__seal}" alt="seal icon" />`;
   }
-
-  // private deprecated__showSeal(successful: boolean, hash: string, noLink: boolean = false) {
-  //   const iconSrcSuffix: string = successful
-  //     ? BlockchainSettings.ubirchIcons.seal
-  //     : BlockchainSettings.ubirchIcons.no_seal;
-  //   const iconId = `ubirch-verification-${successful ? 'seal' : 'no-seal'}-img`;
-  //   const icon = this.createIconString(`${environment.assets_url_prefix}${iconSrcSuffix}`, iconId);
-
-  //   if (noLink) {
-  //     return icon;
-  //   } else {
-  //     const encodedHash: string = encodeURIComponent(hash);
-  //     const href = `${environment.console_verify_url}?hash=${encodedHash}`;
-  //     return `
-  //       <a href="${href}" ${!this.openConsoleInSameTarget ? 'target="_blank' : ''}>
-  //         ${icon}
-  //       </a>
-  //     `;
-  //   }
-  // }
-
-  // public showBloxTXIcon(bloxTX: IUbirchVerificationAnchorProperties, index: number): void {
-  //   if (!bloxTX) {
-  //     return;
-  //   }
-
-  //   const blockchain: string = bloxTX.blockchain;
-  //   const networkType: string = bloxTX.network_type;
-
-  //   if (!blockchain || !networkType) {
-  //     return;
-  //   }
-
-  //   const blox: IUbirchBlockchain = BlockchainSettings.blockchainSettings
-  //     ? BlockchainSettings.blockchainSettings[blockchain]
-  //     : undefined;
-
-  //   if (!blox || !bloxTX.txid) {
-  //     return;
-  //   }
-
-  //   const bloxTXData: IUbirchBlockchainNet = blox.explorerUrl[networkType];
-
-  //   const linkTag: HTMLElement = document.createElement('a');
-
-  //   // add transactionId to url
-  //   if (bloxTXData.url) {
-  //     linkTag.setAttribute('href', bloxTXData.url + bloxTX.txid);
-  //   }
-
-  //   const titleStr: string = bloxTX.network_info ? bloxTX.network_info : bloxTX.blockchain;
-
-  //   linkTag.setAttribute('title', titleStr);
-  //   linkTag.setAttribute('target', '_blanc');
-
-  //   // if icon url is given add img, otherwise add text
-  //   if (blox.nodeIcon) {
-  //     const iconId = `blockchain_transid_check${index === undefined ? '' : '_' + index}`;
-  //     linkTag.appendChild(
-  //       this.createIconTag(environment.assets_url_prefix + blox.nodeIcon, iconId)
-  //     );
-  //   } else {
-  //     linkTag.innerHTML = titleStr;
-  //   }
-
-  //   this.resultOutput.appendChild(linkTag);
-  // }
 }
 
 window['UbirchVerificationWidget'] = UbirchVerificationWidget;
