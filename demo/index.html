@@ -43,7 +43,7 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
       const updateLog = (msg) => {
         console.log(msg);
 
-        document.getElementById('log').value += JSON.stringify(msg) + '\n\n';
+        document.getElementById('log').value += JSON.stringify(msg, null, 2) + '\n\n';
       };
 
       // verify JSON button click listener
@@ -86,13 +86,13 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
             ubirchVerification
               .verifyHash(hash)
               .then((response) => {
-                const msg = 'Verification Result:\n' + JSON.stringify(response);
+                const msg = 'Verification Result:\n' + JSON.stringify(response, null, 2);
                 document.getElementById('output').value = msg;
                 console.log(response);
               })
               .catch((errResponse) => {
                 const msg =
-                  'Verification failed!!\n\nErrorResponse:\n' + JSON.stringify(errResponse);
+                  'Verification failed!!\n\nErrorResponse:\n' + JSON.stringify(errResponse, null, 2);
                 document.getElementById('output').value = msg;
                 console.log(errResponse);
               });
