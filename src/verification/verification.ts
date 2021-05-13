@@ -97,6 +97,7 @@ export class UbirchVerification {
       hash
     );
 
+    this.handleVerificationState(EVerificationState.VERIFICATION_PENDING);
     this.handleInfo(EInfo.START_VERIFICATION_CALL);
 
     try {
@@ -334,7 +335,7 @@ export class UbirchVerification {
     const timestamps = ubirchBlxTxAnchors
       .map(({ timestamp }) => Date.parse(timestamp))
       .sort((a, b) => a - b)
-      .map(unix => new Date(unix).toISOString())
+      .map((unix) => new Date(unix).toISOString());
 
     return timestamps[0] || null;
   }

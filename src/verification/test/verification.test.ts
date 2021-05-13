@@ -268,6 +268,7 @@ describe('Verification', () => {
 
       const infoReceived = [];
       const infoChain = [
+        EVerificationState.VERIFICATION_PENDING,
         EInfo.START_VERIFICATION_CALL,
         EInfo.START_CHECKING_RESPONSE,
         EInfo.UPP_HAS_BEEN_FOUND,
@@ -316,6 +317,7 @@ describe('Verification', () => {
 
       const infoReceived = [];
       const infoChain = [
+        EVerificationState.VERIFICATION_PENDING,
         EInfo.START_VERIFICATION_CALL,
         EInfo.START_CHECKING_RESPONSE,
         EInfo.UPP_HAS_BEEN_FOUND,
@@ -359,6 +361,7 @@ describe('Verification', () => {
 
       const infoReceived = [];
       const infoChain = [
+        EVerificationState.VERIFICATION_PENDING,
         EInfo.START_VERIFICATION_CALL,
         EInfo.START_CHECKING_RESPONSE,
         EInfo.UPP_HAS_BEEN_FOUND,
@@ -555,6 +558,7 @@ describe('Verification', () => {
     test('that watchInfosAndErrors observable is called', (done) => {
       const infoReceived = [];
       const infoChain = [
+        EVerificationState.VERIFICATION_PENDING,
         EInfo.START_VERIFICATION_CALL,
         EInfo.START_CHECKING_RESPONSE,
         EInfo.UPP_HAS_BEEN_FOUND,
@@ -590,6 +594,7 @@ describe('Verification', () => {
   test('pubKey request rejected', (done) => {
     const infoReceived = [];
     const infoChain = [
+      EVerificationState.VERIFICATION_PENDING,
       EInfo.START_VERIFICATION_CALL,
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
@@ -620,6 +625,7 @@ describe('Verification', () => {
   test('molformed pubKey response recieved', (done) => {
     const infoReceived = [];
     const infoChain = [
+      EVerificationState.VERIFICATION_PENDING,
       EInfo.START_VERIFICATION_CALL,
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
@@ -652,6 +658,7 @@ describe('Verification', () => {
   test('pubKey response recieved with not success code', (done) => {
     const infoReceived = [];
     const infoChain = [
+      EVerificationState.VERIFICATION_PENDING,
       EInfo.START_VERIFICATION_CALL,
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
@@ -685,6 +692,7 @@ describe('Verification', () => {
   test('undefined pubKey recieved', (done) => {
     const infoReceived = [];
     const infoChain = [
+      EVerificationState.VERIFICATION_PENDING,
       EInfo.START_VERIFICATION_CALL,
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
@@ -721,6 +729,7 @@ describe('Verification', () => {
   test('unverified pubKey received', (done) => {
     const infoReceived = [];
     const infoChain = [
+      EVerificationState.VERIFICATION_PENDING,
       EInfo.START_VERIFICATION_CALL,
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
