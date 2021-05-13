@@ -10,7 +10,7 @@ import {
 import { UbirchVerificationWidget } from '../widget';
 import * as en from '../../assets/i18n/en.json';
 import i18n from '../../utils/translations';
-import * as testAnchors from './anchors.json';
+import testAnchors from './anchors.json';
 
 let root: HTMLElement;
 let subject: BehaviorSubject<UbirchMessage>;
@@ -140,7 +140,7 @@ describe('Widget', () => {
             verificationState: EVerificationState.VERIFICATION_SUCCESSFUL,
             firstAnchorTimestamp: '2021-01-27T17:37:16.543Z',
           },
-        },
+        }
       ];
 
       new UbirchVerificationWidget({ hostSelector: 'body', messenger });
@@ -149,9 +149,9 @@ describe('Widget', () => {
         subject.next(msg);
       });
       
-      const headline = root.querySelector('#ubirch-verification-widget-headline');
       const result = root.querySelector('#ubirch-verification-widget-result-text');
       expect(result.textContent).toContain('Blockchain anchors found successfully');
+      const headline = root.querySelector('#ubirch-verification-widget-headline');
       expect(headline.textContent).toContain('Verification successful!');
     });
 
