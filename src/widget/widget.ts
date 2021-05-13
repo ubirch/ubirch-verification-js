@@ -83,11 +83,9 @@ export class UbirchVerificationWidget {
   }
 
   private updateHeadlineText(message: UbirchMessage): void {
-    let suffix: string;
-    if (message.type === EMessageType.ERROR) suffix = EVerificationState.VERIFICATION_FAILED;
-    else if (message.type === EMessageType.VERIFICATION_STATE)
-      suffix = message.result.verificationState;
-    else suffix = EVerificationState.VERIFICATION_PENDING;
+    if (message.type !== EMessageType.VERIFICATION_STATE) return;
+
+    const suffix = message.code;
     this.headlineText = i18n.t(`default:${EMessageType.VERIFICATION_STATE}.${suffix}`);
   }
 
@@ -103,12 +101,15 @@ export class UbirchVerificationWidget {
   }
 
   private renderSealOutput(message: UbirchMessage): string {
-    if (message.type !== EMessageType.VERIFICATION_STATE) {
+    if (
+      message.type !== EMessageType.VERIFICATION_STATE ||
+      message.code === EVerificationState.VERIFICATION_PENDING
+    ) {
       return '';
     }
     const isSuccessful =
-      message.result.verificationState === EVerificationState.VERIFICATION_SUCCESSFUL ||
-      message.result.verificationState === EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+      message.code === EVerificationState.VERIFICATION_SUCCESSFUL ||
+      message.code === EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
 
     const sealSuffix = isSuccessful ? 'seal' : 'no_seal';
     const iconSrcSuffix = BlockchainSettings.ubirchIcons[sealSuffix];
