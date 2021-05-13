@@ -135,7 +135,7 @@ export class UbirchVerificationWidget {
   }
 
   private updateBlockchainAnchors(message: UbirchMessage): void {
-    if (message.type === EMessageType.VERIFICATION_STATE) {
+    if (message.type === EMessageType.VERIFICATION_STATE && message.result) {
       this.blockchainIconsAnchors = message.result.anchors
         .map((anchor: IUbirchBlockchainAnchor, index: number) => {
           const { raw } = anchor;
