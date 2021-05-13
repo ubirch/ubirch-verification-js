@@ -1,0 +1,68 @@
+[
+  {
+    "raw": {
+      "timestamp": "2021-01-27T17:37:16.543Z",
+      "network_info": "Gov_Digital Mainnet Network",
+      "network_type": "mainnet",
+      "txid": "0xf4b403582ef11a3ccf18f56194a0349b4280ce1599d7032309289776dd52b5f8",
+      "hash": "0xf4b403582ef11a3ccf18f56194a0349b4280ce1599d7032309289776dd52b5f8",
+      "status": "added",
+      "public_chain": "GOV-DIGITAL_MAINNET_GOV_DIGITAL_MAINNET_NETWORK",
+      "blockchain": "gov-digital",
+      "message": "b819c83ef364cadd611c3903ac57780fb6d2181b5e3752f3e868206038dbde79358aa8e859e959137f00b33acfc6361ac38b02a9000ac714b4bf9b59a42702b8",
+      "prev_hash": "b819c83ef364cadd611c3903ac57780fb6d2181b5e3752f3e868206038dbde79358aa8e859e959137f00b33acfc6361ac38b02a9000ac714b4bf9b59a42702b8",
+      "created": "2021-01-27T17:37:15.539Z"
+    },
+    "txid": "0xf4b403582ef11a3ccf18f56194a0349b4280ce1599d7032309289776dd52b5f8",
+    "networkInfo": "Gov_Digital Mainnet Network",
+    "networkType": "mainnet",
+    "timestamp": "2021-01-27T17:37:16.543Z",
+    "iconUrl": "GovDigital_Icon_verify_right.png",
+    "blxTxExplorerUrl": "http://bcp-govdigi01.tir.budru.de/tx/0xf4b403582ef11a3ccf18f56194a0349b4280ce1599d7032309289776dd52b5f8",
+    "label": "Gov_Digital Mainnet Network"
+  },
+  {
+    "raw": {
+      "timestamp": "2021-01-27T17:39:37.923Z",
+      "network_info": "Ethererum Classic Kotti Testnet Network",
+      "network_type": "testnet",
+      "txid": "0x2b3741b62a5462028b864b86a1a89f3ad45f32beadefe104bfd4e87376a00c66",
+      "hash": "0x2b3741b62a5462028b864b86a1a89f3ad45f32beadefe104bfd4e87376a00c66",
+      "status": "added",
+      "public_chain": "ETHEREUM-CLASSIC_TESTNET_ETHERERUM_CLASSIC_KOTTI_TESTNET_NETWORK",
+      "blockchain": "ethereum-classic",
+      "message": "8668f429facbf1cf5f5090f0fa3c10c7f9d126355f8fd1d274d66a573d78bdc70a85fc2c0b2cf22c890a9f8999f8ffe47f6e0f2d8247d3cc9115da5cde79b7cb",
+      "prev_hash": "8668f429facbf1cf5f5090f0fa3c10c7f9d126355f8fd1d274d66a573d78bdc70a85fc2c0b2cf22c890a9f8999f8ffe47f6e0f2d8247d3cc9115da5cde79b7cb",
+      "created": "2021-01-27T17:39:36.918Z"
+    },
+    "txid": "0x2b3741b62a5462028b864b86a1a89f3ad45f32beadefe104bfd4e87376a00c66",
+    "networkInfo": "Ethererum Classic Kotti Testnet Network",
+    "networkType": "testnet",
+    "timestamp": "2021-01-27T17:39:37.923Z",
+    "iconUrl": "Ethereum_Classic_verify_right.png",
+    "blxTxExplorerUrl": "https://kottiexplorer.ethernode.io/search?q=0x2b3741b62a5462028b864b86a1a89f3ad45f32beadefe104bfd4e87376a00c66",
+    "label": "Ethererum Classic Kotti Testnet Network"
+  },
+  {
+    "raw": {
+      "timestamp": "2021-01-27T17:39:21.598Z",
+      "network_info": "Rinkeby Testnet Network",
+      "network_type": "testnet",
+      "txid": "0xfda880398353f318c58e7111b5c72358649703b207058c8592e96562c9f2bffb",
+      "hash": "0xfda880398353f318c58e7111b5c72358649703b207058c8592e96562c9f2bffb",
+      "status": "added",
+      "public_chain": "ETHEREUM_TESTNET_RINKEBY_TESTNET_NETWORK",
+      "blockchain": "ethereum",
+      "message": "8668f429facbf1cf5f5090f0fa3c10c7f9d126355f8fd1d274d66a573d78bdc70a85fc2c0b2cf22c890a9f8999f8ffe47f6e0f2d8247d3cc9115da5cde79b7cb",
+      "prev_hash": "8668f429facbf1cf5f5090f0fa3c10c7f9d126355f8fd1d274d66a573d78bdc70a85fc2c0b2cf22c890a9f8999f8ffe47f6e0f2d8247d3cc9115da5cde79b7cb",
+      "created": "2021-01-27T17:39:20.594Z"
+    },
+    "txid": "0xfda880398353f318c58e7111b5c72358649703b207058c8592e96562c9f2bffb",
+    "networkInfo": "Rinkeby Testnet Network",
+    "networkType": "testnet",
+    "timestamp": "2021-01-27T17:39:21.598Z",
+    "iconUrl": "Ethereum_verify_right.png",
+    "blxTxExplorerUrl": "https://rinkeby.etherscan.io/tx/0xfda880398353f318c58e7111b5c72358649703b207058c8592e96562c9f2bffb",
+    "label": "Rinkeby Testnet Network"
+  }
+]

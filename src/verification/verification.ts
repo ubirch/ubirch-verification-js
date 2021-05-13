@@ -156,8 +156,8 @@ export class UbirchVerification {
   protected handleError(code: EError, errorDetails?: IUbirchErrorDetails): void {
     const errorMsg: string =
       code === EError.VERIFICATION_UNAVAILABLE && errorDetails
-        ? i18n.t(`verification:${code}`, { message: errorDetails.errorMessage })
-        : i18n.t(`verification:${code}`);
+        ? i18n.t(`default:error.${code}`, { message: errorDetails.errorMessage })
+        : i18n.t(`default:error.${code}`);
 
     const err: IUbirchError = {
       type: EMessageType.ERROR,
@@ -171,7 +171,7 @@ export class UbirchVerification {
   }
 
   protected handleInfo(code: EInfo): void {
-    const infoMsg: string = i18n.t(`verification:${code}`);
+    const infoMsg: string = i18n.t(`default:info.${code}`);
 
     const info: IUbirchInfo = {
       type: EMessageType.INFO,
@@ -186,7 +186,7 @@ export class UbirchVerification {
     code: EVerificationState,
     result?: IUbirchVerificationResult
   ): void {
-    const infoMsg: string = i18n.t(`verification:${code}`);
+    const infoMsg: string = i18n.t(`default:verification-state.${code}`);
 
     const info: IUbirchVerificationState = {
       type: EMessageType.VERIFICATION_STATE,
