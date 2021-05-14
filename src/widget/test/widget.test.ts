@@ -10,6 +10,7 @@ import {
   UbirchMessage,
 } from '../../models/models';
 import { UbirchVerificationWidget } from '../widget';
+import * as BlockchainSettings from '../../blockchain-assets/blockchain-settings.json';
 import * as en from '../../assets/i18n/en.json';
 import i18n from '../../utils/translations';
 import testAnchors from './valid-anchors.json';
@@ -531,6 +532,26 @@ describe('Widget', () => {
 
       const anchorIconsEl = root.querySelector('#ubirch-verification-anchor-icons');
       expect(anchorIconsEl.children.length).toBe(0);
+    });
+
+    test('Should render anchor icons when blockchain is defined', () => {
+      new UbirchVerificationWidget({
+        hostSelector: 'body',
+        messenger,
+      });
+
+      subject.next(successVerificationMessage);
+
+      const iconsEl = root.querySelector('#ubirch-verification-anchor-icons');
+      const icons = iconsEl.children;
+
+      const firstAnchor = successVerificationMessage.result.anchors[0];
+      const firstIcon = icons[0];
+      const firstBlox = BlockchainSettings.blockchainSettings[firstAnchor.raw.blockchain];
+      const firstUrl = firstBlox.explorerUrl[firstAnchor.raw.network_type].url;
+      expect(firstIcon.getAttribute('href')).toContain(
+        firstUrl
+      );
     });
   });
 
