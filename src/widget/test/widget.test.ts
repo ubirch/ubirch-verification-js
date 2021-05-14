@@ -549,12 +549,15 @@ describe('Widget', () => {
       const firstIcon = icons[0];
       const firstIconImage = firstIcon.children[0];
       const firstBlox = BlockchainSettings.blockchainSettings[firstAnchor.raw.blockchain];
+      firstBlox.nodeIcon = undefined;
       const firstUrl = firstBlox.explorerUrl[firstAnchor.raw.network_type].url;
       expect(firstIcon.getAttribute('href')).toContain(
         firstUrl
       );
+      expect(firstIconImage.tagName).toBe('IMG');
       expect(firstIconImage.getAttribute('id')).toBe(`blockchain_transid_check_0`);
-      expect(firstIconImage.getAttribute('src')).toBe(`${environment.assets_url_prefix}${firstBlox.nodeIcon}`);
+      expect(firstIconImage.getAttribute('src')).toContain(environment.assets_url_prefix);
+      expect(firstIconImage.getAttribute('src')).not.toContain(firstBlox.nodeIcon);
     });
   });
 

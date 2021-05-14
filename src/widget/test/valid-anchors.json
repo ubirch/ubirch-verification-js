@@ -46,7 +46,7 @@
   {
     "raw": {
       "timestamp": "2021-01-27T17:39:21.598Z",
-      "network_info": "Rinkeby Testnet Network",
+      "network_info": "",
       "network_type": "testnet",
       "txid": "0xfda880398353f318c58e7111b5c72358649703b207058c8592e96562c9f2bffb",
       "hash": "0xfda880398353f318c58e7111b5c72358649703b207058c8592e96562c9f2bffb",

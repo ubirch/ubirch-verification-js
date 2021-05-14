@@ -152,15 +152,11 @@ export class UbirchVerificationWidget {
           }
 
           const { url } = blox.explorerUrl[network_type];
-          const iconId = `blockchain_transid_check${index === undefined ? '' : '_' + index}`;
+          const iconId = `blockchain_transid_check_${index}`;
           const titleString = raw.network_info ? raw.network_info : raw.blockchain;
           return `
             <a href="${url}${raw.txid}" title="${titleString}" target="_blank">
-              ${
-                blox?.nodeIcon
-                  ? this.createIconString(environment.assets_url_prefix + blox?.nodeIcon, iconId)
-                  : titleString
-              }
+              ${this.createIconString(`${environment.assets_url_prefix}${blox.nodeIcon || ''}`, iconId)}
             </a>
           `;
         })
