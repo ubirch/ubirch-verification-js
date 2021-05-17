@@ -8,7 +8,7 @@ module.exports = {
   plugins: ['prettier'],
   parserOptions: {
     ecmaVersion: 2019,
-    sourceType: 'module'
+    sourceType: 'module',
   },
   rules: {
     '@typescript-eslint/ban-ts-ignore': 0,
@@ -16,12 +16,9 @@ module.exports = {
     '@typescript-eslint/no-this-alias': 0,
     '@typescript-eslint/no-non-null-assertion': 0,
     '@typescript-eslint/ban-ts-comment': 0,
-    'import/extensions': 0
+    'import/extensions': 0,
   },
   settings: {
-    react: {
-      version: 'detect',
-    },
     'import/extensions': ['.js', '.ts'],
     'import/parsers': {
       '@typescript-eslint/parser': ['.ts'],
@@ -33,5 +30,5 @@ module.exports = {
       },
       typescript: {},
     },
-  }
+  },
 };

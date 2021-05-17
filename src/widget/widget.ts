@@ -25,11 +25,11 @@ export interface IUbirchVerificationWidgetConfig {
 
 export class UbirchVerificationWidget {
   private host: HTMLElement;
-  private linkToConsole: boolean = false;
-  private openConsoleInSameTarget: boolean = false;
-  private headlineText: string = '';
-  private resultText: string = '';
-  private blockchainIconsAnchors: string = '';
+  private linkToConsole = false;
+  private openConsoleInSameTarget = false;
+  private headlineText = '';
+  private resultText = '';
+  private blockchainIconsAnchors = '';
   private stage: EStages = EStages.dev;
 
   constructor(config: IUbirchVerificationWidgetConfig) {
