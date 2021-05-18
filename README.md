@@ -40,15 +40,17 @@ import { UbirchVerification } from '@ubirch/ubirch-verification-js';
 ### UbirchVerification
 
 #### `constructor(config: IUbirchVerificationConfig)`
+
 Create instance of `UbirchVerification` class with given config:
 parameter | description | possible values | default value
 ------ | ------ | ------ | ------
-**accessToken** | token | string | *required*
+**accessToken** | token | string | _required_
 **algorithm** | default algorith used for hashing | `sha256`, `sha512` | `sha256`
 **language** | language of the messenger messages | `en`, `de` | `en`
-**stage** | the environment of verification service |`local`, `dev`, `demo`, `prod` | `prod` 
+**stage** | the environment of verification service |`local`, `dev`, `demo`, `prod` | `prod`
 
 #### `verifyHash(hash: string): Promise<IUbirchVerificationResult>`
+
 Starts verification process of given hash. Returns verification result object:  
 parameter | description | possible values | default value
 ------ | ------ | ------ | ------
@@ -60,14 +62,43 @@ parameter | description | possible values | default value
 **failReason** | error flag if verification failed or `undefined`
 
 #### `createHash(json: string, hashAlgorithm?: EHashAlgorithms): string`
+
 Returns given JSON string hashed with given algorythm. Possible algorythms are `sha256` and `sha512`. If algorithm os not given the one specified in config will be used.
 
 ### UbirchFormUtils
+
 Helper methods for data resolving
+
 #### `getFormParamsFromUrl(windowRef: Window, separator: string): DataParams`
+
 Resolves data paramms object from url string.
+
 #### `setDataIntoForm(params: DataParams = {}, documentRef: Document): void`
+
 Inserts the data from data params object to input fields.
+
+### UbirchVerificationWidget
+
+Displays the verifcation process in a graphical way
+
+#### Usage
+
+```js
+const widget = new UbirchVerificationWidget(config);
+```
+
+Where `config` is:
+
+```ts
+interface IUbirchVerificationConfig {
+  hostSelector: string;
+  openConsoleInSameTarget?: boolean;
+  messenger: Observable<UbirchMessage>;
+  language?: ELanguages;
+  linkToConsole?: boolean;
+  stage?: EStages;
+}
+```
 
 ## Building from sources.
 

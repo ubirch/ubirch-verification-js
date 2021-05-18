@@ -7,7 +7,7 @@
     "dist/*"
   ],
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage=true",
     "serve:local": "webpack serve --env STAGE=local --config config/webpack.config.ts",
     "serve": "webpack serve --env STAGE=prod --config config/webpack.config.ts",
     "build:local": "webpack --env STAGE=local --config config/webpack.config.ts",

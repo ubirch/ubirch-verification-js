@@ -25,11 +25,11 @@ export interface IUbirchVerificationWidgetConfig {
 
 export class UbirchVerificationWidget {
   private host: HTMLElement;
-  private linkToConsole: boolean = false;
-  private openConsoleInSameTarget: boolean;
-  private headlineText: string = '';
-  private resultText: string = '';
-  private blockchainIconsAnchors: string = '';
+  private linkToConsole = false;
+  private openConsoleInSameTarget = false;
+  private headlineText = '';
+  private resultText = '';
+  private blockchainIconsAnchors = '';
   private stage: EStages = EStages.dev;
 
   constructor(config: IUbirchVerificationWidgetConfig) {
@@ -39,7 +39,7 @@ export class UbirchVerificationWidget {
     this.host = host as HTMLElement;
     if (typeof config.linkToConsole === 'boolean') this.linkToConsole = config.linkToConsole;
     if (typeof config.openConsoleInSameTarget === 'boolean')
-      this.linkToConsole = config.openConsoleInSameTarget;
+      this.openConsoleInSameTarget = config.openConsoleInSameTarget;
     if (config.language) this.setLanguage(config.language);
     if (config.stage) this.stage = config.stage;
     config.messenger.subscribe((message) => {
@@ -119,17 +119,23 @@ export class UbirchVerificationWidget {
       iconId
     );
     let output: string;
-    if (message.type === EMessageType.VERIFICATION_STATE && this.linkToConsole) {
-      const encodedHash: string = encodeURIComponent(message.result?.hash);
+    if (
+      message.type === EMessageType.VERIFICATION_STATE &&
+      this.linkToConsole &&
+      message.result !== undefined
+    ) {
+      const encodedHash: string = encodeURIComponent(message.result.hash);
       const href = `${environment.console_verify_url[this.stage]}?hash=${encodedHash}`;
-      output = `<a href="${href}" ${!this.openConsoleInSameTarget ? 'target="_blank"' : ''}>
+      output = `<a href="${href}" ${
+        this.openConsoleInSameTarget === false ? 'target="_blank"' : ''
+      }>
           ${iconString}
         </a>`;
     } else {
       output = iconString;
     }
     return `
-      <div class="${styles.container__seal_output}">
+      <div class="${styles.container__seal_output}" id="ubirch-verification-widget-seal-output">
         ${output}
       </div>`;
   }
@@ -146,15 +152,11 @@ export class UbirchVerificationWidget {
           }
 
           const { url } = blox.explorerUrl[network_type];
-          const iconId = `blockchain_transid_check${index === undefined ? '' : '_' + index}`;
+          const iconId = `blockchain_transid_check_${index}`;
           const titleString = raw.network_info ? raw.network_info : raw.blockchain;
           return `
             <a href="${url}${raw.txid}" title="${titleString}" target="_blank">
-              ${
-                blox?.nodeIcon
-                  ? this.createIconString(environment.assets_url_prefix + blox?.nodeIcon, iconId)
-                  : titleString
-              }
+              ${this.createIconString(`${environment.assets_url_prefix}${blox.nodeIcon || ''}`, iconId)}
             </a>
           `;
         })
