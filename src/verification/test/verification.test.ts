@@ -94,6 +94,15 @@ describe('Verification', () => {
       );
     });
 
+    test('should sort JSON params recursively nested in arrays', () => {
+      const jsonString =
+        '{"b": "2", "x": { "1": "hallo", "3": "bello", "2": [{"C": "xxx", "A": "x", "B": "xx"}]}, "a": "-1"}';
+      const result = verifier.formatJSON(jsonString);
+      expect(result).toEqual(
+        '{"a":"-1","b":"2","x":{"1":"hallo","2":[{"A":"x","B":"xx","C":"xxx"}],"3":"bello"}}'
+      );
+    });
+
     test('should NOT sort arrays as JSON params', () => {
       const jsonString = '{"a": [6, 4, 9]}';
       const result = verifier.formatJSON(jsonString);

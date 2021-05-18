@@ -149,7 +149,7 @@ export class UbirchVerification {
       const object: { [key: string]: any } = JSON.parse(json);
       return JSON.stringify(sort ? this.sortObjectRecursive(object) : object);
     } catch (e) {
-      this.handleError(EError.JSON_MALFORMED);
+      this.handleError(EError.JSON_MALFORMED, { errorMessage: e.message });
     }
   }
 
@@ -392,8 +392,10 @@ export class UbirchVerification {
 
   protected sortObjectRecursive(object: unknown): unknown {
     // recursive termination condition
-    if (typeof object !== 'object' || Array.isArray(object)) {
+    if (typeof object !== 'object') {
       return object;
+    } else if (Array.isArray(object)) {
+      return object.map(item => this.sortObjectRecursive(item));
     } else {
       const objectSorted: { [key: string]: any } = {};
       const keysOrdered: { [key: string]: any } = Object.keys(object).sort();
