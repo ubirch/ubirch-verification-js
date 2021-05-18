@@ -107,11 +107,11 @@ export class UbirchVerificationWidget {
     ) {
       return '';
     }
-    const isSuccessful =
-      message.code === EVerificationState.VERIFICATION_SUCCESSFUL ||
+    const isSuccessful = message.code === EVerificationState.VERIFICATION_SUCCESSFUL;
+    const isPartiallySuccessful =
       message.code === EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
 
-    const sealSuffix = isSuccessful ? 'seal' : 'no_seal';
+    const sealSuffix = isSuccessful ? 'seal' : isPartiallySuccessful ? 'no_seal' : 'seal_error';
     const iconSrcSuffix = BlockchainSettings.ubirchIcons[sealSuffix];
     const iconId = `ubirch-verification-${sealSuffix}-img`;
     const iconString = this.createIconString(
