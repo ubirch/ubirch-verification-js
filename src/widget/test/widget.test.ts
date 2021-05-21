@@ -79,6 +79,16 @@ describe('Widget', () => {
       widget.reset();
       expect(root.innerHTML).toBe('');
     });
+
+    test('If it unsubscribes from the messenger correctly', () => {
+      const widget = new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+
+      widget.unsubscribe();
+      subject.next(successVerificationMessage);
+
+      root.querySelector('#ubirch-verification-widget-result-text');
+      expect(root.querySelector('#ubirch-verification-widget-result-text')).toBe(null);
+    });
   });
 
   describe('Messenger states display', () => {
