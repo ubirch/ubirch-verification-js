@@ -45,7 +45,7 @@ export class UbirchVerificationWidget {
     if (config.language) this.setLanguage(config.language);
     if (config.stage) this.stage = config.stage;
     this.messenger = config.messenger;
-    this.subscribeToMessenger();
+    this.subscribe();
   }
 
   public setLanguage(language: ELanguages): void {
@@ -78,7 +78,7 @@ export class UbirchVerificationWidget {
     </div>`;
   }
 
-  public reset(newMessenger?: Observable<UbirchMessage | null>): void {
+  public reset(): void {
     this.host.innerHTML = '';
     this.linkToConsole = true;
     this.openConsoleInSameTarget = false;
@@ -86,12 +86,14 @@ export class UbirchVerificationWidget {
     this.resultText = '';
     this.blockchainIconsAnchors = '';
     this.stage = EStages.prod;
-    this.subscription.unsubscribe();
-    this.messenger = newMessenger || new Observable(null);
-    this.subscribeToMessenger();
+    this.unsubscribe();
   }
 
-  private subscribeToMessenger(): void {
+  public unsubscribe(): void {
+    this.subscription.unsubscribe();
+  }
+
+  public subscribe(): void {
     this.subscription = this.messenger.subscribe((message) => {
       if (message) {
         this.updateHeadlineText(message);
