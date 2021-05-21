@@ -678,7 +678,7 @@ describe('Widget', () => {
         const sealIconEl = root.querySelector('#ubirch-verification-widget-seal-output');
 
         expect(sealIconEl.children.length).toBeGreaterThan(0);
-        expect(sealIconEl.querySelector('a')).toBe(null);
+        expect(sealIconEl.querySelector('a')).not.toBe(null);
       });
     });
   });
