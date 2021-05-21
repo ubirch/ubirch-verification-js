@@ -668,6 +668,7 @@ describe('Widget', () => {
         const widget = new UbirchVerificationWidget({
           hostSelector: 'body',
           stage: EStages.prod,
+          linkToConsole: false,
           messenger,
         });
 
@@ -678,7 +679,7 @@ describe('Widget', () => {
         const sealIconEl = root.querySelector('#ubirch-verification-widget-seal-output');
 
         expect(sealIconEl.children.length).toBeGreaterThan(0);
-        expect(sealIconEl.querySelector('a')).not.toBe(null);
+        expect(sealIconEl.querySelector('a')).toBe(null);
       });
     });
   });
