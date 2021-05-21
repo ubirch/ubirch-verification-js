@@ -86,7 +86,6 @@ export class UbirchVerificationWidget {
     this.resultText = '';
     this.blockchainIconsAnchors = '';
     this.stage = EStages.prod;
-    this.unsubscribe();
   }
 
   public unsubscribe(): void {
