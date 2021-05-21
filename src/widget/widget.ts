@@ -80,8 +80,6 @@ export class UbirchVerificationWidget {
 
   public reset(): void {
     this.host.innerHTML = '';
-    this.linkToConsole = true;
-    this.openConsoleInSameTarget = false;
     this.headlineText = '';
     this.resultText = '';
     this.blockchainIconsAnchors = '';
