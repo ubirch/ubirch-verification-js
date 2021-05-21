@@ -30,7 +30,8 @@ export class UbirchVerificationWidget {
   private headlineText = '';
   private resultText = '';
   private blockchainIconsAnchors = '';
-  private stage: EStages = EStages.dev;
+  private stage: EStages = EStages.prod;
+  private messenger: Observable<UbirchMessage | null>;
 
   constructor(config: IUbirchVerificationWidgetConfig) {
     const host = document.querySelector(config.hostSelector);
@@ -42,14 +43,8 @@ export class UbirchVerificationWidget {
       this.openConsoleInSameTarget = config.openConsoleInSameTarget;
     if (config.language) this.setLanguage(config.language);
     if (config.stage) this.stage = config.stage;
-    config.messenger.subscribe((message) => {
-      if (message) {
-        this.updateHeadlineText(message);
-        this.updateResultText(message);
-        this.updateBlockchainAnchors(message);
-        this.render(message);
-      }
-    });
+    this.messenger = config.messenger;
+    this.subscribeToMessenger();
   }
 
   public setLanguage(language: ELanguages): void {
@@ -80,6 +75,29 @@ export class UbirchVerificationWidget {
         ${this.blockchainIconsAnchors}
       </div>
     </div>`;
+  }
+
+  public reset(newMessenger?: Observable<UbirchMessage | null>): void {
+    this.host.innerHTML = '';
+    this.linkToConsole = true;
+    this.openConsoleInSameTarget = false;
+    this.headlineText = '';
+    this.resultText = '';
+    this.blockchainIconsAnchors = '';
+    this.stage = EStages.prod;
+    this.messenger = newMessenger || new Observable(null);
+    this.subscribeToMessenger();
+  }
+
+  private subscribeToMessenger(): void {
+    this.messenger.subscribe((message) => {
+      if (message) {
+        this.updateHeadlineText(message);
+        this.updateResultText(message);
+        this.updateBlockchainAnchors(message);
+        this.render(message);
+      }
+    });
   }
 
   private updateHeadlineText(message: UbirchMessage): void {

@@ -68,6 +68,19 @@ describe('Widget', () => {
     });
   });
 
+  describe('Resetting', () => {
+    test('If it resets correctly', () => {
+      const widget = new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      subject.next(successVerificationMessage);
+
+      expect(root.querySelector('#ubirch-verification-widget-headline')).not.toBe(null);
+      expect(root.querySelector('#ubirch-verification-widget-result-text')).not.toBe(null);
+
+      widget.reset();
+      expect(root.innerHTML).toBe('');
+    });
+  });
+
   describe('Messenger states display', () => {
     test('Should properly update HTML on INFO messages', () => {
       const messages: UbirchMessage[] = Object.keys(en.info).map((key) => ({
