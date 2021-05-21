@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import classnames from 'classnames';
 import {
   EError,
@@ -32,6 +32,7 @@ export class UbirchVerificationWidget {
   private blockchainIconsAnchors = '';
   private stage: EStages = EStages.prod;
   private messenger: Observable<UbirchMessage | null>;
+  private subscription: Subscription;
 
   constructor(config: IUbirchVerificationWidgetConfig) {
     const host = document.querySelector(config.hostSelector);
@@ -85,12 +86,13 @@ export class UbirchVerificationWidget {
     this.resultText = '';
     this.blockchainIconsAnchors = '';
     this.stage = EStages.prod;
+    this.subscription.unsubscribe();
     this.messenger = newMessenger || new Observable(null);
     this.subscribeToMessenger();
   }
 
   private subscribeToMessenger(): void {
-    this.messenger.subscribe((message) => {
+    this.subscription = this.messenger.subscribe((message) => {
       if (message) {
         this.updateHeadlineText(message);
         this.updateResultText(message);
