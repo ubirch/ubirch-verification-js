@@ -5,17 +5,39 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ubirch Verification Widget</title>
+    <style>
+      .section {
+        margin: 10px;
+      }
+      button {
+        margin: 10px 0; padding: 7px; background-color: black; color: white;
+      }
+    </style>
   </head>
   <body>
+  <div class="section">
+    Stage:
+    <input type="radio" id="dev-stage" name="stage" value="dev" onchange="changeStage(this);" checked>
+    <label for="dev-stage">DEV</label>
+    <input type="radio" id="demo-stage" name="stage" value="demo" onchange="changeStage(this);">
+    <label for="demo-stage">DEMO</label>
+    <input type="radio" id="qa-stage" name="stage" value="qa" onchange="changeStage(this);">
+    <label for="qa-stage">QA</label>
+    <input type="radio" id="prod-stage" name="stage" value="prod" onchange="changeStage(this);">
+    <label for="prod-stage">PROD</label>
+  </div>
+  <div class="section">
     <div class="input-field">
-      <label for="token-input">UBIRCH verification token:</label>
+      <label for="token-input">UBIRCH verification token:</label><br>
       <textarea rows="10" cols="80" placeholder="" type="text" id="token-input">
 eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiZDYzZWNjMDMtZjVhNy00ZDQzLTkxZDAtYTMwZDAzNGQ4ZGEzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2MjUwODY0ODQsImlhdCI6MTYxODg2NTcyMywianRpIjoiZjk1NjQyODktOGU3MC00Mjk0LWEyNDItODQ2MWZiMjdhOWE4Iiwic2NwIjpbInVwcDp2ZXJpZnkiXSwicHVyIjoiVGVzdCBUb2tlbiIsInRncCI6W10sInRpZCI6WyIqIl0sIm9yZCI6W119.CVUEKZmnQf22k5WToCMpHLuFz-1QgG5-6-YnZKFIKy8LllTG3BZQ4eKOTI0R7Nn0ac1ZrSumsk9qZsuWYP2wJw</textarea
       >
     </div>
     <button id="set-token">Set UBIRCH verification token</button>
+  </div>
+  <div class="section">
     <div class="input-field">
-      <label for="json-input">JSON:</label>
+      <label for="json-input">JSON:</label><br>
       <textarea rows="10" cols="80" placeholder="" type="text" id="json-input">
 {"b":"19111111","d":["20210104","20210127"],"f":"\\nNewline\\\\n\\\\\\n","g":"<p>Hällo</p>","i":"Altötting","p":"#%;,.<>-+*\"'?$&:*","r":"BioNTech / Pfizer Corminaty®","s":"2kmsq5fzqiu","t":"vaccination"}</textarea
       >
@@ -23,29 +45,30 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
     <button id="trim-sort-json">
       trim and sort JSON
     </button>
+  </div>
+  <div class="section">
     <div class="input-field">
-      <label for="trimmed-json-input">Trimmed JSON:</label>
+      <label for="trimmed-json-input">Trimmed JSON:</label><br>
       <textarea rows="10" cols="80" placeholder="" type="text" id="trimmed-json-input"></textarea>
     </div>
-    <button id="insert-test-json">
-      Insert Test JSON
-    </button>
-    <button id="hash-from-json">
+    <div>
+      <button id="verify-json">Verify JSON</button>
+    </div>
+  </div>
+  <div class="section">
+    Hash Algorythm:
+    <input type="radio" id="sha256" name="hashalgo" value="sha256" onchange="changeHashAlgo(this);" checked>
+    <label for="sha256">sha256</label>
+    <input type="radio" id="sha512" name="hashalgo" value="sha512" onchange="changeHashAlgo(this);">
+    <label for="sha512">sha512</label>
+    <button id="hash-from-json" style="margin: 10px; padding: 3px;">
       get hash from JSON
     </button>
-    Hash Algorythm:
-    <input type="radio" id="sha256" name="hashalgo" value="sha256" onchange="changeHashAlgo(this);">
-    <label for="sha256">sha256</label>
-    <input type="radio" id="sha512" name="hashalgo" value="sha512" onchange="changeHashAlgo(this);" checked>
-    <label for="sha512">sha512</label>
-    <button id="verify-json">Verify JSON</button>
-    <div class="input-field">
+  </div>
+    <div class="input-field" style="padding: 10px;">
       <label for="hash-input">hash:</label>
-      <input placeholder="" type="text" id="hash-input">
+      <input placeholder="" type="text" id="hash-input" style="width: 800px;">
     </div>
-    <button id="insert-test-hash">
-      Insert Test hash
-    </button>
     <button id="hash-test">
       Test hash verification
     </button>
@@ -73,6 +96,14 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
         sha256: 'sha256',
         sha512: 'sha512'
       };
+      let selectedHashAlgo = hashAlgo.sha256;
+      const devStage = {
+        dev: 'dev',
+        demo: 'demo',
+        qa: 'qa',
+        prod: 'prod'
+      }
+      let selectedStage = devStage.dev;
 
       const updateLog = (msg) => {
         console.log(msg);
@@ -82,25 +113,7 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
 
       // verify JSON button click listener
       document.getElementById('set-token').addEventListener('click', function () {
-        const token = document.getElementById('token-input').value;
-        if (token) {
-          // create UbirchVerification instance
-          ubirchVerification = new UbirchVerification({
-            algorithm: 'sha256',
-            stage: 'dev',
-            accessToken: token,
-          });
-          ubirchVerificationWidget = new UbirchVerificationWidget({
-            hostSelector: '#widget-root',
-            messenger: window['UbirchMessenger$']
-          });
-          document.getElementById('log').value = '';
-          if (!subscription) subscription = ubirchVerification.messenger.subscribe(updateLog);
-        } else {
-          // handle the error yourself and inform user about the missing token
-          const msg = 'Token input is empty!\n';
-          window.alert(msg);
-        }
+        setupVerificationWidget();
       });
       // verify JSON button click listener
       document.getElementById('verify-json').addEventListener('click', function () {
@@ -144,30 +157,46 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
         document.getElementById('trimmed-json-input').value = trimmedSortedJson;
       });
 
-      // insert JSON test data button click listener
-      document.getElementById('insert-test-json').addEventListener('click', function() {
-        document.getElementById('trimmed-json-input').value = json;
-      });
-
       // get hash from JSON button click listener
       document.getElementById('hash-from-json').addEventListener('click', function() {
         const genHash = ubirchVerification.createHash(document.getElementById('trimmed-json-input').value);
         document.getElementById('hash-input').value = genHash;
       });
 
-      // insert hash test data button click listener
-      document.getElementById('insert-test-hash').addEventListener('click', function() {
-        document.getElementById('hash-input').value = hash;
-      });
-
       // test hash button click listener
       document.getElementById('hash-test').addEventListener('click', function() {
         ubirchVerification.verifyHash(document.getElementById('hash-input').value);
       });
+      function setupVerificationWidget() {
+        const token = document.getElementById('token-input').value;
+        if (token) {
+          // create UbirchVerification instance
+          ubirchVerification = new UbirchVerification({
+            algorithm: 'sha256',
+            stage: 'dev',
+            accessToken: token,
+          });
+          ubirchVerificationWidget = new UbirchVerificationWidget({
+            hostSelector: '#widget-root',
+            messenger: window['UbirchMessenger$']
+          });
+          document.getElementById('log').value = '';
+          if (!subscription) subscription = ubirchVerification.messenger.subscribe(updateLog);
+        } else {
+          // handle the error yourself and inform user about the missing token
+          const msg = 'Token input is empty!\n';
+          window.alert(msg);
+        }
+      }
       function changeHashAlgo(elem) {
         console.log(elem.value);
         selectedHashAlgo = hashAlgo[elem.value];
-        ubirchVerification.algorithm = selectedHashAlgo;
+        setupVerificationWidget();
+      }
+      function changeStage(elem) {
+        console.log(elem.value);
+        selectedStage = devStage[elem.value];
+        setupVerificationWidget();
       }
     </script>
   </body>
