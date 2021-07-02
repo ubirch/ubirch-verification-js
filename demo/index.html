@@ -12,6 +12,9 @@
       button {
         margin: 10px 0; padding: 7px; background-color: black; color: white;
       }
+      .hidden {
+        visibility: hidden;
+      }
     </style>
   </head>
   <body>
@@ -36,6 +39,7 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
     </div>
     <button id="set-token">Set UBIRCH verification token</button>
   </div>
+  <div id="form-area" class="hidden">
   <div class="section">
     <div class="input-field">
       <label for="json-input">JSON:</label><br>
@@ -52,9 +56,6 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
       <label for="trimmed-json-input">Trimmed JSON:</label><br>
       <textarea rows="10" cols="80" placeholder="" type="text" id="trimmed-json-input"></textarea>
     </div>
-    <div>
-      <button id="verify-json">Verify JSON</button>
-    </div>
   </div>
   <div class="section">
     Hash Algorythm:
@@ -62,28 +63,31 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
     <label for="sha256">sha256</label>
     <input type="radio" id="sha512" name="hashalgo" value="sha512" onchange="changeHashAlgo(this);">
     <label for="sha512">sha512</label>
-    <button id="hash-from-json" style="margin: 10px; padding: 3px;">
-      get hash from JSON
-    </button>
+    &nbsp;
+    <button id="verify-json">Verify JSON directly</button>
+    <button id="hash-from-json">Get hash from JSON</button>
   </div>
-    <div class="input-field" style="padding: 10px;">
-      <label for="hash-input">hash:</label>
-      <input placeholder="" type="text" id="hash-input" style="width: 800px;">
+    <div>
+      <div class="input-field" style="padding: 10px;">
+        <label for="hash-input">hash:</label><br>
+        <input placeholder="" type="text" id="hash-input" style="width: 600px;">
+      </div>
+      <button id="hash-test">
+        Test hash verification
+      </button>
     </div>
-    <button id="hash-test">
-      Test hash verification
-    </button>
 
 
+    <div id="widget-root"></div>
     <div class="input-field">
-      <label for="log">Log:</label>
+      <label for="log">Log:</label><br>
       <textarea rows="10" cols="80" placeholder="" type="text" id="log"></textarea>
     </div>
     <div class="input-field">
-      <label for="output">Output:</label>
+      <label for="output">Output:</label><br>
       <textarea rows="10" cols="80" placeholder="" type="text" id="output"></textarea>
     </div>
-    <div id="widget-root"></div>
+  </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.8.0/sha512.min.js"></script>
     <script src="./index.js"></script>
@@ -93,6 +97,7 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
       let ubirchVerification;
       let ubirchVerificationWidget;
       let subscription = null;
+      let initialized = false;
       const hashAlgo = {
         sha256: 'sha256',
         sha512: 'sha512'
@@ -105,6 +110,8 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
         prod: 'prod'
       }
       let selectedStage = devStage.dev;
+
+      setFormVisibility(initialized);
 
       const updateLog = (msg) => {
         console.log(msg);
@@ -173,8 +180,8 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
         if (token) {
           // create UbirchVerification instance
           ubirchVerification = new UbirchVerification({
-            algorithm: 'sha256',
-            stage: 'dev',
+            algorithm: selectedHashAlgo,
+            stage: selectedStage,
             accessToken: token,
           });
           ubirchVerificationWidget = new UbirchVerificationWidget({
@@ -183,8 +190,10 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
           });
           document.getElementById('log').value = '';
           if (!subscription) subscription = ubirchVerification.messenger.subscribe(updateLog);
+          setFormVisibility(true);
         } else {
           // handle the error yourself and inform user about the missing token
+          setFormVisibility(false);
           const msg = 'Token input is empty!\n';
           window.alert(msg);
         }
@@ -198,6 +207,14 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
         console.log(elem.value);
         selectedStage = devStage[elem.value];
         setupVerificationWidget();
+      }
+      function setFormVisibility(visible) {
+        initialized = visible;
+        if (initialized) {
+          document.getElementById("form-area").className = "";
+        } else {
+          document.getElementById("form-area").className = "hidden";
+        }
       }
     </script>
   </body>
