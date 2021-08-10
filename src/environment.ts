@@ -7,10 +7,10 @@ export default {
     prod: 'https://verify.prod.ubirch.com',
   },
   console_verify_url: {
-    local: 'http://localhost:9101',
-    dev: 'https://console.dev.ubirch.com',
-    demo: 'https://console.demo.ubirch.com',
-    prod: 'https://console.prod.ubirch.com',
+    local: 'http://localhost:9101/verification',
+    dev: 'https://console.dev.ubirch.com/verification',
+    demo: 'https://console.demo.ubirch.com/verification',
+    prod: 'https://console.prod.ubirch.com/verification',
   },
   key_service_url: {
     local: 'https://key.dev.ubirch.com/api/keyService/v1/pubkey/current/hardwareId/',
