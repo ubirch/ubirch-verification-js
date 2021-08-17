@@ -42,8 +42,11 @@
     "gov-digital": {
       "nodeIcon": "GovDigital_Icon_verify_right.png",
       "explorerUrl": {
+        "testnet": {
+          "url": "http://qex74218.govdigital.de/tx/"
+        },
         "mainnet": {
-          "url": "http://bcp-govdigi01.tir.budru.de/tx/"
+          "url": "http://pex74218.govdigital.de/tx/"
         }
       }
     },
