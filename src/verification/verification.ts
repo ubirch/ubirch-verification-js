@@ -1,7 +1,6 @@
 import { sha256 } from 'js-sha256';
 import { sha512 } from 'js-sha512';
 import UbirchProtocol from '@ubirch/ubirch-protocol-verifier/src/verify';
-import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import environment from '../environment';
 import { messageSubject$, messenger$, UbirchObservable } from '../messenger';
 import {
@@ -13,7 +12,6 @@ import {
   EUppStates,
   EVerificationState,
   EMessageType,
-  IUbirchBlockchain,
   IUbirchBlockchainAnchor,
   IUbirchBlockchainAnchorProperties,
   IUbirchBlockchainAnchorRAW,
@@ -28,6 +26,9 @@ import {
   IUbirchVerificationResult,
 } from '../models/models';
 import i18n from '../utils/translations';
+import { BlockchainSetting, UbirchBlockchainSettings, UbirchSettings } from '../settings/settings';
+import { Observable } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 const API_VERSION = '/v2';
 
@@ -36,6 +37,8 @@ export class UbirchVerification {
   private algorithm: EHashAlgorithms = EHashAlgorithms.SHA256;
   private accessToken: string;
   private language?: ELanguages = ELanguages.en;
+  private _settings: UbirchSettings;
+  private ubirchBlockchainSettings: UbirchBlockchainSettings;
 
   constructor(config: IUbirchVerificationConfig) {
     if (!config.accessToken) {
@@ -45,6 +48,7 @@ export class UbirchVerification {
     this.stage = config.stage || this.stage;
     this.algorithm = config.algorithm || this.algorithm;
     this.language = config.language || this.language;
+    this._settings = new UbirchSettings(config.externalConfigUrl);
   }
 
   public createHash(json: string, hashAlgorithm: EHashAlgorithms = this.algorithm): string {
@@ -72,6 +76,10 @@ export class UbirchVerification {
     return messenger$;
   }
 
+  public get settings(): Observable<UbirchBlockchainSettings> {
+    return this._settings.settings.pipe(take(1));
+  }
+
   protected getHWDeviceId(upp: string): string {
     const decodedUpp = UbirchProtocol.tools.upp(upp);
     const hwDeviceId = UbirchProtocol.tools.getUUIDFromUpp(decodedUpp);
@@ -93,6 +101,7 @@ export class UbirchVerification {
   }
 
   public async verifyHash(hash: string): Promise<IUbirchVerificationResult> {
+    this.ubirchBlockchainSettings = await this.settings.toPromise();
     const verificationResult: IUbirchVerificationResult = this.createInitialUbirchVerificationResult(
       hash
     );
@@ -360,7 +369,7 @@ export class UbirchVerification {
     const blockchain: string = bloxTxProps.blockchain;
     const networkType: string = bloxTxProps.network_type;
 
-    const bloxTxData: IUbirchBlockchain = BlockchainSettings.blockchainSettings[blockchain];
+    const bloxTxData: BlockchainSetting = this.ubirchBlockchainSettings.blockchainSettings[blockchain];
 
     if (!bloxTxData) {
       return undefined;

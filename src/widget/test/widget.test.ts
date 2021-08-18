@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import {
   EError,
   EInfo,
@@ -7,6 +7,7 @@ import {
   EStages,
   EUppStates,
   EVerificationState,
+  IUbirchVerificationWidgetConfig,
   UbirchMessage,
 } from '../../models/models';
 import { UbirchVerificationWidget } from '../widget';
@@ -16,10 +17,12 @@ import i18n from '../../utils/translations';
 import testAnchors from './valid-anchors.json';
 import invalidTestAnchors from './invalid-anchors.json';
 import environment from '../../environment';
+import { UbirchBlockchainSettings } from '../../settings/settings';
 
 let root: HTMLElement;
 let subject: BehaviorSubject<UbirchMessage>;
 let messenger: Observable<UbirchMessage>;
+let settings: Observable<UbirchBlockchainSettings>;
 
 const successVerificationMessage: UbirchMessage = {
   type: EMessageType.VERIFICATION_STATE,
@@ -38,6 +41,10 @@ const successVerificationMessage: UbirchMessage = {
   },
 };
 
+let defaultSettings: IUbirchVerificationWidgetConfig = {
+  hostSelector: 'body',
+} as IUbirchVerificationWidgetConfig;
+
 beforeAll(() => {
   root = document.body;
 });
@@ -50,12 +57,14 @@ afterAll(() => {
 beforeEach(() => {
   subject = new BehaviorSubject(null);
   messenger = subject.asObservable();
+  settings = of(BlockchainSettings);
+  defaultSettings = { ...defaultSettings, messenger, settings };
 });
 
-describe('Widget', () => {
+describe.only('Widget', () => {
   describe('Mounting', () => {
     test('If widget mounts in the host element', () => {
-      new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      new UbirchVerificationWidget(defaultSettings);
 
       expect(root.querySelector('#ubirch-verification-widget-headline')).toBe(null);
       expect(root.querySelector('#ubirch-verification-widget-result-text')).toBe(null);
@@ -63,25 +72,26 @@ describe('Widget', () => {
 
     test('If it throws error when the selector is not found', () => {
       expect(() => {
-        new UbirchVerificationWidget({ hostSelector: '#selector', messenger });
+        new UbirchVerificationWidget({ ...defaultSettings, hostSelector: '#selector' });
       }).toThrowError('Element for widget selector not found');
     });
   });
 
   describe('Messenger states display', () => {
-    test('Should properly update HTML on INFO messages', () => {
+    test('Should properly update HTML on INFO messages', (done) => {
       const messages: UbirchMessage[] = Object.keys(en.info).map((key) => ({
         type: EMessageType.INFO,
         message: i18n.t(`default:info.${key}`),
         code: EInfo[key],
       }));
 
-      new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      new UbirchVerificationWidget(defaultSettings);
       messages.forEach((msg: UbirchMessage) => {
         subject.next(msg);
         const result = root.querySelector('#ubirch-verification-widget-result-text');
         expect(result.textContent).toContain(msg.message);
       });
+      done();
     });
 
     test('Should properly update HTML on ERROR messages', () => {
@@ -96,7 +106,7 @@ describe('Widget', () => {
           key === EError.VERIFICATION_UNAVAILABLE ? { errorMessage: 'Lorem ipsum' } : undefined,
       }));
 
-      new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      new UbirchVerificationWidget(defaultSettings);
 
       messages.forEach((msg) => {
         subject.next(msg);
@@ -114,7 +124,7 @@ describe('Widget', () => {
           message: value,
         })
       );
-      new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      new UbirchVerificationWidget(defaultSettings);
       messages.forEach((msg) => {
         subject.next(msg);
       });
@@ -156,7 +166,7 @@ describe('Widget', () => {
         successVerificationMessage,
       ];
 
-      new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      new UbirchVerificationWidget(defaultSettings);
 
       messages.forEach((msg) => {
         subject.next(msg);
@@ -207,7 +217,7 @@ describe('Widget', () => {
         },
       ];
 
-      new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      new UbirchVerificationWidget(defaultSettings);
 
       messages.forEach((msg) => {
         subject.next(msg);
@@ -254,7 +264,7 @@ describe('Widget', () => {
         },
       ];
 
-      new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      new UbirchVerificationWidget(defaultSettings);
       messages.forEach((msg) => {
         subject.next(msg);
       });
@@ -304,7 +314,7 @@ describe('Widget', () => {
         },
       ];
 
-      new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      new UbirchVerificationWidget(defaultSettings);
       messages.forEach((msg) => {
         subject.next(msg);
       });
@@ -352,7 +362,7 @@ describe('Widget', () => {
         },
       ];
 
-      new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      new UbirchVerificationWidget(defaultSettings);
       messages.forEach((msg) => {
         subject.next(msg);
       });
@@ -400,7 +410,7 @@ describe('Widget', () => {
         },
       ];
 
-      new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      new UbirchVerificationWidget(defaultSettings);
       messages.forEach((msg) => {
         subject.next(msg);
       });
@@ -447,7 +457,7 @@ describe('Widget', () => {
         },
       ];
 
-      new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      new UbirchVerificationWidget(defaultSettings);
       messages.forEach((msg) => {
         subject.next(msg);
       });
@@ -500,7 +510,7 @@ describe('Widget', () => {
         },
       ];
 
-      new UbirchVerificationWidget({ hostSelector: 'body', messenger });
+      new UbirchVerificationWidget(defaultSettings);
       messages.forEach((msg) => {
         subject.next(msg);
       });
@@ -517,10 +527,7 @@ describe('Widget', () => {
 
   describe('Blockchain anchor icons', () => {
     test('Should render no anchor icons when blockchain is undefined', () => {
-      new UbirchVerificationWidget({
-        hostSelector: 'body',
-        messenger,
-      });
+      new UbirchVerificationWidget(defaultSettings);
 
       subject.next({
         ...successVerificationMessage,
@@ -535,10 +542,7 @@ describe('Widget', () => {
     });
 
     test('Should render anchor icons when blockchain is defined', () => {
-      new UbirchVerificationWidget({
-        hostSelector: 'body',
-        messenger,
-      });
+      new UbirchVerificationWidget(defaultSettings);
 
       subject.next(successVerificationMessage);
 
@@ -565,9 +569,8 @@ describe('Widget', () => {
     describe('If it sets opening console in the same target correctly', () => {
       test('When openConsoleInSameTarget param is not set', () => {
         new UbirchVerificationWidget({
-          hostSelector: 'body',
+          ...defaultSettings,
           linkToConsole: true,
-          messenger,
         });
 
         subject.next(successVerificationMessage);
@@ -580,10 +583,9 @@ describe('Widget', () => {
 
       test('When openConsoleInSameTarget param is set', () => {
         new UbirchVerificationWidget({
-          hostSelector: 'body',
+          ...defaultSettings,
           linkToConsole: true,
           openConsoleInSameTarget: true,
-          messenger,
         });
 
         subject.next(successVerificationMessage);
@@ -597,10 +599,7 @@ describe('Widget', () => {
 
     describe('Language settings', () => {
       test('If it sets language via method correctly', () => {
-        const widget = new UbirchVerificationWidget({
-          hostSelector: 'body',
-          messenger,
-        });
+        const widget = new UbirchVerificationWidget(defaultSettings);
 
         widget.setLanguage(ELanguages.de);
 
@@ -618,9 +617,8 @@ describe('Widget', () => {
 
       test('If it sets language via config correctly', () => {
         const widget = new UbirchVerificationWidget({
-          hostSelector: 'body',
+          ...defaultSettings,
           language: ELanguages.de,
-          messenger,
         });
 
         widget.setLanguage(ELanguages.de);
@@ -641,10 +639,9 @@ describe('Widget', () => {
     describe('Stage setting', () => {
       test('If it sets the stage from the config correctly', () => {
         const widget = new UbirchVerificationWidget({
-          hostSelector: 'body',
+          ...defaultSettings,
           stage: EStages.prod,
           linkToConsole: true,
-          messenger,
         });
 
         widget.setLanguage(ELanguages.de);
@@ -666,9 +663,8 @@ describe('Widget', () => {
     describe('linkToConsole settings', () => {
       test("If it doesn't display anchored seal correctly", () => {
         const widget = new UbirchVerificationWidget({
-          hostSelector: 'body',
+          ...defaultSettings,
           stage: EStages.prod,
-          messenger,
         });
 
         widget.setLanguage(ELanguages.de);

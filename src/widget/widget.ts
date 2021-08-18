@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs';
 import classnames from 'classnames';
 import {
   EError,
@@ -7,21 +6,15 @@ import {
   EStages,
   EVerificationState,
   IUbirchBlockchainAnchor,
+  IUbirchVerificationWidgetConfig,
   UbirchMessage,
 } from '../models/models';
 import environment from '../environment';
-import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import i18n from '../utils/translations';
 import styles from './widget.module.scss';
+import { switchMap, tap } from 'rxjs/operators';
+import { UbirchBlockchainSettings } from '../settings/settings';
 
-export interface IUbirchVerificationWidgetConfig {
-  hostSelector: string;
-  openConsoleInSameTarget?: boolean;
-  messenger: Observable<UbirchMessage>;
-  language?: ELanguages;
-  linkToConsole?: boolean;
-  stage?: EStages;
-}
 
 export class UbirchVerificationWidget {
   private host: HTMLElement;
@@ -31,6 +24,7 @@ export class UbirchVerificationWidget {
   private resultText = '';
   private blockchainIconsAnchors = '';
   private stage: EStages = EStages.dev;
+  private settings: UbirchBlockchainSettings;
 
   constructor(config: IUbirchVerificationWidgetConfig) {
     const host = document.querySelector(config.hostSelector);
@@ -42,7 +36,11 @@ export class UbirchVerificationWidget {
       this.openConsoleInSameTarget = config.openConsoleInSameTarget;
     if (config.language) this.setLanguage(config.language);
     if (config.stage) this.stage = config.stage;
-    config.messenger.subscribe((message) => {
+
+    config.settings.pipe(
+      tap(s => { this.settings = s; }),
+      switchMap(s => config.messenger)
+    ).subscribe((message) => {
       if (message) {
         this.updateHeadlineText(message);
         this.updateResultText(message);
@@ -63,16 +61,16 @@ export class UbirchVerificationWidget {
       <div class="${styles.container__row}">
         ${this.renderSealOutput(message)}
         <div class="${classnames(styles.container__heading_box, {
-          [styles['container__heading_box--wide']]: noIconRow,
-        })}">
+      [styles['container__heading_box--wide']]: noIconRow,
+    })}">
           ${this.getHeadline(this.headlineText, headlineClassList)}
         </div>
       </div>
       <div class="${styles.container__row}">
         <p class="${this.getClassName(
-          styles.container__result_output,
-          message
-        )}" id="ubirch-verification-widget-result-text">
+      styles.container__result_output,
+      message
+    )}" id="ubirch-verification-widget-result-text">
           ${this.resultText}
         </p>
       </div>
@@ -94,8 +92,8 @@ export class UbirchVerificationWidget {
       this.resultText =
         message.code === EError.VERIFICATION_UNAVAILABLE
           ? i18n.t(`default:${message.type}.${message.code}`, {
-              message: message.errorDetails.errorMessage,
-            })
+            message: message.errorDetails.errorMessage,
+          })
           : i18n.t(`default:${message.type}.${message.code}`);
     }
   }
@@ -112,7 +110,7 @@ export class UbirchVerificationWidget {
       message.code === EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
 
     const sealSuffix = isSuccessful ? 'seal' : isPartiallySuccessful ? 'no_seal' : 'seal_error';
-    const iconSrcSuffix = BlockchainSettings.ubirchIcons[sealSuffix];
+    const iconSrcSuffix = this.settings.ubirchIcons[sealSuffix];
     const iconId = `ubirch-verification-${sealSuffix}-img`;
     const iconString = this.createIconString(
       `${environment.assets_url_prefix}${iconSrcSuffix}`,
@@ -126,9 +124,8 @@ export class UbirchVerificationWidget {
     ) {
       const encodedHash: string = encodeURIComponent(message.result.hash);
       const href = `${environment.console_verify_url[this.stage]}?hash=${encodedHash}`;
-      output = `<a href="${href}" ${
-        this.openConsoleInSameTarget === false ? 'target="_blank"' : ''
-      }>
+      output = `<a href="${href}" ${this.openConsoleInSameTarget === false ? 'target="_blank"' : ''
+        }>
           ${iconString}
         </a>`;
     } else {
@@ -146,7 +143,7 @@ export class UbirchVerificationWidget {
         .map((anchor: IUbirchBlockchainAnchor, index: number) => {
           const { raw } = anchor;
           const { blockchain, network_type } = raw;
-          const blox = BlockchainSettings.blockchainSettings[blockchain] || undefined;
+          const blox = this.settings.blockchainSettings[blockchain] || undefined;
           if (!blox || !raw.txid) {
             return '';
           }
