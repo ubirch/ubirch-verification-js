@@ -102,3 +102,4 @@ dist
 /.idea/
 /src/assets/i18n/_de.json
 /src/assets/i18n/_en.json
+.DS_Store
