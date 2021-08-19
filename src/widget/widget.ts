@@ -12,7 +12,7 @@ import {
 import environment from '../environment';
 import i18n from '../utils/translations';
 import styles from './widget.module.scss';
-import { switchMap, tap } from 'rxjs/operators';
+import { switchMap, take, tap } from 'rxjs/operators';
 import { UbirchBlockchainSettings } from '../settings/settings';
 
 
@@ -38,6 +38,7 @@ export class UbirchVerificationWidget {
     if (config.stage) this.stage = config.stage;
 
     config.settings.pipe(
+      take(1),
       tap(s => { this.settings = s; }),
       switchMap(s => config.messenger)
     ).subscribe((message) => {
@@ -113,7 +114,7 @@ export class UbirchVerificationWidget {
     const iconSrcSuffix = this.settings.ubirchIcons[sealSuffix];
     const iconId = `ubirch-verification-${sealSuffix}-img`;
     const iconString = this.createIconString(
-      `${environment.assets_url_prefix}${iconSrcSuffix}`,
+      `${environment.assets_url_prefix ?? ''}${iconSrcSuffix}`,
       iconId
     );
     let output: string;
@@ -153,7 +154,7 @@ export class UbirchVerificationWidget {
           const titleString = raw.network_info ? raw.network_info : raw.blockchain;
           return `
             <a href="${url}${raw.txid}" title="${titleString}" target="_blank">
-              ${this.createIconString(`${environment.assets_url_prefix}${blox.nodeIcon || ''}`, iconId)}
+              ${this.createIconString(`${environment.assets_url_prefix ?? ''}${blox.nodeIcon || ''}`, iconId)}
             </a>
           `;
         })
