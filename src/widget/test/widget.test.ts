@@ -668,6 +668,7 @@ describe('Widget', () => {
         const widget = new UbirchVerificationWidget({
           hostSelector: 'body',
           stage: EStages.prod,
+          linkToConsole: false,
           messenger,
         });
 
