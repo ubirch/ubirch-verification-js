@@ -25,13 +25,21 @@ import {
   IUbirchUpp,
   IUbirchVerificationConfig,
   IUbirchVerificationResponse,
-  IUbirchVerificationResult, IUbirchFormUtils, EErrorsAllowedFromExternal,
+  IUbirchVerificationResult, IUbirchFormUtils,
 } from '../models/models';
 import i18n from '../utils/translations';
 
 const API_VERSION = '/v2';
 
 export class UbirchVerification {
+  private static AllowedMessageKeysFromExternal = [
+    EError.URL_PARAMS_CORRUPT,
+    EError.LOCATION_MALFORMED,
+    EError.URL_PARAMS_FORMFILL_FAILED,
+    EInfo.URL_PARAMS_PARSED_SUCCESS,
+    EInfo.URL_PARAMS_FORMFILL_SUCCESS
+  ];
+
   private stage: EStages = EStages.prod;
   private algorithm: EHashAlgorithms = EHashAlgorithms.SHA256;
   private accessToken: string;
@@ -54,7 +62,7 @@ export class UbirchVerification {
   private connectFormUtilMessages(formUtil: IUbirchFormUtils) {
     if (formUtil) {
       const subscription = formUtil.messenger.subscribe((message: UbirchMessage) => {
-        if (message !== null && EErrorsAllowedFromExternal.includes(message.code as EError)) {
+        if (message !== null && UbirchVerification.AllowedMessageKeysFromExternal.includes(message.code as EError | EInfo)) {
           this.messageSubject$.next(message);
         }
       });

@@ -1,5 +1,7 @@
 {
   "info": {
+    "URL_PARAMS_PARSED_SUCCESS": "Die in der URL übergebenen Werte konnten erfolgreich gelesen werden",
+    "URL_PARAMS_FORMFILL_SUCCESS": "Das Formular wurde mit den Werten aus dem Aufruf gefüllt",
     "START_VERIFICATION_CALL": "Daten werden zur Verifikation ans Backend gesendet",
     "START_CHECKING_RESPONSE": "Die Antwort der Verifikationsanfrage vom Backend wird jetzt geprüft",
     "UPP_HAS_BEEN_FOUND": "Ein UPP zu den Daten konnte im Ubirch Backend gefunden werden",
@@ -19,7 +21,7 @@
     "URL_PARAMS_CORRUPT": "Die aufgerufene URL / der gescannte QRCode enthält nicht erlaubte Zeichen. Eine Verifikation wird nicht durchgeführt da sie korrupt sein könnte",
     "LOCATION_MALFORMED": "Die aufgerufene URL / der gescannte QRCode hat kein richtiges URL-Format",
     "MANDATORY_FIELD_MISSING": "Nicht alle Pflichtfelder wurden ausgefüllt - Falls Sie einen QRCode gescannt haben, ist dieser fehlerhaft",
-    "FILLING_FORM_WITH_PARAMS_FAILED": "Das Formular konnte nicht mit den Werten aus dem Aufruf gefüllt werden",
+    "URL_PARAMS_FORMFILL_FAILED": "Das Formular konnte nicht mit den Werten aus dem Aufruf gefüllt werden",
     "JSON_PARSE_FAILED": "Das interne JSON Datenformat enthält einen Fehler und konnte nicht gelesen werden",
     "JSON_MALFORMED": "Das Erzeugen des internen JSON Datenformats aus den Eingabefeldern ist fehlgeschlagen",
     "CANNOT_ACCESS_FORM_FIELD": "Eingabefeld konnte nicht ausgelesen werden",

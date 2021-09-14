@@ -1,4 +1,4 @@
-import { EError, EMessageType, EStages, IUbirchVerificationConfig, UbirchMessage } from '../../models/models';
+import { EError, EInfo, EMessageType, EStages, IUbirchVerificationConfig, UbirchMessage } from '../../models/models';
 import UbirchVerification from '../../verification';
 import { UbirchFormUtils } from '../form-utils';
 
@@ -48,7 +48,6 @@ describe('Get params from URL', () => {
 
   test('should emit error on not allowed chars', done => {
     global.window.history.pushState({}, '', '#a=^');
-    const infoReceived: UbirchMessage[] = [];
 
     const formUtils = new UbirchFormUtils();
     const verification = new UbirchVerification(defaultSettings, formUtils);
@@ -96,7 +95,6 @@ describe('Get params from URL', () => {
 
   test('should emit and throw error on corrupt url params', done => {
     global.window.history.pushState({}, '', '#a=%E0%A4%A');
-    const infoReceived: UbirchMessage[] = [];
 
     const formUtils = new UbirchFormUtils();
     const verification = new UbirchVerification(defaultSettings, formUtils);
@@ -119,6 +117,55 @@ describe('Get params from URL', () => {
     });
 
     expect(() => formUtils.getFormParamsFromUrl(global.window, ';')).toThrowError();
+  });
+
+  test('should send successful info when parsed form params successfully', done => {
+    global.window.history.pushState({}, '', '?a=1;b=2');
+    const formUtils = new UbirchFormUtils();
+    const verification = new UbirchVerification(defaultSettings, formUtils);
+
+    const subscription = verification.messenger.subscribe((message: UbirchMessage) => {
+      if (message !== null) {
+        expect(message).toEqual(
+          {
+            code: EInfo.URL_PARAMS_PARSED_SUCCESS,
+            message: 'The given parameters from called URL have been parsed successfully',
+            type: EMessageType.INFO
+          });
+        subscription.unsubscribe();
+        done();
+      }
+    });
+    const result = formUtils.getFormParamsFromUrl(global.window, ';');
+  });
+
+  test('should send successful info when form was filled with params successfully', done => {
+    document.body.innerHTML = `
+    <form>
+      <input id="a"/>
+      <input id="b"/>
+      <input id="c"/>
+    </form>
+    `;
+    const formUtils = new UbirchFormUtils();
+    const verification = new UbirchVerification(defaultSettings, formUtils);
+
+    const subscription = verification.messenger.subscribe((message: UbirchMessage) => {
+      if (message !== null) {
+        expect(message).toEqual(
+          {
+            code: EInfo.URL_PARAMS_FORMFILL_SUCCESS,
+            message: 'Successfully filled form with the given parameters from called URL',
+            type: EMessageType.INFO
+          });
+        subscription.unsubscribe();
+        done();
+      }
+    });
+    formUtils.setDataIntoForm({ a: 'testA', b: 'testB' }, document);
+    expect((document.getElementById('a') as HTMLInputElement).value).toEqual('testA');
+    expect((document.getElementById('b') as HTMLInputElement).value).toEqual('testB');
+    expect((document.getElementById('c') as HTMLInputElement).value).toEqual('');
   });
 });
 
@@ -181,7 +228,7 @@ describe('Fill inputs with data', () => {
       if (message !== null) {
         expect(message).toEqual(
           {
-            code: EError.FILLING_FORM_WITH_PARAMS_FAILED,
+            code: EError.URL_PARAMS_FORMFILL_FAILED,
             errorDetails: {
               errorMessage: 'documentRef.getElementById is not a function',
             },

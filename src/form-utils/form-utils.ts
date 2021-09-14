@@ -1,5 +1,5 @@
 import { BehaviorSubject, Observable } from 'rxjs';
-import { DataParams, EError, EMessageType, IUbirchError, IUbirchErrorDetails, IUbirchFormUtils, IUbirchFormUtilsConfig, UbirchMessage } from '../models/models';
+import { DataParams, EError, EInfo, EMessageType, IUbirchError, IUbirchErrorDetails, IUbirchFormUtils, IUbirchFormUtilsConfig, IUbirchInfo, UbirchMessage } from '../models/models';
 import i18n from '../utils/translations';
 
 const DEFAULT_CONFIG: IUbirchFormUtilsConfig = {
@@ -33,6 +33,18 @@ export class UbirchFormUtils implements IUbirchFormUtils {
 
   private log(logInfo: UbirchMessage): void {
     this.messageSubject$.next(logInfo);
+  }
+
+  private handleInfo(code: EInfo): void {
+    const infoMsg: string = i18n.t(`default:info.${code}`);
+
+    const info: IUbirchInfo = {
+      type: EMessageType.INFO,
+      message: infoMsg,
+      code,
+    };
+
+    this.log(info);
   }
 
   private handleError = (code: EError, errorDetails?: IUbirchErrorDetails): void => {
@@ -111,8 +123,11 @@ export class UbirchFormUtils implements IUbirchFormUtils {
    * @param windowRef Reference to window
    * @param separator data separator string
    */
-  public getFormParamsFromUrl = (windowRef: Window, separator: string): DataParams =>
-    this.parseParams(this.handleFragment(windowRef), separator);
+  public getFormParamsFromUrl = (windowRef: Window, separator: string): DataParams => {
+    const param: DataParams = this.parseParams(this.handleFragment(windowRef), separator);
+    this.handleInfo(EInfo.URL_PARAMS_PARSED_SUCCESS);
+    return param;
+  }
 
   /**
    * put params into form fields
@@ -145,8 +160,9 @@ export class UbirchFormUtils implements IUbirchFormUtils {
           }
         }
       });
+      this.handleInfo(EInfo.URL_PARAMS_FORMFILL_SUCCESS);
     } catch (e) {
-      this.handleError(EError.FILLING_FORM_WITH_PARAMS_FAILED, {
+      this.handleError(EError.URL_PARAMS_FORMFILL_FAILED, {
         errorMessage: e.message as string,
       });
     }
