@@ -40,10 +40,10 @@ export class UbirchVerification {
     EInfo.URL_PARAMS_FORMFILL_SUCCESS
   ];
 
-  private stage: EStages = EStages.prod;
-  private algorithm: EHashAlgorithms = EHashAlgorithms.SHA256;
-  private accessToken: string;
-  private language?: ELanguages = ELanguages.en;
+  protected stage: EStages = EStages.prod;
+  protected algorithm: EHashAlgorithms = EHashAlgorithms.SHA256;
+  protected accessToken: string;
+  protected language?: ELanguages = ELanguages.en;
 
   protected messageSubject$: BehaviorSubject<UbirchMessage> = new BehaviorSubject<UbirchMessage>(null);
   private messenger$: Observable<UbirchMessage> = this.messageSubject$.asObservable();

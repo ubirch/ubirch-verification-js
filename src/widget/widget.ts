@@ -6,33 +6,32 @@ import {
   EMessageType,
   EStages,
   EVerificationState,
-  IUbirchBlockchainAnchor,
+  IUbirchBlockchainAnchor, IUbirchVerificationConfig,
   UbirchMessage,
 } from '../models/models';
 import environment from '../environment';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import i18n from '../utils/translations';
+import UbirchVerification from '../verification';
 import styles from './widget.module.scss';
 
-export interface IUbirchVerificationWidgetConfig {
+export interface IUbirchVerificationWidgetConfig extends IUbirchVerificationConfig {
   hostSelector: string;
   openConsoleInSameTarget?: boolean;
-  messenger: Observable<UbirchMessage>;
   language?: ELanguages;
   linkToConsole?: boolean;
-  stage?: EStages;
 }
 
-export class UbirchVerificationWidget {
+export class UbirchVerificationWidget extends UbirchVerification {
   private host: HTMLElement;
   private linkToConsole = false;
   private openConsoleInSameTarget = false;
   private headlineText = '';
   private resultText = '';
   private blockchainIconsAnchors = '';
-  private stage: EStages = EStages.dev;
 
   constructor(config: IUbirchVerificationWidgetConfig) {
+    super(config);
     const host = document.querySelector(config.hostSelector);
     if (!host)
       throw new Error(i18n.t(`default:error.${EError.ELEMENT_FOR_WIDGET_SELECTOR_NOT_FOUND}`));
@@ -41,8 +40,7 @@ export class UbirchVerificationWidget {
     if (typeof config.openConsoleInSameTarget === 'boolean')
       this.openConsoleInSameTarget = config.openConsoleInSameTarget;
     if (config.language) this.setLanguage(config.language);
-    if (config.stage) this.stage = config.stage;
-    config.messenger.subscribe((message) => {
+    this.messenger.subscribe((message) => {
       if (message) {
         this.updateHeadlineText(message);
         this.updateResultText(message);

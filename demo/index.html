@@ -186,7 +186,7 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
           });
           ubirchVerificationWidget = new UbirchVerificationWidget({
             hostSelector: '#widget-root',
-            messenger: window['UbirchMessenger$']
+            messenger: ubirchVerification.messenger
           });
           document.getElementById('log').value = '';
           if (!subscription) subscription = ubirchVerification.messenger.subscribe(updateLog);
