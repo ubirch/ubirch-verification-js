@@ -94,7 +94,6 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
     <!--  Use this if installed from NPM -->
     <!--  <script src="../node_modules/@ubirch/ubirch-verification-widget/dist/ubirch-verification-widget.min.js"></script> -->
     <script>
-      let ubirchVerification;
       let ubirchVerificationWidget;
       let subscription = null;
       let initialized = false;
@@ -125,7 +124,7 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
       });
       // verify JSON button click listener
       document.getElementById('verify-json').addEventListener('click', function () {
-        if (!ubirchVerification) {
+        if (!ubirchVerificationWidget) {
           // handle the error yourself and inform user about the missing token
           const msg = 'Verification Widget not initialized propertly - did you set a token?\n';
           window.alert(msg);
@@ -137,8 +136,8 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
             window.alert(msg);
           }
           try {
-            const hash = ubirchVerification.createHash(json);
-            ubirchVerification
+            const hash = ubirchVerificationWidget.createHash(json);
+            ubirchVerificationWidget
               .verifyHash(hash)
               .then((response) => {
                 const msg = 'Verification Result:\n' + JSON.stringify(response, null, 2);
@@ -161,35 +160,32 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
       // insert JSON test data button click listener
       document.getElementById('trim-sort-json').addEventListener('click', function() {
         const jsonStr = document.getElementById('json-input').value;
-        const trimmedSortedJson = ubirchVerification.formatJSON(jsonStr, true);
+        const trimmedSortedJson = ubirchVerificationWidget.formatJSON(jsonStr, true);
         document.getElementById('trimmed-json-input').value = trimmedSortedJson;
       });
 
       // get hash from JSON button click listener
       document.getElementById('hash-from-json').addEventListener('click', function() {
-        const genHash = ubirchVerification.createHash(document.getElementById('trimmed-json-input').value);
+        const genHash = ubirchVerificationWidget.createHash(document.getElementById('trimmed-json-input').value);
         document.getElementById('hash-input').value = genHash;
       });
 
       // test hash button click listener
       document.getElementById('hash-test').addEventListener('click', function() {
-        ubirchVerification.verifyHash(document.getElementById('hash-input').value);
+        ubirchVerificationWidget.verifyHash(document.getElementById('hash-input').value);
       });
       function setupVerificationWidget() {
         const token = document.getElementById('token-input').value;
         if (token) {
-          // create UbirchVerification instance
-          ubirchVerification = new UbirchVerification({
+          // create ubirchVerificationWidget instance
+          ubirchVerificationWidget = new UbirchVerificationWidget({
             algorithm: selectedHashAlgo,
             stage: selectedStage,
             accessToken: token,
-          });
-          ubirchVerificationWidget = new UbirchVerificationWidget({
             hostSelector: '#widget-root',
-            messenger: ubirchVerification.messenger
           });
           document.getElementById('log').value = '';
-          if (!subscription) subscription = ubirchVerification.messenger.subscribe(updateLog);
+          if (!subscription) subscription = ubirchVerificationWidget.messenger.subscribe(updateLog);
           setFormVisibility(true);
         } else {
           // handle the error yourself and inform user about the missing token
