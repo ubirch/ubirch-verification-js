@@ -14,7 +14,6 @@ import {
   IUbirchVerificationResult,
 } from '../../models/models';
 import { UbirchVerification } from '../verification';
-import { messageSubject$ } from '../../messenger';
 
 global.fetch = jest.fn();
 
@@ -40,6 +39,9 @@ class UbirchVerificationMock extends UbirchVerification {
   public sendVerificationRequest(hash: string): Promise<any> {
     return super.sendVerificationRequest(hash);
   }
+  public log(logInfo: UbirchMessage): void {
+    super.log(logInfo);
+  }
 }
 
 let testhash_verifiable;
@@ -51,7 +53,7 @@ beforeEach(() => {
   (global.fetch as jest.Mock).mockClear().mockReset();
   testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
   verifier = new UbirchVerificationMock(defaultSettings);
-  messageSubject$.next(null);
+  verifier.log(null);
 });
 
 describe('Verification', () => {

@@ -1,24 +1,19 @@
-import {
-  EError,
-  EMessageType,
-  IUbirchFormUtilsConfig,
-  IUbirchError,
-  IUbirchErrorDetails,
-  UbirchMessage,
-  DataParams,
-} from '../models/models';
-import { messageSubject$ } from '../messenger';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { DataParams, EError, EMessageType, IUbirchError, IUbirchErrorDetails, IUbirchFormUtils, IUbirchFormUtilsConfig, UbirchMessage } from '../models/models';
 import i18n from '../utils/translations';
 
 const DEFAULT_CONFIG: IUbirchFormUtilsConfig = {
   formIds: [],
 };
 
-export class UbirchFormUtils {
+export class UbirchFormUtils implements IUbirchFormUtils {
   static readonly allowedCharacters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%";
   private formIds: string[];
   private paramsFormIdsMapping: string[];
+
+  protected messageSubject$: BehaviorSubject<UbirchMessage> = new BehaviorSubject<UbirchMessage>(null);
+  private messenger$: Observable<UbirchMessage> = this.messageSubject$.asObservable();
 
   constructor(config: IUbirchFormUtilsConfig = DEFAULT_CONFIG) {
     this.formIds = config.formIds;
@@ -32,11 +27,15 @@ export class UbirchFormUtils {
     }
   }
 
-  static log(logInfo: UbirchMessage): void {
-    messageSubject$.next(logInfo);
+  public get messenger(): Observable<UbirchMessage> {
+    return this.messenger$;
   }
 
-  static handleError = (code: EError, errorDetails?: IUbirchErrorDetails): void => {
+  private log(logInfo: UbirchMessage): void {
+    this.messageSubject$.next(logInfo);
+  }
+
+  private handleError = (code: EError, errorDetails?: IUbirchErrorDetails): void => {
     const errorMsg: string = i18n.t(`default:error.${code}`);
 
     const err: IUbirchError = {
@@ -46,11 +45,11 @@ export class UbirchFormUtils {
       errorDetails,
     };
 
-    UbirchFormUtils.log(err);
+    this.log(err);
     throw err;
   };
 
-  static sanitizeUrlAndQuery = (urlStr: string): string => {
+  private sanitizeUrlAndQuery = (urlStr: string): string => {
     const foundNotAllowedChars: string[] = [...Array.from(urlStr)].filter(
       (char) => !UbirchFormUtils.allowedCharacters.includes(char)
     );
@@ -63,24 +62,24 @@ export class UbirchFormUtils {
       const errorDetails: IUbirchErrorDetails = {
         notAllowedChars: uniqueFoundNotAllowedChars,
       };
-      UbirchFormUtils.handleError(EError.URL_PARAMS_CORRUPT, errorDetails);
+      this.handleError(EError.URL_PARAMS_CORRUPT, errorDetails);
     }
 
     return urlStr;
   };
 
-  static handleFragment = (windowRef: Window): string | undefined => {
+  private handleFragment = (windowRef: Window): string | undefined => {
     let hash: string;
     try {
       hash = windowRef.location.hash || windowRef.location.search;
     } catch (e) {
-      UbirchFormUtils.handleError(EError.LOCATION_MALFORMED);
+      this.handleError(EError.LOCATION_MALFORMED);
     }
 
-    return hash ? UbirchFormUtils.sanitizeUrlAndQuery(hash.slice(1)) : undefined;
+    return hash ? this.sanitizeUrlAndQuery(hash.slice(1)) : undefined;
   };
 
-  private static handleUrlParamValue(val: string, arraySeparator: string): string[] | string {
+  private handleUrlParamValue(val: string, arraySeparator: string): string[] | string {
     try {
       if (val.includes(arraySeparator)) {
         const arrayVal = val.split(arraySeparator).map(decodeURIComponent);
@@ -89,17 +88,17 @@ export class UbirchFormUtils {
         return decodeURIComponent(val);
       }
     } catch (e) {
-      UbirchFormUtils.handleError(EError.URL_PARAMS_CORRUPT, { errorMessage: e.message });
+      this.handleError(EError.URL_PARAMS_CORRUPT, { errorMessage: e.message });
     }
   }
 
-  static parseParams = (paramsString: string, separator: string): DataParams => {
+  private parseParams = (paramsString: string, separator: string): DataParams => {
     const splitDataset = (dataset: string) => {
       const arraySeparator = ',';
 
       const data = dataset.split('=');
 
-      return [data[0], UbirchFormUtils.handleUrlParamValue(data[1], arraySeparator)];
+      return [data[0], this.handleUrlParamValue(data[1], arraySeparator)];
     };
 
     if (!paramsString) return {};
@@ -113,7 +112,7 @@ export class UbirchFormUtils {
    * @param separator data separator string
    */
   public getFormParamsFromUrl = (windowRef: Window, separator: string): DataParams =>
-    UbirchFormUtils.parseParams(UbirchFormUtils.handleFragment(windowRef), separator);
+    this.parseParams(this.handleFragment(windowRef), separator);
 
   /**
    * put params into form fields
@@ -147,7 +146,7 @@ export class UbirchFormUtils {
         }
       });
     } catch (e) {
-      UbirchFormUtils.handleError(EError.FILLING_FORM_WITH_PARAMS_FAILED, {
+      this.handleError(EError.FILLING_FORM_WITH_PARAMS_FAILED, {
         errorMessage: e.message as string,
       });
     }

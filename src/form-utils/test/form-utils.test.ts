@@ -1,6 +1,12 @@
+import { EError, EMessageType, EStages, IUbirchVerificationConfig, UbirchMessage } from '../../models/models';
+import UbirchVerification from '../../verification';
 import { UbirchFormUtils } from '../form-utils';
-import { messageSubject$ } from '../../messenger';
-import { EError, EMessageType, UbirchMessage } from '../../models/models';
+
+const defaultSettings: IUbirchVerificationConfig = {
+  accessToken:
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiZDYzZWNjMDMtZjVhNy00ZDQzLTkxZDAtYTMwZDAzNGQ4ZGEzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2MTk4MjA2MzAsImlhdCI6MTYxMjQzNTI4MCwianRpIjoiOGJkMzExZDItZGEyYi00ZWJhLWExMmMtODYxYjRiYWU2MjliIiwidGFyZ2V0X2lkZW50aXRpZXMiOiIqIiwicm9sZSI6InZlcmlmaWVyIiwic2NvcGUiOiJ2ZXIiLCJwdXJwb3NlIjoiVWJpcmNoIERlZmF1bHQgVG9rZW4iLCJvcmlnaW5fZG9tYWlucyI6W119.tDovGseqjwaJZNX0ZtoGmZVvkcdVltR1nXYYAFpF4DHGAQ8MiRAfeJIYL0TNHsqBt_-60fw2j65neje_ThJ7Eg',
+  stage: EStages.dev,
+};
 
 beforeEach(() => {});
 
@@ -40,81 +46,79 @@ describe('Get params from URL', () => {
     expect(result).toEqual({});
   });
 
-  test('should emit error on not allowed chars', () => {
+  test('should emit error on not allowed chars', done => {
     global.window.history.pushState({}, '', '#a=^');
     const infoReceived: UbirchMessage[] = [];
 
-    messageSubject$.next(null);
-    const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+    const formUtils = new UbirchFormUtils();
+    const verification = new UbirchVerification(defaultSettings, formUtils);
+
+    const subscription = verification.messenger.subscribe((message: UbirchMessage) => {
       if (message !== null) {
-        infoReceived.push(message);
+        expect(message).toEqual(
+          {
+            code: EError.URL_PARAMS_CORRUPT,
+            errorDetails: { notAllowedChars: ['^'] },
+            message:
+              'Called URL (from QRCode) contains at least one not allowed character that could corrupt this verification',
+            type: EMessageType.ERROR,
+          },
+        );
+        subscription.unsubscribe();
+        done();
       }
     });
-
-    const formUtils = new UbirchFormUtils();
 
     expect(() => formUtils.getFormParamsFromUrl(global.window, ';')).toThrowError();
-    expect(infoReceived).toEqual([
-      {
-        code: EError.URL_PARAMS_CORRUPT,
-        errorDetails: { notAllowedChars: ['^'] },
-        message:
-          'Called URL (from QRCode) contains at least one not allowed character that could corrupt this verification',
-        type: EMessageType.ERROR,
-      },
-    ]);
-    subscription.unsubscribe();
   });
 
-  test('should emit and throw error on malformmed location', () => {
-    const infoReceived: UbirchMessage[] = [];
-
-    messageSubject$.next(null);
-    const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
-      if (message !== null) {
-        infoReceived.push(message);
-      }
-    });
+  test('should emit and throw error on malformmed location', done => {
     const malformedWindow = {} as Window;
     const formUtils = new UbirchFormUtils();
+    const verification = new UbirchVerification(defaultSettings, formUtils);
+
+    const subscription = verification.messenger.subscribe((message: UbirchMessage) => {
+      if (message !== null) {
+        expect(message).toEqual(
+          {
+            code: EError.LOCATION_MALFORMED,
+            errorDetails: undefined,
+            message: 'Called URL (from QRCode) is not in a correct URL format',
+            type: EMessageType.ERROR,
+          });
+        subscription.unsubscribe();
+        done();
+      }
+    });
 
     expect(() => formUtils.getFormParamsFromUrl(malformedWindow, ';')).toThrow();
-    expect(infoReceived).toEqual([
-      {
-        code: EError.LOCATION_MALFORMED,
-        errorDetails: undefined,
-        message: 'Called URL (from QRCode) is not in a correct URL format',
-        type: EMessageType.ERROR,
-      },
-    ]);
-    subscription.unsubscribe();
   });
 
-  test('should emit and throw error on corrupt url params', () => {
+  test('should emit and throw error on corrupt url params', done => {
     global.window.history.pushState({}, '', '#a=%E0%A4%A');
     const infoReceived: UbirchMessage[] = [];
 
-    messageSubject$.next(null);
-    const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
+    const formUtils = new UbirchFormUtils();
+    const verification = new UbirchVerification(defaultSettings, formUtils);
+
+    const subscription = verification.messenger.subscribe((message: UbirchMessage) => {
       if (message !== null) {
-        infoReceived.push(message);
+        expect(message).toEqual(
+          {
+            code: EError.URL_PARAMS_CORRUPT,
+            errorDetails: {
+              errorMessage: 'URI malformed',
+            },
+            message:
+              'Called URL (from QRCode) contains at least one not allowed character that could corrupt this verification',
+            type: EMessageType.ERROR,
+          });
+        subscription.unsubscribe();
+        done();
       }
     });
 
-    const formUtils = new UbirchFormUtils();
     expect(() => formUtils.getFormParamsFromUrl(global.window, ';')).toThrowError();
-    expect(infoReceived).toEqual([
-      {
-        code: EError.URL_PARAMS_CORRUPT,
-        errorDetails: {
-          errorMessage: 'URI malformed',
-        },
-        message:
-          'Called URL (from QRCode) contains at least one not allowed character that could corrupt this verification',
-        type: EMessageType.ERROR,
-      },
-    ]);
-    subscription.unsubscribe();
   });
 });
 
@@ -148,7 +152,7 @@ describe('Fill inputs with data', () => {
     expect((document.getElementById('b_0') as HTMLInputElement).value).toEqual('testB0');
     expect((document.getElementById('b_1') as HTMLInputElement).value).toEqual('testB1');
   });
-  
+
   test('should set only available input fields', () => {
     document.body.innerHTML = `
     <form>
@@ -168,31 +172,30 @@ describe('Fill inputs with data', () => {
     expect((document.getElementById('c_2') as HTMLInputElement).value).toEqual('');
   });
 
-  test('should emit and throw error on malformmed document', () => {
-    const infoReceived: UbirchMessage[] = [];
-
-    messageSubject$.next(null);
-    const subscription = messageSubject$.subscribe((message: UbirchMessage) => {
-      if (message !== null) {
-        infoReceived.push(message);
-      }
-    });
+  test('should emit and throw error on malformmed document', done => {
     const malformedDocument = {} as Document;
     const formUtils = new UbirchFormUtils();
+    const verification = new UbirchVerification(defaultSettings, formUtils);
+
+    const subscription = verification.messenger.subscribe((message: UbirchMessage) => {
+      if (message !== null) {
+        expect(message).toEqual(
+          {
+            code: EError.FILLING_FORM_WITH_PARAMS_FAILED,
+            errorDetails: {
+              errorMessage: 'documentRef.getElementById is not a function',
+            },
+            message: 'Unable to fill the form with the given parameters from called URL',
+            type: EMessageType.ERROR,
+          });
+        subscription.unsubscribe();
+        done();
+      }
+    });
     expect(() =>
       formUtils.setDataIntoForm({ a: 'testA', c: ['testC0', 'testC2'] }, malformedDocument)
     ).toThrow();
-    expect(infoReceived).toEqual([
-      {
-        code: EError.FILLING_FORM_WITH_PARAMS_FAILED,
-        errorDetails: {
-          errorMessage: 'documentRef.getElementById is not a function',
-        },
-        message: 'Unable to fill the form with the given parameters from called URL',
-        type: EMessageType.ERROR,
-      },
-    ]);
-    subscription.unsubscribe();
+
   });
 });
 

@@ -1,3 +1,5 @@
+import { Observable } from 'rxjs';
+
 export enum EHashAlgorithms {
   SHA256 = 'sha256',
   SHA512 = 'sha512',
@@ -32,7 +34,6 @@ export enum EInfo {
   START_CHECKING_RESPONSE = 'START_CHECKING_RESPONSE',
   UPP_HAS_BEEN_FOUND = 'UPP_HAS_BEEN_FOUND',
   WARNING_EMPTY_BLXTX_FOUND = 'WARNING_EMPTY_BLXTX_FOUND',
-  BLXTX_FOUND_SUCCESS = 'BLXTX_FOUND_SUCCESS',
   RESPONSE_JSON_PARSED_SUCCESSFULY = 'RESPONSE_JSON_PARSED_SUCCESSFULY',
   NO_BLXTX_FOUND = 'NO_BLXTX_FOUND',
   BLXTXS_FOUND_SUCCESS = 'BLXTXS_FOUND_SUCCESS',
@@ -59,7 +60,6 @@ export enum EError {
   CERTIFICATE_DATA_MISSING = 'CERTIFICATE_DATA_MISSING',
   VERIFICATION_NOT_POSSIBLE = 'VERIFICATION_NOT_POSSIBLE',
 
-  NO_ERROR = 'NO_ERROR',
   VERIFICATION_FAILED_EMPTY_RESPONSE = 'VERIFICATION_FAILED_EMPTY_RESPONSE',
   VERIFICATION_FAILED = 'VERIFICATION_FAILED',
   VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED = 'VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED',
@@ -73,6 +73,12 @@ export enum EMessageType {
   ERROR = 'error',
   VERIFICATION_STATE = 'verification-state',
 }
+
+export const EErrorsAllowedFromExternal = [
+  EError.URL_PARAMS_CORRUPT,
+  EError.LOCATION_MALFORMED,
+  EError.FILLING_FORM_WITH_PARAMS_FAILED
+]
 
 export interface IUbirchErrorDetails {
   errorMessage?: string;
@@ -106,6 +112,10 @@ export interface IUbirchVerificationConfig {
   accessToken: string;
   stage?: EStages;
   language?: ELanguages;
+}
+
+export interface IUbirchFormUtils {
+  readonly messenger: Observable<UbirchMessage>;
 }
 
 export interface IUbirchFormUtilsConfig {
@@ -211,4 +221,4 @@ export interface IUbirchVerificationAnchorProperties {
   txid: string;
 }
 
-export type DataParams = { [index: string]: string | string[] };
+export type DataParams = { [ index: string ]: string | string[] };

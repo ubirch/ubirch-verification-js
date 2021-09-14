@@ -1,9 +1,9 @@
 import { sha256 } from 'js-sha256';
 import { sha512 } from 'js-sha512';
 import UbirchProtocol from '@ubirch/ubirch-protocol-verifier/src/verify';
+import { BehaviorSubject, Observable } from 'rxjs';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import environment from '../environment';
-import { messageSubject$, messenger$, UbirchObservable } from '../messenger';
 import {
   EError,
   EHashAlgorithms,
@@ -25,7 +25,7 @@ import {
   IUbirchUpp,
   IUbirchVerificationConfig,
   IUbirchVerificationResponse,
-  IUbirchVerificationResult,
+  IUbirchVerificationResult, IUbirchFormUtils, EErrorsAllowedFromExternal,
 } from '../models/models';
 import i18n from '../utils/translations';
 
@@ -37,7 +37,10 @@ export class UbirchVerification {
   private accessToken: string;
   private language?: ELanguages = ELanguages.en;
 
-  constructor(config: IUbirchVerificationConfig) {
+  protected messageSubject$: BehaviorSubject<UbirchMessage> = new BehaviorSubject<UbirchMessage>(null);
+  private messenger$: Observable<UbirchMessage> = this.messageSubject$.asObservable();
+
+  constructor(config: IUbirchVerificationConfig, formUtil?: IUbirchFormUtils) {
     if (!config.accessToken) {
       this.handleError(EError.MISSING_ACCESS_TOKEN);
     }
@@ -45,6 +48,17 @@ export class UbirchVerification {
     this.stage = config.stage || this.stage;
     this.algorithm = config.algorithm || this.algorithm;
     this.language = config.language || this.language;
+    this.connectFormUtilMessages(formUtil);
+  }
+
+  private connectFormUtilMessages(formUtil: IUbirchFormUtils) {
+    if (formUtil) {
+      const subscription = formUtil.messenger.subscribe((message: UbirchMessage) => {
+        if (message !== null && EErrorsAllowedFromExternal.includes(message.code as EError)) {
+          this.messageSubject$.next(message);
+        }
+      });
+    }
   }
 
   public createHash(json: string, hashAlgorithm: EHashAlgorithms = this.algorithm): string {
@@ -68,8 +82,8 @@ export class UbirchVerification {
     return transId;
   }
 
-  public get messenger(): UbirchObservable {
-    return messenger$;
+  public get messenger(): Observable<UbirchMessage> {
+    return this.messenger$;
   }
 
   protected getHWDeviceId(upp: string): string {
@@ -408,7 +422,7 @@ export class UbirchVerification {
   }
 
   protected log(logInfo: UbirchMessage): void {
-    messageSubject$.next(logInfo);
+    this.messageSubject$.next(logInfo);
   }
 }
 
