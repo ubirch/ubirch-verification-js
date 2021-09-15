@@ -39,7 +39,7 @@ import { UbirchVerification } from '@ubirch/ubirch-verification-js';
 
 ### UbirchVerification
 
-#### `constructor(config: IUbirchVerificationConfig)`
+#### `constructor(config: IUbirchVerificationConfig, formUtil?: IUbirchFormUtils)`
 
 Create instance of `UbirchVerification` class with given config:
 parameter | description | possible values | default value
@@ -48,6 +48,8 @@ parameter | description | possible values | default value
 **algorithm** | default algorith used for hashing | `sha256`, `sha512` | `sha256`
 **language** | language of the messenger messages | `en`, `de` | `en`
 **stage** | the environment of verification service |`local`, `dev`, `demo`, `prod` | `prod`
+
+As second optional parameter a `FormUtil` instance can be provided for logging infos and errors.
 
 #### `verifyHash(hash: string): Promise<IUbirchVerificationResult>`
 
@@ -67,7 +69,8 @@ Returns given JSON string hashed with given algorythm. Possible algorythms are `
 
 ### UbirchFormUtils
 
-Helper methods for data resolving
+Helper methods for data resolving, can be added as config parameter to UbirchVerification constructor.
+FormUtil is used to read query/fragment parameters, fill form and create JSON from form.
 
 #### `getFormParamsFromUrl(windowRef: Window, separator: string): DataParams`
 
@@ -79,7 +82,7 @@ Inserts the data from data params object to input fields.
 
 ### UbirchVerificationWidget
 
-Displays the verifcation process in a graphical way
+Is an extention of the UbirchVerification for displaying the verification process graphical
 
 #### Usage
 
@@ -90,13 +93,11 @@ const widget = new UbirchVerificationWidget(config);
 Where `config` is:
 
 ```ts
-interface IUbirchVerificationConfig {
+export interface IUbirchVerificationWidgetConfig extends IUbirchVerificationConfig {
   hostSelector: string;
   openConsoleInSameTarget?: boolean;
-  messenger: Observable<UbirchMessage>;
   language?: ELanguages;
   linkToConsole?: boolean;
-  stage?: EStages;
 }
 ```
 
