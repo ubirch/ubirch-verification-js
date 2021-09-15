@@ -1,7 +1,22 @@
 import * as en from '../../assets/i18n/en.json';
-import { EError, EInfo, EMessageType, EStages, EUppStates, EVerificationState, IUbirchError, IUbirchErrorDetails, IUbirchVerificationResult, UbirchMessage } from '../../models/models';
+import * as BlockchainSettings from '../../blockchain-assets/blockchain-settings.json';
+import environment from '../../environment';
+import {
+  EError,
+  EInfo,
+  ELanguages,
+  EMessageType,
+  EStages,
+  EUppStates,
+  EVerificationState,
+  IUbirchError,
+  IUbirchErrorDetails,
+  IUbirchVerificationResult,
+  UbirchMessage,
+} from '../../models/models';
 import i18n from '../../utils/translations';
 import { IUbirchVerificationWidgetConfig, UbirchVerificationWidget } from '../widget';
+import invalidTestAnchors from './invalid-anchors.json';
 import testAnchors from './valid-anchors.json';
 
 class UbirchVerificationWidgetMock extends UbirchVerificationWidget {
@@ -51,12 +66,28 @@ const successVerificationMessage: UbirchMessage = {
 
 beforeAll(() => {
   root = document.body;
+  document.body.innerHTML = '<div id="widgetRef"></div>';
 });
 
 afterAll(() => {
   root.innerHTML = '';
   root = null;
 });
+
+function proceedCalls(messages: UbirchMessage[], widget: UbirchVerificationWidgetMock) {
+  messages.forEach((msg) => {
+    switch (msg.type) {
+      case EMessageType.INFO:
+        widget.handleInfo(msg.code as EInfo);
+        break;
+      case EMessageType.VERIFICATION_STATE:
+        widget.handleVerificationState(msg.code as EVerificationState, msg.result);
+        break;
+      case EMessageType.ERROR:
+        expect(() => widget.handleError(msg.code as EError, msg.errorDetails)).toThrowError();
+    }
+  });
+}
 
 describe('Widget', () => {
   describe('Mounting', () => {
@@ -71,6 +102,24 @@ describe('Widget', () => {
       expect(() => {
         new UbirchVerificationWidget({ ...defaultSettings, hostSelector: '#selector' });
       }).toThrowError('Element for widget selector not found');
+    });
+
+    test('If widget is added to given host/elementRef if exists', () => {
+
+      const widget = new UbirchVerificationWidgetMock({ ...defaultSettings, hostSelector: '#widgetRef' });
+
+      const messages: UbirchMessage[] = [
+        successVerificationMessage
+      ];
+
+      proceedCalls(messages, widget);
+
+      const headline = root.querySelector('#ubirch-verification-widget-headline');
+      expect(headline).toBeDefined();
+      expect(headline.textContent).toContain(
+        'Verification successful!'
+      );
+      expect(headline.parentElement.parentElement.parentElement.parentElement.id).toEqual('widgetRef');
     });
   });
 
@@ -167,13 +216,7 @@ describe('Widget', () => {
         const widget = new UbirchVerificationWidgetMock(defaultSettings);
 
         // process calls
-        messages.forEach((msg) => {
-          if (msg.type === EMessageType.INFO) {
-            widget.handleInfo(msg.code as EInfo);
-          } else if (msg.type === EMessageType.VERIFICATION_STATE) {
-            widget.handleVerificationState(msg.code as EVerificationState);
-          }
-        });
+        proceedCalls(messages, widget);
 
         const result = root.querySelector('#ubirch-verification-widget-result-text');
         expect(result.textContent).toContain('Blockchain anchors found successfully');
@@ -182,475 +225,495 @@ describe('Widget', () => {
 
       });
 
-    //   test('Should properly reflect partly successful verification', () => {
-    //     const messages: UbirchMessage[] = [
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_VERIFICATION_CALL,
-    //         message: en.info.START_VERIFICATION_CALL,
-    //       },
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_CHECKING_RESPONSE,
-    //         message: en.info.START_CHECKING_RESPONSE,
-    //       },
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.UPP_HAS_BEEN_FOUND,
-    //         message: en.info.UPP_HAS_BEEN_FOUND,
-    //       },
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.NO_BLXTX_FOUND,
-    //         message: en.info.NO_BLXTX_FOUND,
-    //       },
-    //       {
-    //         type: EMessageType.VERIFICATION_STATE,
-    //         code: EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
-    //         message: en['verification-state'].VERIFICATION_PARTLY_SUCCESSFUL,
-    //         result: {
-    //           hash: '',
-    //           upp: {
-    //             upp: '',
-    //             state: EUppStates.anchored,
-    //           },
-    //           anchors: [],
-    //           verificationState: EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
-    //           firstAnchorTimestamp: '',
-    //         },
-    //       },
-    //     ];
-    //
-    //     new UbirchVerificationWidget({ hostSelector: 'body', messenger });
-    //
-    //     messages.forEach((msg) => {
-    //       subject.next(msg);
-    //     });
-    //
-    //     const headline = root.querySelector('#ubirch-verification-widget-headline');
-    //     const result = root.querySelector('#ubirch-verification-widget-result-text');
-    //
-    //     expect(headline.textContent).toContain('Verification only partly successful');
-    //     expect(result.textContent).toContain('The data has not been anchored in any blockchain yet');
-    //   });
-    //
-    //   test('Should properly reflect failed verification (UPP undefined)', () => {
-    //     const messages: UbirchMessage[] = [
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_VERIFICATION_CALL,
-    //         message: en.info.START_VERIFICATION_CALL,
-    //       },
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_CHECKING_RESPONSE,
-    //         message: en.info.START_CHECKING_RESPONSE,
-    //       },
-    //       {
-    //         type: EMessageType.ERROR,
-    //         code: EError.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE,
-    //         message: en.error.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE,
-    //       },
-    //       {
-    //         type: EMessageType.VERIFICATION_STATE,
-    //         code: EVerificationState.VERIFICATION_FAILED,
-    //         message: en['verification-state'].VERIFICATION_FAILED,
-    //         result: {
-    //           hash: '',
-    //           upp: {
-    //             upp: '',
-    //             state: EUppStates.anchored,
-    //           },
-    //           anchors: [],
-    //           verificationState: EVerificationState.VERIFICATION_FAILED,
-    //           firstAnchorTimestamp: '',
-    //         },
-    //       },
-    //     ];
-    //
-    //     new UbirchVerificationWidget({ hostSelector: 'body', messenger });
-    //     messages.forEach((msg) => {
-    //       subject.next(msg);
-    //     });
-    //
-    //     const headline = root.querySelector('#ubirch-verification-widget-headline');
-    //     const result = root.querySelector('#ubirch-verification-widget-result-text');
-    //
-    //     expect(headline.textContent).toContain(
-    //       'Verification failed! No anchor for that data can be found!'
-    //     );
-    //     expect(result.textContent).toContain(
-    //       'Verification Failed!! Empty certificate or missing seal'
-    //     );
-    //   });
-    //
-    //   test('Should properly reflect failed verification (403)', () => {
-    //     const messages: UbirchMessage[] = [
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_VERIFICATION_CALL,
-    //         message: en.info.START_VERIFICATION_CALL,
-    //       },
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_CHECKING_RESPONSE,
-    //         message: en.info.START_CHECKING_RESPONSE,
-    //       },
-    //       {
-    //         type: EMessageType.ERROR,
-    //         code: EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE,
-    //         message: en.error.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE,
-    //       },
-    //       {
-    //         type: EMessageType.VERIFICATION_STATE,
-    //         code: EVerificationState.VERIFICATION_FAILED,
-    //         message: en['verification-state'].VERIFICATION_FAILED,
-    //         result: {
-    //           hash: '',
-    //           upp: {
-    //             upp: '',
-    //             state: EUppStates.anchored,
-    //           },
-    //           anchors: [],
-    //           verificationState: EVerificationState.VERIFICATION_FAILED,
-    //           firstAnchorTimestamp: '',
-    //         },
-    //       },
-    //     ];
-    //
-    //     new UbirchVerificationWidget({ hostSelector: 'body', messenger });
-    //     messages.forEach((msg) => {
-    //       subject.next(msg);
-    //     });
-    //
-    //     const headline = root.querySelector('#ubirch-verification-widget-headline');
-    //     const result = root.querySelector('#ubirch-verification-widget-result-text');
-    //
-    //     expect(headline.textContent).toContain(
-    //       'Verification failed! No anchor for that data can be found!'
-    //     );
-    //     expect(result.textContent).toContain('403 - unauthorized');
-    //   });
-    //
-    //   test('Should properly reflect failed verification (404)', () => {
-    //     const messages: UbirchMessage[] = [
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_VERIFICATION_CALL,
-    //         message: en.info.START_VERIFICATION_CALL,
-    //       },
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_CHECKING_RESPONSE,
-    //         message: en.info.START_CHECKING_RESPONSE,
-    //       },
-    //       {
-    //         type: EMessageType.ERROR,
-    //         code: EError.CERTIFICATE_ID_CANNOT_BE_FOUND,
-    //         message: en.error.CERTIFICATE_ID_CANNOT_BE_FOUND,
-    //       },
-    //       {
-    //         type: EMessageType.VERIFICATION_STATE,
-    //         code: EVerificationState.VERIFICATION_FAILED,
-    //         message: en['verification-state'].VERIFICATION_FAILED,
-    //         result: {
-    //           hash: '',
-    //           upp: {
-    //             upp: '',
-    //             state: EUppStates.anchored,
-    //           },
-    //           anchors: [],
-    //           verificationState: EVerificationState.VERIFICATION_FAILED,
-    //           firstAnchorTimestamp: '',
-    //         },
-    //       },
-    //     ];
-    //
-    //     new UbirchVerificationWidget({ hostSelector: 'body', messenger });
-    //     messages.forEach((msg) => {
-    //       subject.next(msg);
-    //     });
-    //
-    //     const headline = root.querySelector('#ubirch-verification-widget-headline');
-    //     const result = root.querySelector('#ubirch-verification-widget-result-text');
-    //
-    //     expect(headline.textContent).toContain(
-    //       'Verification failed! No anchor for that data can be found!'
-    //     );
-    //     expect(result.textContent).toContain('Certificate cannot be found!');
-    //   });
-    //
-    //   test('Should properly reflect failed verification (500)', () => {
-    //     const messages: UbirchMessage[] = [
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_VERIFICATION_CALL,
-    //         message: en.info.START_VERIFICATION_CALL,
-    //       },
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_CHECKING_RESPONSE,
-    //         message: en.info.START_CHECKING_RESPONSE,
-    //       },
-    //       {
-    //         type: EMessageType.ERROR,
-    //         code: EError.INTERNAL_SERVER_ERROR,
-    //         message: en.error.INTERNAL_SERVER_ERROR,
-    //       },
-    //       {
-    //         type: EMessageType.VERIFICATION_STATE,
-    //         code: EVerificationState.VERIFICATION_FAILED,
-    //         message: en['verification-state'].VERIFICATION_FAILED,
-    //         result: {
-    //           hash: '',
-    //           upp: {
-    //             upp: '',
-    //             state: EUppStates.anchored,
-    //           },
-    //           anchors: [],
-    //           verificationState: EVerificationState.VERIFICATION_FAILED,
-    //           firstAnchorTimestamp: '',
-    //         },
-    //       },
-    //     ];
-    //
-    //     new UbirchVerificationWidget({ hostSelector: 'body', messenger });
-    //     messages.forEach((msg) => {
-    //       subject.next(msg);
-    //     });
-    //     const headline = root.querySelector('#ubirch-verification-widget-headline');
-    //     const result = root.querySelector('#ubirch-verification-widget-result-text');
-    //
-    //     expect(headline.textContent).toContain(
-    //       'Verification failed! No anchor for that data can be found!'
-    //     );
-    //     expect(result.textContent).toContain('Internal Server Error. Something went wrong.');
-    //   });
-    //
-    //   test('Should properly reflect failed verification (Unknown error)', () => {
-    //     const messages: UbirchMessage[] = [
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_VERIFICATION_CALL,
-    //         message: en.info.START_VERIFICATION_CALL,
-    //       },
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_CHECKING_RESPONSE,
-    //         message: en.info.START_CHECKING_RESPONSE,
-    //       },
-    //       {
-    //         type: EMessageType.ERROR,
-    //         code: EError.UNKNOWN_ERROR,
-    //         message: en.error.UNKNOWN_ERROR,
-    //       },
-    //       {
-    //         type: EMessageType.VERIFICATION_STATE,
-    //         code: EVerificationState.VERIFICATION_FAILED,
-    //         message: en['verification-state'].VERIFICATION_FAILED,
-    //         result: {
-    //           hash: '',
-    //           upp: {
-    //             upp: '',
-    //             state: EUppStates.anchored,
-    //           },
-    //           anchors: [],
-    //           verificationState: EVerificationState.VERIFICATION_FAILED,
-    //           firstAnchorTimestamp: '',
-    //         },
-    //       },
-    //     ];
-    //
-    //     new UbirchVerificationWidget({ hostSelector: 'body', messenger });
-    //     messages.forEach((msg) => {
-    //       subject.next(msg);
-    //     });
-    //
-    //     const headline = root.querySelector('#ubirch-verification-widget-headline');
-    //     const result = root.querySelector('#ubirch-verification-widget-result-text');
-    //
-    //     expect(headline.textContent).toContain(
-    //       'Verification failed! No anchor for that data can be found!'
-    //     );
-    //     expect(result.textContent).toContain('An unexpected error occurred');
-    //   });
-    //
-    //   test('Should properly reflect failed verification (verification unavailable)', () => {
-    //     const messages: UbirchMessage[] = [
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_VERIFICATION_CALL,
-    //         message: en.info.START_VERIFICATION_CALL,
-    //       },
-    //       {
-    //         type: EMessageType.INFO,
-    //         code: EInfo.START_CHECKING_RESPONSE,
-    //         message: en.info.START_CHECKING_RESPONSE,
-    //       },
-    //       {
-    //         type: EMessageType.ERROR,
-    //         code: EError.VERIFICATION_UNAVAILABLE,
-    //         message: i18n.t(`default:error.${EError.VERIFICATION_UNAVAILABLE}`, {
-    //           message: 'Lorem ipsum',
-    //         }),
-    //         errorDetails: {
-    //           errorMessage: 'Lorem ipsum',
-    //         },
-    //       },
-    //       {
-    //         type: EMessageType.VERIFICATION_STATE,
-    //         code: EVerificationState.VERIFICATION_FAILED,
-    //         message: en['verification-state'].VERIFICATION_FAILED,
-    //         result: {
-    //           hash: '',
-    //           upp: {
-    //             upp: '',
-    //             state: EUppStates.anchored,
-    //           },
-    //           anchors: [],
-    //           verificationState: EVerificationState.VERIFICATION_FAILED,
-    //           firstAnchorTimestamp: '',
-    //         },
-    //       },
-    //     ];
-    //
-    //     new UbirchVerificationWidget({ hostSelector: 'body', messenger });
-    //     messages.forEach((msg) => {
-    //       subject.next(msg);
-    //     });
-    //
-    //     const headline = root.querySelector('#ubirch-verification-widget-headline');
-    //     const result = root.querySelector('#ubirch-verification-widget-result-text');
-    //
-    //     expect(headline.textContent).toContain(
-    //       'Verification failed! No anchor for that data can be found!'
-    //     );
-    //     expect(result.textContent).toContain('Verification service is not available! Lorem ipsu');
-    //   });
+      test('Should properly reflect partly successful verification', () => {
+        const messages: UbirchMessage[] = [
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_VERIFICATION_CALL,
+            message: en.info.START_VERIFICATION_CALL,
+          },
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_CHECKING_RESPONSE,
+            message: en.info.START_CHECKING_RESPONSE,
+          },
+          {
+            type: EMessageType.INFO,
+            code: EInfo.UPP_HAS_BEEN_FOUND,
+            message: en.info.UPP_HAS_BEEN_FOUND,
+          },
+          {
+            type: EMessageType.INFO,
+            code: EInfo.NO_BLXTX_FOUND,
+            message: en.info.NO_BLXTX_FOUND,
+          },
+          {
+            type: EMessageType.VERIFICATION_STATE,
+            code: EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
+            message: en['verification-state'].VERIFICATION_PARTLY_SUCCESSFUL,
+            result: {
+              hash: '',
+              upp: {
+                upp: '',
+                state: EUppStates.anchored,
+              },
+              anchors: [],
+              verificationState: EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
+              firstAnchorTimestamp: '',
+            },
+          },
+        ];
+
+        const widget = new UbirchVerificationWidgetMock(defaultSettings);
+
+        // process calls
+        proceedCalls(messages, widget);
+
+        const headline = root.querySelector('#ubirch-verification-widget-headline');
+        const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+        expect(headline.textContent).toContain('Verification only partly successful');
+        expect(result.textContent).toContain('The data has not been anchored in any blockchain yet');
+      });
+
+      test('Should properly reflect failed verification (UPP undefined)', () => {
+        const messages: UbirchMessage[] = [
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_VERIFICATION_CALL,
+            message: en.info.START_VERIFICATION_CALL,
+          },
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_CHECKING_RESPONSE,
+            message: en.info.START_CHECKING_RESPONSE,
+          },
+          {
+            type: EMessageType.ERROR,
+            code: EError.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE,
+            message: en.error.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE,
+          },
+          {
+            type: EMessageType.VERIFICATION_STATE,
+            code: EVerificationState.VERIFICATION_FAILED,
+            message: en['verification-state'].VERIFICATION_FAILED,
+            result: {
+              hash: '',
+              upp: {
+                upp: '',
+                state: EUppStates.anchored,
+              },
+              anchors: [],
+              verificationState: EVerificationState.VERIFICATION_FAILED,
+              firstAnchorTimestamp: '',
+            },
+          },
+        ];
+
+        const widget = new UbirchVerificationWidgetMock(defaultSettings);
+
+        // process calls
+        proceedCalls(messages, widget);
+
+        const headline = root.querySelector('#ubirch-verification-widget-headline');
+        const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+        expect(headline.textContent).toContain(
+          'Verification failed! No anchor for that data can be found!'
+        );
+        expect(result.textContent).toContain(
+          'Verification Failed!! Empty certificate or missing seal'
+        );
+      });
+
+      test('Should properly reflect failed verification (403)', () => {
+        const messages: UbirchMessage[] = [
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_VERIFICATION_CALL,
+            message: en.info.START_VERIFICATION_CALL,
+          },
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_CHECKING_RESPONSE,
+            message: en.info.START_CHECKING_RESPONSE,
+          },
+          {
+            type: EMessageType.ERROR,
+            code: EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE,
+            message: en.error.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE,
+          },
+          {
+            type: EMessageType.VERIFICATION_STATE,
+            code: EVerificationState.VERIFICATION_FAILED,
+            message: en['verification-state'].VERIFICATION_FAILED,
+            result: {
+              hash: '',
+              upp: {
+                upp: '',
+                state: EUppStates.anchored,
+              },
+              anchors: [],
+              verificationState: EVerificationState.VERIFICATION_FAILED,
+              firstAnchorTimestamp: '',
+            },
+          },
+        ];
+
+        const widget = new UbirchVerificationWidgetMock(defaultSettings);
+
+        // process calls
+        proceedCalls(messages, widget);
+
+        const headline = root.querySelector('#ubirch-verification-widget-headline');
+        const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+        expect(headline.textContent).toContain(
+          'Verification failed! No anchor for that data can be found!'
+        );
+        expect(result.textContent).toContain('403 - unauthorized');
+      });
+
+      test('Should properly reflect failed verification (404)', () => {
+        const messages: UbirchMessage[] = [
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_VERIFICATION_CALL,
+            message: en.info.START_VERIFICATION_CALL,
+          },
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_CHECKING_RESPONSE,
+            message: en.info.START_CHECKING_RESPONSE,
+          },
+          {
+            type: EMessageType.ERROR,
+            code: EError.CERTIFICATE_ID_CANNOT_BE_FOUND,
+            message: en.error.CERTIFICATE_ID_CANNOT_BE_FOUND,
+          },
+          {
+            type: EMessageType.VERIFICATION_STATE,
+            code: EVerificationState.VERIFICATION_FAILED,
+            message: en['verification-state'].VERIFICATION_FAILED,
+            result: {
+              hash: '',
+              upp: {
+                upp: '',
+                state: EUppStates.anchored,
+              },
+              anchors: [],
+              verificationState: EVerificationState.VERIFICATION_FAILED,
+              firstAnchorTimestamp: '',
+            },
+          },
+        ];
+
+        const widget = new UbirchVerificationWidgetMock(defaultSettings);
+
+        // process calls
+        proceedCalls(messages, widget);
+
+        const headline = root.querySelector('#ubirch-verification-widget-headline');
+        const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+        expect(headline.textContent).toContain(
+          'Verification failed! No anchor for that data can be found!'
+        );
+        expect(result.textContent).toContain('Certificate cannot be found!');
+      });
+
+      test('Should properly reflect failed verification (500)', () => {
+        const messages: UbirchMessage[] = [
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_VERIFICATION_CALL,
+            message: en.info.START_VERIFICATION_CALL,
+          },
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_CHECKING_RESPONSE,
+            message: en.info.START_CHECKING_RESPONSE,
+          },
+          {
+            type: EMessageType.ERROR,
+            code: EError.INTERNAL_SERVER_ERROR,
+            message: en.error.INTERNAL_SERVER_ERROR,
+          },
+          {
+            type: EMessageType.VERIFICATION_STATE,
+            code: EVerificationState.VERIFICATION_FAILED,
+            message: en['verification-state'].VERIFICATION_FAILED,
+            result: {
+              hash: '',
+              upp: {
+                upp: '',
+                state: EUppStates.anchored,
+              },
+              anchors: [],
+              verificationState: EVerificationState.VERIFICATION_FAILED,
+              firstAnchorTimestamp: '',
+            },
+          },
+        ];
+
+        const widget = new UbirchVerificationWidgetMock(defaultSettings);
+
+        // process calls
+        proceedCalls(messages, widget);
+
+        const headline = root.querySelector('#ubirch-verification-widget-headline');
+        const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+        expect(headline.textContent).toContain(
+          'Verification failed! No anchor for that data can be found!'
+        );
+        expect(result.textContent).toContain('Internal Server Error. Something went wrong.');
+      });
+
+      test('Should properly reflect failed verification (Unknown error)', () => {
+        const messages: UbirchMessage[] = [
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_VERIFICATION_CALL,
+            message: en.info.START_VERIFICATION_CALL,
+          },
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_CHECKING_RESPONSE,
+            message: en.info.START_CHECKING_RESPONSE,
+          },
+          {
+            type: EMessageType.ERROR,
+            code: EError.UNKNOWN_ERROR,
+            message: en.error.UNKNOWN_ERROR,
+          },
+          {
+            type: EMessageType.VERIFICATION_STATE,
+            code: EVerificationState.VERIFICATION_FAILED,
+            message: en['verification-state'].VERIFICATION_FAILED,
+            result: {
+              hash: '',
+              upp: {
+                upp: '',
+                state: EUppStates.anchored,
+              },
+              anchors: [],
+              verificationState: EVerificationState.VERIFICATION_FAILED,
+              firstAnchorTimestamp: '',
+            },
+          },
+        ];
+
+        const widget = new UbirchVerificationWidgetMock(defaultSettings);
+
+        // process calls
+        proceedCalls(messages, widget);
+
+        const headline = root.querySelector('#ubirch-verification-widget-headline');
+        const result = root.querySelector('#ubirch-verification-widget-result-text');
+
+        expect(headline.textContent).toContain(
+          'Verification failed! No anchor for that data can be found!'
+        );
+        expect(result.textContent).toContain('An unexpected error occurred');
+      });
+
+      test.todo('Should properly reflect failed verification (verification unavailable)', () => {
+        const messages: UbirchMessage[] = [
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_VERIFICATION_CALL,
+            message: en.info.START_VERIFICATION_CALL,
+          },
+          {
+            type: EMessageType.INFO,
+            code: EInfo.START_CHECKING_RESPONSE,
+            message: en.info.START_CHECKING_RESPONSE,
+          },
+          {
+            type: EMessageType.ERROR,
+            code: EError.VERIFICATION_UNAVAILABLE,
+            message: i18n.t(`default:error.${EError.VERIFICATION_UNAVAILABLE}`, {
+              message: 'Lorem ipsum',
+            }),
+            errorDetails: {
+              errorMessage: 'Lorem ipsum',
+            },
+          },
+          {
+            type: EMessageType.VERIFICATION_STATE,
+            code: EVerificationState.VERIFICATION_FAILED,
+            message: en['verification-state'].VERIFICATION_FAILED,
+            result: {
+              hash: '',
+              upp: {
+                upp: '',
+                state: EUppStates.anchored,
+              },
+              anchors: [],
+              verificationState: EVerificationState.VERIFICATION_FAILED,
+              firstAnchorTimestamp: '',
+            },
+          },
+        ];
+
+        const widget = new UbirchVerificationWidgetMock(defaultSettings);
+
+        // process calls
+        proceedCalls(messages, widget);
+
+        const headline = root.querySelector('#ubirch-verification-widget-headline');
+        expect(headline).toBeDefined();
+        expect(headline.textContent).toContain(
+          'Verification failed! No anchor for that data can be found!'
+        );
+        const result = root.querySelector('#ubirch-verification-widget-result-text');
+        expect(result).toBeDefined();
+        expect(result.textContent).toContain('Verification service is not available! Lorem ipsu');
+      });
   });
-  //
-  // describe('Blockchain anchor icons', () => {
-  //   test('Should render no anchor icons when blockchain is undefined', () => {
-  //     new UbirchVerificationWidget({
-  //       hostSelector: 'body',
-  //       messenger,
-  //     });
-  //
-  //     subject.next({
-  //       ...successVerificationMessage,
-  //       result: {
-  //         ...successVerificationMessage.result,
-  //         anchors: invalidTestAnchors,
-  //       },
-  //     });
-  //
-  //     const anchorIconsEl = root.querySelector('#ubirch-verification-anchor-icons');
-  //     expect(anchorIconsEl.children.length).toBe(0);
-  //   });
-  //
-  //   test('Should render anchor icons when blockchain is defined', () => {
-  //     new UbirchVerificationWidget({
-  //       hostSelector: 'body',
-  //       messenger,
-  //     });
-  //
-  //     subject.next(successVerificationMessage);
-  //
-  //     const iconsEl = root.querySelector('#ubirch-verification-anchor-icons');
-  //     const icons = iconsEl.children;
-  //
-  //     const firstAnchor = successVerificationMessage.result.anchors[0];
-  //     const firstIcon = icons[0];
-  //     const firstIconImage = firstIcon.children[0];
-  //     const firstBlox = BlockchainSettings.blockchainSettings[firstAnchor.raw.blockchain];
-  //     firstBlox.nodeIcon = undefined;
-  //     const firstUrl = firstBlox.explorerUrl[firstAnchor.raw.network_type].url;
-  //     expect(firstIcon.getAttribute('href')).toContain(
-  //       firstUrl
-  //     );
-  //     expect(firstIconImage.tagName).toBe('IMG');
-  //     expect(firstIconImage.getAttribute('id')).toBe(`blockchain_transid_check_0`);
-  //     expect(firstIconImage.getAttribute('src')).toContain(environment.assets_url_prefix);
-  //     expect(firstIconImage.getAttribute('src')).not.toContain(firstBlox.nodeIcon);
-  //   });
-  // });
-  //
-  // describe('Properties setting', () => {
-  //   describe('If it sets opening console in the same target correctly', () => {
-  //     test('When openConsoleInSameTarget param is not set', () => {
-  //       new UbirchVerificationWidget({
-  //         hostSelector: 'body',
-  //         linkToConsole: true,
-  //         messenger,
-  //       });
-  //
-  //       subject.next(successVerificationMessage);
-  //
-  //       const sealOutputEl = root.querySelector('#ubirch-verification-widget-seal-output');
-  //
-  //       expect(sealOutputEl.classList.length).toBeGreaterThan(0);
-  //       expect(sealOutputEl.querySelector('a').hasAttribute('target')).toBe(true);
-  //     });
-  //
-  //     test('When openConsoleInSameTarget param is set', () => {
-  //       new UbirchVerificationWidget({
-  //         hostSelector: 'body',
-  //         linkToConsole: true,
-  //         openConsoleInSameTarget: true,
-  //         messenger,
-  //       });
-  //
-  //       subject.next(successVerificationMessage);
-  //
-  //       const sealOutputEl = root.querySelector('#ubirch-verification-widget-seal-output');
-  //
-  //       expect(sealOutputEl.classList.length).toBeGreaterThan(0);
-  //       expect(sealOutputEl.querySelector('a').hasAttribute('target')).toBe(false);
-  //     });
-  //   });
-  //
-  //   describe('Language settings', () => {
-  //     test('If it sets language via method correctly', () => {
-  //       const widget = new UbirchVerificationWidget({
-  //         hostSelector: 'body',
-  //         messenger,
-  //       });
-  //
-  //       widget.setLanguage(ELanguages.de);
-  //
-  //       subject.next({
-  //         type: EMessageType.VERIFICATION_STATE,
-  //         code: EVerificationState.VERIFICATION_PENDING,
-  //         message: en['verification-state'].VERIFICATION_PENDING,
-  //       });
-  //
-  //       const headline = root.querySelector('#ubirch-verification-widget-headline');
-  //
-  //       expect(headline).not.toBe(null);
-  //       expect(headline.textContent).toContain('Verifikation wird durchgeführt...');
-  //     });
-  //
-  //     test('If it sets language via config correctly', () => {
-  //       const widget = new UbirchVerificationWidget({
-  //         hostSelector: 'body',
-  //         language: ELanguages.de,
-  //         messenger,
-  //       });
-  //
-  //       widget.setLanguage(ELanguages.de);
-  //
-  //       subject.next({
-  //         type: EMessageType.VERIFICATION_STATE,
-  //         code: EVerificationState.VERIFICATION_PENDING,
-  //         message: en['verification-state'].VERIFICATION_PENDING,
-  //       });
-  //
-  //       const headline = root.querySelector('#ubirch-verification-widget-headline');
-  //
-  //       expect(headline).not.toBe(null);
-  //       expect(headline.textContent).toContain('Verifikation wird durchgeführt...');
-  //     });
-  //   });
+
+  describe('Blockchain anchor icons', () => {
+    test('Should render no anchor icons when blockchain is undefined', () => {
+
+      const widget = new UbirchVerificationWidgetMock(defaultSettings);
+
+      const messages: UbirchMessage[] = [
+        {
+        ...successVerificationMessage,
+        result: {
+          ...successVerificationMessage.result,
+          anchors: invalidTestAnchors,
+        },
+      }];
+
+      proceedCalls(messages, widget);
+
+      const anchorIconsEl = root.querySelector('#ubirch-verification-anchor-icons');
+      expect(anchorIconsEl.children.length).toBe(0);
+    });
+
+    test('Should render anchor icons when blockchain is defined', () => {
+      const widget = new UbirchVerificationWidgetMock(defaultSettings);
+      const messages: UbirchMessage[] = [
+        successVerificationMessage
+      ];
+
+      proceedCalls(messages, widget);
+
+      const iconsEl = root.querySelector('#ubirch-verification-anchor-icons');
+      const icons = iconsEl.children;
+
+      const firstAnchor = successVerificationMessage.result.anchors[0];
+      const firstIcon = icons[0];
+      expect(firstIcon).toBeDefined();
+      const firstIconImage = firstIcon.children[0];
+      const firstBlox = BlockchainSettings.blockchainSettings[firstAnchor.raw.blockchain];
+      firstBlox.nodeIcon = undefined;
+      const firstUrl = firstBlox.explorerUrl[firstAnchor.raw.network_type].url;
+      expect(firstIcon.getAttribute('href')).toContain(
+        firstUrl
+      );
+      expect(firstIconImage.tagName).toBe('IMG');
+      expect(firstIconImage.getAttribute('id')).toBe(`blockchain_transid_check_0`);
+      expect(firstIconImage.getAttribute('src')).toContain(environment.assets_url_prefix);
+      expect(firstIconImage.getAttribute('src')).not.toContain(firstBlox.nodeIcon);
+    });
+  });
+
+  describe('Properties setting', () => {
+    describe('If it sets opening console in the same target correctly', () => {
+      test('When openConsoleInSameTarget param is not set', () => {
+
+        const widget = new UbirchVerificationWidgetMock({ ...defaultSettings, linkToConsole: true, hostSelector: '#widgetRef' });
+
+        const messages: UbirchMessage[] = [
+          successVerificationMessage
+        ];
+
+        proceedCalls(messages, widget);
+
+        const sealOutputEl = root.querySelector('#ubirch-verification-widget-seal-output');
+
+        expect(sealOutputEl.classList.length).toBeGreaterThan(0);
+        expect(sealOutputEl.querySelector('a').hasAttribute('target')).toBe(true);
+      });
+
+      test('When openConsoleInSameTarget param is set', () => {
+        const widget = new UbirchVerificationWidgetMock({ ...defaultSettings, linkToConsole: true, openConsoleInSameTarget: true, hostSelector: '#widgetRef' });
+
+        const messages: UbirchMessage[] = [
+          successVerificationMessage
+        ];
+
+        proceedCalls(messages, widget);
+
+        const sealOutputEl = root.querySelector('#ubirch-verification-widget-seal-output');
+
+        expect(sealOutputEl.classList.length).toBeGreaterThan(0);
+        expect(sealOutputEl.querySelector('a').hasAttribute('target')).toBe(false);
+      });
+    });
+
+    describe('Language settings', () => {
+      test('If it sets language via method correctly', () => {
+        const widget = new UbirchVerificationWidgetMock({ ...defaultSettings });
+        widget.setLanguage(ELanguages.de);
+
+        const messages: UbirchMessage[] = [
+          {
+            type: EMessageType.VERIFICATION_STATE,
+            code: EVerificationState.VERIFICATION_PENDING,
+            message: en['verification-state'].VERIFICATION_PENDING,
+          }
+        ];
+
+        proceedCalls(messages, widget);
+
+        const headline = root.querySelector('#ubirch-verification-widget-headline');
+
+        expect(headline).not.toBe(null);
+        expect(headline.textContent).toContain('Verifikation wird durchgeführt...');
+      });
+
+      test('If it sets language to de via config correctly', () => {
+        const widget = new UbirchVerificationWidgetMock({ ...defaultSettings, language: ELanguages.de });
+
+        const messages: UbirchMessage[] = [
+          {
+            type: EMessageType.VERIFICATION_STATE,
+            code: EVerificationState.VERIFICATION_PENDING,
+            message: en['verification-state'].VERIFICATION_PENDING,
+          }
+        ];
+
+        proceedCalls(messages, widget);
+
+        const headline = root.querySelector('#ubirch-verification-widget-headline');
+
+        expect(headline).not.toBe(null);
+        expect(headline.textContent).toContain('Verifikation wird durchgeführt...');
+      });
+
+      test('If it sets language to en via config correctly', () => {
+        const widget = new UbirchVerificationWidgetMock({ ...defaultSettings, language: ELanguages.en });
+
+        const messages: UbirchMessage[] = [
+          {
+            type: EMessageType.VERIFICATION_STATE,
+            code: EVerificationState.VERIFICATION_PENDING,
+            message: en['verification-state'].VERIFICATION_PENDING,
+          }
+        ];
+
+        proceedCalls(messages, widget);
+
+        const headline = root.querySelector('#ubirch-verification-widget-headline');
+
+        expect(headline).not.toBe(null);
+        expect(headline.textContent).toContain('Verification pending...');
+      });
+    });
   //
   //   describe('Stage setting', () => {
   //     test('If it sets the stage from the config correctly', () => {
@@ -695,5 +758,5 @@ describe('Widget', () => {
   //       expect(sealIconEl.querySelector('a')).toBe(null);
   //     });
   //   });
-  // });
+  });
 });
