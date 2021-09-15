@@ -66,8 +66,11 @@ const successVerificationMessage: UbirchMessage = {
 
 beforeAll(() => {
   root = document.body;
-  document.body.innerHTML = '<div id="widgetRef"></div>';
 });
+
+beforeEach(() => {
+  document.body.innerHTML = '<div id="widgetRef"></div>';
+})
 
 afterAll(() => {
   root.innerHTML = '';
@@ -518,7 +521,7 @@ describe('Widget', () => {
         expect(result.textContent).toContain('An unexpected error occurred');
       });
 
-      test.todo('Should properly reflect failed verification (verification unavailable)', () => {
+      test('Should properly reflect failed verification (verification unavailable)', () => {
         const messages: UbirchMessage[] = [
           {
             type: EMessageType.INFO,
@@ -714,49 +717,44 @@ describe('Widget', () => {
         expect(headline.textContent).toContain('Verification pending...');
       });
     });
-  //
-  //   describe('Stage setting', () => {
-  //     test('If it sets the stage from the config correctly', () => {
-  //       const widget = new UbirchVerificationWidget({
-  //         hostSelector: 'body',
-  //         stage: EStages.prod,
-  //         linkToConsole: true,
-  //         messenger,
-  //       });
-  //
-  //       widget.setLanguage(ELanguages.de);
-  //
-  //       subject.next(successVerificationMessage);
-  //
-  //       const sealIconEl = root.querySelector('#ubirch-verification-widget-seal-output');
-  //
-  //       expect(sealIconEl.children.length).toBeGreaterThan(0);
-  //
-  //       const expectedHref = `${environment.console_verify_url.prod}?hash=${encodeURIComponent(
-  //         successVerificationMessage.result.hash
-  //       )}`;
-  //       const href = sealIconEl.querySelector('a').getAttribute('href');
-  //       expect(href).toBe(expectedHref);
-  //     });
-  //   });
-  //
-  //   describe('linkToConsole settings', () => {
-  //     test("If it doesn't display anchored seal correctly", () => {
-  //       const widget = new UbirchVerificationWidget({
-  //         hostSelector: 'body',
-  //         stage: EStages.prod,
-  //         messenger,
-  //       });
-  //
-  //       widget.setLanguage(ELanguages.de);
-  //
-  //       subject.next(successVerificationMessage);
-  //
-  //       const sealIconEl = root.querySelector('#ubirch-verification-widget-seal-output');
-  //
-  //       expect(sealIconEl.children.length).toBeGreaterThan(0);
-  //       expect(sealIconEl.querySelector('a')).toBe(null);
-  //     });
-  //   });
+
+    describe('Stage setting', () => {
+      test('If it sets the stage from the config correctly', () => {
+        const widget = new UbirchVerificationWidgetMock({ ...defaultSettings, stage: EStages.prod, linkToConsole: true, hostSelector: '#widgetRef' });
+
+        const messages: UbirchMessage[] = [
+          successVerificationMessage
+        ];
+
+        proceedCalls(messages, widget);
+
+        const sealIconEl = root.querySelector('#ubirch-verification-widget-seal-output');
+
+        expect(sealIconEl.children.length).toBeGreaterThan(0);
+
+        const expectedHref = `${environment.console_verify_url.prod}?hash=${encodeURIComponent(
+          successVerificationMessage.result.hash
+        )}`;
+        const href = sealIconEl.querySelector('a').getAttribute('href');
+        expect(href).toBe(expectedHref);
+      });
+    });
+
+    describe('linkToConsole settings', () => {
+      test("If it doesn't display anchored seal correctly", () => {
+        const widget = new UbirchVerificationWidgetMock({ ...defaultSettings, stage: EStages.prod, hostSelector: '#widgetRef' });
+
+        const messages: UbirchMessage[] = [
+          successVerificationMessage
+        ];
+
+        proceedCalls(messages, widget);
+
+        const sealIconEl = root.querySelector('#ubirch-verification-widget-seal-output');
+
+        expect(sealIconEl.children.length).toBeGreaterThan(0);
+        expect(sealIconEl.querySelector('a')).toBe(null);
+      });
+    });
   });
 });
