@@ -1,8 +1,8 @@
 {
   "name": "@ubirch/ubirch-verification-js",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "JavaScript package to verify that data has been anchored in blockchains through the ubirch system",
-  "main": "index.js",
+  "main": "ubirch-verification.js",
   "files": [
     "dist/*"
   ],
