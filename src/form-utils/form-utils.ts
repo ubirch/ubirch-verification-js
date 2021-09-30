@@ -104,7 +104,7 @@ export class UbirchFormUtils implements IUbirchFormUtils {
     }
   }
 
-  private parseParams = (paramsString: string, separator: string): DataParams => {
+  public parseParams = (paramsString: string, separator: string): DataParams => {
     const splitDataset = (dataset: string) => {
       const arraySeparator = ',';
 
