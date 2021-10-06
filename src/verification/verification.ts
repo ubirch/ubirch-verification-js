@@ -69,9 +69,9 @@ export class UbirchVerification {
     }
   }
 
-  public createHash(json: string, hashAlgorithm: EHashAlgorithms = this.algorithm): string {
+  public createHash(json: string, hashAlgorithm: EHashAlgorithms = this.algorithm, sort = true): string {
     let transIdAB: ArrayBuffer;
-    const formatedJson = this.formatJSON(json);
+    const formatedJson = this.formatJSON(json, sort);
 
     switch (hashAlgorithm) {
       case EHashAlgorithms.SHA256: {
