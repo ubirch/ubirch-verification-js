@@ -63,9 +63,12 @@ parameter | description | possible values | default value
 **verificationState** | state flag of verification: `VERIFICATION_SUCCESSFUL`, `VERIFICATION_PARTLY_SUCCESSFUL` or `VERIFICATION_FAILED`
 **failReason** | error flag if verification failed or `undefined`
 
-#### `createHash(json: string, hashAlgorithm?: EHashAlgorithms): string`
+#### `createHash(json: string, hashAlgorithm?: EHashAlgorithms, leaveUntouched?: boolean): string`
 
-Returns given JSON string hashed with given algorythm. Possible algorythms are `sha256` and `sha512`. If algorithm os not given the one specified in config will be used.
+Returns given JSON string hashed with given algorythm.
+Possible algorythms are `sha256` and `sha512`. If algorithm os not given the one specified in config will be used.
+If `leaveUntouched` is true, the json will get hashed without any sorting and trimming. If not set the default is true
+and the json gets trimmed and keys get sorted recursively. 
 
 ### UbirchFormUtils
 
