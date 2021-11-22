@@ -1,10 +1,11 @@
 {
   "name": "@ubirch/ubirch-verification-js",
-  "version": "1.2.4",
+  "version": "1.3.0-beta.2",
   "description": "JavaScript package to verify that data has been anchored in blockchains through the ubirch system",
-  "main": "index.js",
+  "main": "dist/index.js",
   "files": [
-    "dist/*"
+    "dist/*.js",
+    "dist/**/*.js"
   ],
   "scripts": {
     "test": "jest --coverage=true",
@@ -13,7 +14,8 @@
     "build:local": "webpack --env STAGE=local --config config/webpack.config.ts",
     "build": "webpack --env STAGE=prod --config config/webpack.config.ts",
     "lint": "eslint -c .eslintrc.js src/**/*.ts",
-    "export": "npm run build && npm publish --access public"
+    "export": "npm run build && npm publish --access public",
+    "export:beta": "npm run build && npm publish --access public --tag beta"
   },
   "repository": {
     "type": "git",
@@ -55,7 +57,7 @@
     "typescript": "^4.1.5",
     "webpack": "^5.22.0",
     "webpack-cli": "^4.5.0",
-    "webpack-dev-server": "^3.11.2",
+    "webpack-dev-server": "^4.5.0",
     "webpack-merge": "^5.7.3"
   },
   "dependencies": {
