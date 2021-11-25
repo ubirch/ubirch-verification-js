@@ -95,9 +95,13 @@ export class UbirchVerification {
   }
 
   protected getHWDeviceId(upp: string): string {
-    const decodedUpp = UbirchProtocol.tools.upp(upp);
-    const hwDeviceId = UbirchProtocol.tools.getUUIDFromUpp(decodedUpp);
-    return hwDeviceId;
+    try {
+      const decodedUpp = UbirchProtocol.tools.upp(upp);
+      const hwDeviceId = UbirchProtocol.tools.getUUIDFromUpp(decodedUpp);
+      return hwDeviceId;
+    } catch (e) {
+      this.handleError(EError.CANNOT_DECODE_HWDEVICEID_FROM_UPP)
+    }
   }
 
   protected verifyDevice(pubKey: string, upp: string): boolean {

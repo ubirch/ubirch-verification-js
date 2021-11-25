@@ -177,8 +177,8 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2g
       function setupVerificationWidget() {
         const token = document.getElementById('token-input').value;
         if (token) {
-          // create ubirchVerificationWidget instance
-          ubirchVerificationWidget = new UbirchVerificationWidget({
+          // create UbirchVerification instance
+          ubirchVerificationWidget = new window.UbirchVerificationWidget({
             algorithm: selectedHashAlgo,
             stage: selectedStage,
             accessToken: token,

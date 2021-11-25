@@ -33,7 +33,8 @@
     "MISSING_ACCESS_TOKEN": "You need to provide an accessToken to verify data",
     "CERTIFICATE_DATA_MISSING": "Missing data - please fill out form completely or scan your QR code!",
     "VERIFICATION_NOT_POSSIBLE": "Errors in given data found - verification not possible",
-    "VERIFICATION_FAILED_EMPTY_RESPONSE": "Verification Failed! Empty certificate or missing seal"
+    "VERIFICATION_FAILED_EMPTY_RESPONSE": "Verification Failed! Empty certificate or missing seal",
+    "CANNOT_DECODE_HWDEVICEID_FROM_UPP": "The Thing through which the data has been anchored cannot be identified (Decoding hwDeviceId from UPP failed)"
   },
   "verification-state": {
     "VERIFICATION_PENDING": "Verification pending...",
