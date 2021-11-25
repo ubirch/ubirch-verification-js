@@ -33,12 +33,13 @@
     "CERTIFICATE_DATA_MISSING": "Zertifikatsdaten fehlen - bitte füllen Sie das Formular aus oder scannen Sie Ihren QR-Code!",
     "VERIFICATION_NOT_POSSIBLE": "Die eingegebenen Daten sind fehlerhaft und konnten nicht verifiziert werden",
     "VERIFICATION_FAILED_EMPTY_RESPONSE": "Verifikation fehlgeschlagen! Zertifikat ist leer oder enthält kein Siegel",
-    "CANNOT_DECODE_HWDEVICEID_FROM_UPP": "Das Thing, mit dem der Datensatz verankert wurde, konnte nicht ermittelt werden (Dekodieren der hwDeviceId aus dem UPP ist nicht möglich)"
+    "VERIFICATION_FAILED_CANNOT_DECODE_HWDEVICEID_FROM_UPP": "Das Thing, mit dem der Datensatz verankert wurde, konnte nicht ermittelt werden (Dekodieren der hwDeviceId aus dem UPP ist nicht möglich)",
+    "VERIFICATION_FAILED_DEVICE_PUBKEY_CANNOT_BE_VERIFIED": "Mit der Verschlüsselung der Daten stimmt etwas nicht (Verifizierung des Things und UPPs ist fehlgeschlagen)"
   },
   "verification-state": {
     "VERIFICATION_PENDING": "Verifikation wird durchgeführt...",
     "VERIFICATION_SUCCESSFUL": "Verifikation erfolgreich!",
     "VERIFICATION_PARTLY_SUCCESSFUL": "Verifikation war nur teilweise erfolgreich",
-    "VERIFICATION_FAILED": "Die Verifikation ist fehlgeschlagen! Es konnte keine Verankerung der Daten gefunden werden!"
+    "VERIFICATION_FAILED": "Die Verifikation ist fehlgeschlagen!"
   }
 }

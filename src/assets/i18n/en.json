@@ -34,12 +34,13 @@
     "CERTIFICATE_DATA_MISSING": "Missing data - please fill out form completely or scan your QR code!",
     "VERIFICATION_NOT_POSSIBLE": "Errors in given data found - verification not possible",
     "VERIFICATION_FAILED_EMPTY_RESPONSE": "Verification Failed! Empty certificate or missing seal",
-    "CANNOT_DECODE_HWDEVICEID_FROM_UPP": "The Thing through which the data has been anchored cannot be identified (Decoding hwDeviceId from UPP failed)"
+    "VERIFICATION_FAILED_CANNOT_DECODE_HWDEVICEID_FROM_UPP": "The Thing through which the data has been anchored cannot be identified (Decoding hwDeviceId from UPP failed)",
+    "VERIFICATION_FAILED_DEVICE_PUBKEY_CANNOT_BE_VERIFIED": "Something is wrong with the encryption of the data (Verification of thing with UPP failed)"
   },
   "verification-state": {
     "VERIFICATION_PENDING": "Verification pending...",
     "VERIFICATION_SUCCESSFUL": "Verification successful!",
     "VERIFICATION_PARTLY_SUCCESSFUL": "Verification only partly successful",
-    "VERIFICATION_FAILED": "Verification failed! No anchor for that data can be found!"
+    "VERIFICATION_FAILED": "Verification failed!"
   }
 }

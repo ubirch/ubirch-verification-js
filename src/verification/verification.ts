@@ -100,22 +100,30 @@ export class UbirchVerification {
       const hwDeviceId = UbirchProtocol.tools.getUUIDFromUpp(decodedUpp);
       return hwDeviceId;
     } catch (e) {
-      this.handleError(EError.CANNOT_DECODE_HWDEVICEID_FROM_UPP)
+      this.handleError(EError.VERIFICATION_FAILED_CANNOT_DECODE_HWDEVICEID_FROM_UPP);
     }
   }
 
   protected verifyDevice(pubKey: string, upp: string): boolean {
-    return UbirchProtocol.verify(pubKey, upp);
+    try {
+      return UbirchProtocol.verify(pubKey, upp);
+    } catch (e) {
+      this.handleError(EError.VERIFICATION_FAILED_DEVICE_PUBKEY_CANNOT_BE_VERIFIED)
+    }
   }
 
   protected async verifySignature(upp: string, hwDeviceId: string): Promise<void> {
-    const pubKey = await this.getPubKey(hwDeviceId);
-    const verified = !!pubKey && this.verifyDevice(pubKey, upp);
+    try {
+      const pubKey = await this.getPubKey(hwDeviceId);
+      const verified = !!pubKey && this.verifyDevice(pubKey, upp);
 
-    if (!verified) {
+      if (!verified) {
+        this.handleError(EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED);
+      }
+      this.handleInfo(EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY);
+    } catch (e) {
       this.handleError(EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED);
     }
-    this.handleInfo(EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY);
   }
 
   public async verifyHash(hash: string): Promise<IUbirchVerificationResult> {
