@@ -1,4 +1,5 @@
-import { Observable } from 'rxjs';
+import { Observable } from "rxjs";
+import { UbirchBlockchainSettings } from "../settings/settings";
 
 export enum EHashAlgorithms {
   SHA256 = 'sha256',
@@ -112,10 +113,12 @@ export interface IUbirchVerificationConfig {
   accessToken: string;
   stage?: EStages;
   language?: ELanguages;
+  externalConfigUrl?: string;
 }
 
 export interface IUbirchVerificationWidgetConfig extends IUbirchVerificationConfig {
   hostSelector: string;
+  settings: Observable<UbirchBlockchainSettings>;
   openConsoleInSameTarget?: boolean;
   linkToConsole?: boolean;
 }

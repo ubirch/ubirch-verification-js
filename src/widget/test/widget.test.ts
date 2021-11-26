@@ -1,3 +1,4 @@
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import * as en from '../../assets/i18n/en.json';
 import * as BlockchainSettings from '../../blockchain-assets/blockchain-settings.json';
 import environment from '../../environment';
@@ -11,13 +12,16 @@ import {
   EVerificationState,
   IUbirchError,
   IUbirchErrorDetails,
-  IUbirchVerificationResult, IUbirchVerificationWidgetConfig,
+  IUbirchVerificationResult,
+  IUbirchVerificationWidgetConfig,
   UbirchMessage,
 } from '../../models/models';
 import i18n from '../../utils/translations';
 import { UbirchVerificationWidget } from '../widget';
-import invalidTestAnchors from './invalid-anchors.json';
 import testAnchors from './valid-anchors.json';
+import invalidTestAnchors from './invalid-anchors.json';
+import { UbirchBlockchainSettings } from '../../settings/settings';
+
 
 class UbirchVerificationWidgetMock extends UbirchVerificationWidget {
   constructor(config: IUbirchVerificationWidgetConfig) {
@@ -39,13 +43,9 @@ class UbirchVerificationWidgetMock extends UbirchVerificationWidget {
 }
 
 let root: HTMLElement;
-
-const defaultSettings: IUbirchVerificationWidgetConfig = {
-  accessToken:
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiZDYzZWNjMDMtZjVhNy00ZDQzLTkxZDAtYTMwZDAzNGQ4ZGEzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2MTk4MjA2MzAsImlhdCI6MTYxMjQzNTI4MCwianRpIjoiOGJkMzExZDItZGEyYi00ZWJhLWExMmMtODYxYjRiYWU2MjliIiwidGFyZ2V0X2lkZW50aXRpZXMiOiIqIiwicm9sZSI6InZlcmlmaWVyIiwic2NvcGUiOiJ2ZXIiLCJwdXJwb3NlIjoiVWJpcmNoIERlZmF1bHQgVG9rZW4iLCJvcmlnaW5fZG9tYWlucyI6W119.tDovGseqjwaJZNX0ZtoGmZVvkcdVltR1nXYYAFpF4DHGAQ8MiRAfeJIYL0TNHsqBt_-60fw2j65neje_ThJ7Eg',
-  stage: EStages.dev,
-  hostSelector: 'body',
-};
+let subject: BehaviorSubject<UbirchMessage>;
+let messenger: Observable<UbirchMessage>;
+let settings: Observable<UbirchBlockchainSettings>;
 
 const successVerificationMessage: UbirchMessage = {
   type: EMessageType.VERIFICATION_STATE,
@@ -64,6 +64,10 @@ const successVerificationMessage: UbirchMessage = {
   },
 };
 
+let defaultSettings: IUbirchVerificationWidgetConfig = {
+  hostSelector: 'body',
+} as IUbirchVerificationWidgetConfig;
+
 beforeAll(() => {
   root = document.body;
 });
@@ -71,6 +75,12 @@ beforeAll(() => {
 beforeEach(() => {
   document.body.innerHTML = '<div id="widgetRef"></div>';
 })
+
+
+beforeEach(() => {
+  settings = of(BlockchainSettings);
+  defaultSettings = { ...defaultSettings, settings };
+});
 
 afterAll(() => {
   root.innerHTML = '';
@@ -720,7 +730,11 @@ describe('Widget', () => {
 
     describe('Stage setting', () => {
       test('If it sets the stage from the config correctly', () => {
-        const widget = new UbirchVerificationWidgetMock({ ...defaultSettings, stage: EStages.prod, linkToConsole: true, hostSelector: '#widgetRef' });
+        const widget = new UbirchVerificationWidgetMock({
+          ...defaultSettings,
+          stage: EStages.prod,
+          linkToConsole: true,
+          hostSelector: '#widgetRef' });
 
         const messages: UbirchMessage[] = [
           successVerificationMessage
