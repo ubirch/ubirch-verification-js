@@ -1,5 +1,16 @@
 import { BehaviorSubject, Observable } from 'rxjs';
-import { DataParams, EError, EInfo, EMessageType, IUbirchError, IUbirchErrorDetails, IUbirchFormUtils, IUbirchFormUtilsConfig, IUbirchInfo, UbirchMessage } from '../models/models';
+import {
+  EError,
+  EMessageType,
+  IUbirchFormUtilsConfig,
+  IUbirchError,
+  IUbirchErrorDetails,
+  UbirchMessage,
+  DataParams,
+  EInfo,
+  IUbirchInfo,
+  IUbirchFormUtils
+} from '../models/models';
 import i18n from '../utils/translations';
 
 const DEFAULT_CONFIG: IUbirchFormUtilsConfig = {

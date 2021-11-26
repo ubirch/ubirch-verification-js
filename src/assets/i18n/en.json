@@ -23,6 +23,7 @@
     "LOCATION_MALFORMED": "Called URL (from QRCode) is not in a correct URL format",
     "MANDATORY_FIELD_MISSING": "Mandatory form fields not set - if you scanned a QRCode it seems to be incorrect",
     "URL_PARAMS_FORMFILL_FAILED": "Unable to fill the form with the given parameters from called URL",
+    "FILLING_FORM_WITH_PARAMS_FAILED": "Unable to fill the form with the given parameters from called URL",
     "JSON_PARSE_FAILED": "JSON could not be parsed",
     "JSON_MALFORMED": "Building internal JSON format from input string failed",
     "CANNOT_ACCESS_FORM_FIELD": "Unable to access input field",

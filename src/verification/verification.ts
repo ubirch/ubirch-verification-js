@@ -25,7 +25,8 @@ import {
   IUbirchUpp,
   IUbirchVerificationConfig,
   IUbirchVerificationResponse,
-  IUbirchVerificationResult, IUbirchFormUtils,
+  IUbirchVerificationResult,
+  IUbirchFormUtils,
 } from '../models/models';
 import i18n from '../utils/translations';
 

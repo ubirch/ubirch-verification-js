@@ -1,26 +1,10 @@
-import { Observable } from 'rxjs';
 import classnames from 'classnames';
-import {
-  EError,
-  ELanguages,
-  EMessageType,
-  EStages,
-  EVerificationState,
-  IUbirchBlockchainAnchor, IUbirchVerificationConfig,
-  UbirchMessage,
-} from '../models/models';
-import environment from '../environment';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
+import environment from '../environment';
+import { EError, ELanguages, EMessageType, EVerificationState, IUbirchBlockchainAnchor, IUbirchVerificationWidgetConfig, UbirchMessage } from '../models/models';
 import i18n from '../utils/translations';
 import UbirchVerification from '../verification';
 import styles from './widget.module.scss';
-
-export interface IUbirchVerificationWidgetConfig extends IUbirchVerificationConfig {
-  hostSelector: string;
-  openConsoleInSameTarget?: boolean;
-  language?: ELanguages;
-  linkToConsole?: boolean;
-}
 
 export class UbirchVerificationWidget extends UbirchVerification {
   private host: HTMLElement;

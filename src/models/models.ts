@@ -36,6 +36,7 @@ export enum EInfo {
   START_CHECKING_RESPONSE = 'START_CHECKING_RESPONSE',
   UPP_HAS_BEEN_FOUND = 'UPP_HAS_BEEN_FOUND',
   WARNING_EMPTY_BLXTX_FOUND = 'WARNING_EMPTY_BLXTX_FOUND',
+  BLXTX_FOUND_SUCCESS = 'BLXTX_FOUND_SUCCESS',
   RESPONSE_JSON_PARSED_SUCCESSFULY = 'RESPONSE_JSON_PARSED_SUCCESSFULY',
   NO_BLXTX_FOUND = 'NO_BLXTX_FOUND',
   BLXTXS_FOUND_SUCCESS = 'BLXTXS_FOUND_SUCCESS',
@@ -111,6 +112,12 @@ export interface IUbirchVerificationConfig {
   accessToken: string;
   stage?: EStages;
   language?: ELanguages;
+}
+
+export interface IUbirchVerificationWidgetConfig extends IUbirchVerificationConfig {
+  hostSelector: string;
+  openConsoleInSameTarget?: boolean;
+  linkToConsole?: boolean;
 }
 
 export interface IUbirchFormUtils {

@@ -22,6 +22,7 @@
     "LOCATION_MALFORMED": "Die aufgerufene URL / der gescannte QRCode hat kein richtiges URL-Format",
     "MANDATORY_FIELD_MISSING": "Nicht alle Pflichtfelder wurden ausgefüllt - Falls Sie einen QRCode gescannt haben, ist dieser fehlerhaft",
     "URL_PARAMS_FORMFILL_FAILED": "Das Formular konnte nicht mit den Werten aus dem Aufruf gefüllt werden",
+    "FILLING_FORM_WITH_PARAMS_FAILED": "Das Formular konnte nicht mit den Werten aus dem Aufruf gefüllt werden",
     "JSON_PARSE_FAILED": "Das interne JSON Datenformat enthält einen Fehler und konnte nicht gelesen werden",
     "JSON_MALFORMED": "Das Erzeugen des internen JSON Datenformats aus den Eingabefeldern ist fehlgeschlagen",
     "CANNOT_ACCESS_FORM_FIELD": "Eingabefeld konnte nicht ausgelesen werden",

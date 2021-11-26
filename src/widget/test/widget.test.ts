@@ -11,11 +11,11 @@ import {
   EVerificationState,
   IUbirchError,
   IUbirchErrorDetails,
-  IUbirchVerificationResult,
+  IUbirchVerificationResult, IUbirchVerificationWidgetConfig,
   UbirchMessage,
 } from '../../models/models';
 import i18n from '../../utils/translations';
-import { IUbirchVerificationWidgetConfig, UbirchVerificationWidget } from '../widget';
+import { UbirchVerificationWidget } from '../widget';
 import invalidTestAnchors from './invalid-anchors.json';
 import testAnchors from './valid-anchors.json';
 
