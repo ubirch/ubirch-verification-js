@@ -1,5 +1,44 @@
 # ubirch-verification-js
 
+JavaScript package to verify that data has been anchored by UBIRCH in a trustworthy way. It checks that the data has been anchored as a
+UPP (UBIRCH Package Protocol) in blockchains by the UBIRCH Certification System.
+
+The UbirchVerification package consists of three parts:
+
+* **UbirchVerification** - contains the core functionality of verifying hashes or JSON against the UBIRCH system
+* **UbirchVerificationWidget** - a Widget, that can be included into your website, showing the result of the verification in a simple UI
+* **UbirchFormUtils** - helper tool to handle forms and URL query/fragment parameters to display the verified data easily
+
+**Github Repository**: [https://github.com/ubirch/ubirch-verification-js](https://github.com/ubirch/ubirch-verification-js)
+
+**NPM Package**:  [@ubirch/ubirch-verification-js NPM package](https://www.npmjs.com/package/@ubirch/ubirch-verification-js)
+
+**Documentation**: [documentation of the ubirch-verification-js](https://developer.ubirch.com/ubirch-verification-js/)
+
+**Examples Repository**: [https://github.com/ubirch/ubirch-verify-widget](https://github.com/ubirch/ubirch-verify-widget)
+
+## Usage
+
+### From NPM registry
+
+```
+    npm i @ubirch/ubirch-verification-js js-sha256 js-sha512
+    // or using Yarn
+    yarn add @ubirch/ubirch-verification-js js-sha256 js-sha512
+```
+
+## Example Code
+
+
+
+
+
+
+
+
+
+# ubirch-verification-js
+
 JavaScript package to verify that data has been anchored in blockchains through the Ubirch system
 
 ## Usage

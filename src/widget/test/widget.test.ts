@@ -322,7 +322,7 @@ describe('Widget', () => {
         const result = root.querySelector('#ubirch-verification-widget-result-text');
 
         expect(headline.textContent).toContain(
-          'Verification failed! No anchor for that data can be found!'
+          'Verification failed!'
         );
         expect(result.textContent).toContain(
           'Verification Failed!! Empty certificate or missing seal'
@@ -372,7 +372,7 @@ describe('Widget', () => {
         const result = root.querySelector('#ubirch-verification-widget-result-text');
 
         expect(headline.textContent).toContain(
-          'Verification failed! No anchor for that data can be found!'
+          'Verification failed!'
         );
         expect(result.textContent).toContain('403 - unauthorized');
       });
@@ -420,7 +420,7 @@ describe('Widget', () => {
         const result = root.querySelector('#ubirch-verification-widget-result-text');
 
         expect(headline.textContent).toContain(
-          'Verification failed! No anchor for that data can be found!'
+          'Verification failed!'
         );
         expect(result.textContent).toContain('Certificate cannot be found!');
       });
@@ -468,7 +468,7 @@ describe('Widget', () => {
         const result = root.querySelector('#ubirch-verification-widget-result-text');
 
         expect(headline.textContent).toContain(
-          'Verification failed! No anchor for that data can be found!'
+          'Verification failed!'
         );
         expect(result.textContent).toContain('Internal Server Error. Something went wrong.');
       });
@@ -516,7 +516,7 @@ describe('Widget', () => {
         const result = root.querySelector('#ubirch-verification-widget-result-text');
 
         expect(headline.textContent).toContain(
-          'Verification failed! No anchor for that data can be found!'
+          'Verification failed!'
         );
         expect(result.textContent).toContain('An unexpected error occurred');
       });
@@ -568,7 +568,7 @@ describe('Widget', () => {
         const headline = root.querySelector('#ubirch-verification-widget-headline');
         expect(headline).toBeDefined();
         expect(headline.textContent).toContain(
-          'Verification failed! No anchor for that data can be found!'
+          'Verification failed!'
         );
         const result = root.querySelector('#ubirch-verification-widget-result-text');
         expect(result).toBeDefined();

@@ -1,11 +1,18 @@
-import { EError, EInfo, EMessageType, EStages, IUbirchVerificationConfig, UbirchMessage } from '../../models/models';
+import { EError, EInfo, EMessageType, EStages, IUbirchVerificationConfig, IUbirchVerificationWidgetConfig, UbirchMessage } from '../../models/models';
 import UbirchVerification from '../../verification';
+import UbirchVerificationWidget from '../../widget';
 import { UbirchFormUtils } from '../form-utils';
 
-const defaultSettings: IUbirchVerificationConfig = {
+const defaultSettings: IUbirchVerificationWidgetConfig = {
   accessToken:
     'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiZDYzZWNjMDMtZjVhNy00ZDQzLTkxZDAtYTMwZDAzNGQ4ZGEzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2MTk4MjA2MzAsImlhdCI6MTYxMjQzNTI4MCwianRpIjoiOGJkMzExZDItZGEyYi00ZWJhLWExMmMtODYxYjRiYWU2MjliIiwidGFyZ2V0X2lkZW50aXRpZXMiOiIqIiwicm9sZSI6InZlcmlmaWVyIiwic2NvcGUiOiJ2ZXIiLCJwdXJwb3NlIjoiVWJpcmNoIERlZmF1bHQgVG9rZW4iLCJvcmlnaW5fZG9tYWlucyI6W119.tDovGseqjwaJZNX0ZtoGmZVvkcdVltR1nXYYAFpF4DHGAQ8MiRAfeJIYL0TNHsqBt_-60fw2j65neje_ThJ7Eg',
   stage: EStages.dev,
+  hostSelector: 'body',
+};
+let widgetSettings: IUbirchVerificationWidgetConfig = {
+  accessToken: defaultSettings.accessToken,
+  stage: defaultSettings.stage,
+  hostSelector: '#widget-root',
 };
 
 beforeEach(() => {});
@@ -50,7 +57,7 @@ describe('Get params from URL', () => {
     global.window.history.pushState({}, '', '#a=^');
 
     const formUtils = new UbirchFormUtils();
-    const verification = new UbirchVerification(defaultSettings, formUtils);
+    const verification = new UbirchVerificationWidget(defaultSettings, formUtils);
 
     const subscription = verification.messenger.subscribe((message: UbirchMessage) => {
       if (message !== null) {
@@ -74,7 +81,7 @@ describe('Get params from URL', () => {
   test('should emit and throw error on malformmed location', done => {
     const malformedWindow = {} as Window;
     const formUtils = new UbirchFormUtils();
-    const verification = new UbirchVerification(defaultSettings, formUtils);
+    const verification = new UbirchVerificationWidget(defaultSettings, formUtils);
 
     const subscription = verification.messenger.subscribe((message: UbirchMessage) => {
       if (message !== null) {
@@ -97,7 +104,7 @@ describe('Get params from URL', () => {
     global.window.history.pushState({}, '', '#a=%E0%A4%A');
 
     const formUtils = new UbirchFormUtils();
-    const verification = new UbirchVerification(defaultSettings, formUtils);
+    const verification = new UbirchVerificationWidget(defaultSettings, formUtils);
 
     const subscription = verification.messenger.subscribe((message: UbirchMessage) => {
       if (message !== null) {
@@ -122,7 +129,7 @@ describe('Get params from URL', () => {
   test('should send successful info when parsed form params successfully', done => {
     global.window.history.pushState({}, '', '?a=1;b=2');
     const formUtils = new UbirchFormUtils();
-    const verification = new UbirchVerification(defaultSettings, formUtils);
+    const verification = new UbirchVerificationWidget(defaultSettings, formUtils);
 
     const subscription = verification.messenger.subscribe((message: UbirchMessage) => {
       if (message !== null) {
@@ -138,8 +145,10 @@ describe('Get params from URL', () => {
     });
     const result = formUtils.getFormParamsFromUrl(global.window, ';');
   });
+});
 
-  test('should send successful info when form was filled with params successfully', done => {
+describe('Fill inputs with data', () => {
+  test('should set fields', () => {
     document.body.innerHTML = `
     <form>
       <input id="a"/>
@@ -148,7 +157,23 @@ describe('Get params from URL', () => {
     </form>
     `;
     const formUtils = new UbirchFormUtils();
-    const verification = new UbirchVerification(defaultSettings, formUtils);
+    formUtils.setDataIntoForm({ a: 'testA', b: 'testB' }, document);
+    expect((document.getElementById('a') as HTMLInputElement).value).toEqual('testA');
+    expect((document.getElementById('b') as HTMLInputElement).value).toEqual('testB');
+    expect((document.getElementById('c') as HTMLInputElement).value).toEqual('');
+  });
+
+  test('should send successful info when form was filled with params successfully', done => {
+    document.body.innerHTML = `
+    <form>
+      <input id="a"/>
+      <input id="b"/>
+      <input id="c"/>
+    </form>
+    <div id="widget-root"></div>
+    `;
+    const formUtils = new UbirchFormUtils();
+    const verification = new UbirchVerificationWidget(widgetSettings, formUtils);
 
     const subscription = verification.messenger.subscribe((message: UbirchMessage) => {
       if (message !== null) {
@@ -162,23 +187,7 @@ describe('Get params from URL', () => {
         done();
       }
     });
-    formUtils.setDataIntoForm({ a: 'testA', b: 'testB' }, document);
-    expect((document.getElementById('a') as HTMLInputElement).value).toEqual('testA');
-    expect((document.getElementById('b') as HTMLInputElement).value).toEqual('testB');
-    expect((document.getElementById('c') as HTMLInputElement).value).toEqual('');
-  });
-});
 
-describe('Fill inputs with data', () => {
-  test('should set fields', () => {
-    document.body.innerHTML = `
-    <form>
-      <input id="a"/>
-      <input id="b"/>
-      <input id="c"/>
-    </form>
-    `;
-    const formUtils = new UbirchFormUtils();
     formUtils.setDataIntoForm({ a: 'testA', b: 'testB' }, document);
     expect((document.getElementById('a') as HTMLInputElement).value).toEqual('testA');
     expect((document.getElementById('b') as HTMLInputElement).value).toEqual('testB');
@@ -208,6 +217,7 @@ describe('Fill inputs with data', () => {
       <input id="c_0"/>
       <div id="c_1"/>
       <input id="c_2"/>
+    <div id="widget-root"></div>
     </form>
     `;
     const formUtils = new UbirchFormUtils();
@@ -222,7 +232,7 @@ describe('Fill inputs with data', () => {
   test('should emit and throw error on malformmed document', done => {
     const malformedDocument = {} as Document;
     const formUtils = new UbirchFormUtils();
-    const verification = new UbirchVerification(defaultSettings, formUtils);
+    const verification = new UbirchVerificationWidget(widgetSettings, formUtils);
 
     const subscription = verification.messenger.subscribe((message: UbirchMessage) => {
       if (message !== null) {

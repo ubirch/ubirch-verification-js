@@ -27,9 +27,16 @@ jest.mock('@ubirch/ubirch-protocol-verifier/src/verify', () => ({
 
 const defaultSettings: IUbirchVerificationConfig = {
   accessToken:
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiZDYzZWNjMDMtZjVhNy00ZDQzLTkxZDAtYTMwZDAzNGQ4ZGEzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2MTk4MjA2MzAsImlhdCI6MTYxMjQzNTI4MCwianRpIjoiOGJkMzExZDItZGEyYi00ZWJhLWExMmMtODYxYjRiYWU2MjliIiwidGFyZ2V0X2lkZW50aXRpZXMiOiIqIiwicm9sZSI6InZlcmlmaWVyIiwic2NvcGUiOiJ2ZXIiLCJwdXJwb3NlIjoiVWJpcmNoIERlZmF1bHQgVG9rZW4iLCJvcmlnaW5fZG9tYWlucyI6W119.tDovGseqjwaJZNX0ZtoGmZVvkcdVltR1nXYYAFpF4DHGAQ8MiRAfeJIYL0TNHsqBt_-60fw2j65neje_ThJ7Eg',
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiYzBiNTc3ZmItMWNlZi00YzZmLThjNTAtOGQzYTFlNmVhNzUzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2NzI1MDQxNTgsImlhdCI6MTYzNzU5ODYzMSwianRpIjoiYTlmNTFmYzUtZTgyZi00MDczLTlhYTYtZmI3Yjk3NGViYTIzIiwic2NwIjpbInVwcDp2ZXJpZnkiXSwicHVyIjoiMjAyMiBERVYgV2lsZGNhcmQgVGVzdCBUb2tlbiIsInRncCI6W10sInRpZCI6WyIqIl0sIm9yZCI6W119.gnzzkp7eO4HtaLOG9Df7ll3-UT9Yo-pXmeRUI21e3lkJan_ju_0mC6FdDHLLgiI9nsYlQ7rmyvKHzbyaLMLYGw',
   stage: EStages.dev,
 };
+
+const prodSettings: IUbirchVerificationConfig = {
+  accessToken:
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLnByb2QudWJpcmNoLmNvbSIsInN1YiI6IjUzYzNhMmZhLTkzMDEtNDAxOS1iM2VlLTRhOWQ4MTQyZDQzZSIsImF1ZCI6Imh0dHBzOi8vdmVyaWZ5LnByb2QudWJpcmNoLmNvbSIsImV4cCI6MTk0OTIzMzMxOSwibmJmIjoxNjMzNzAwNTIwLCJpYXQiOjE2MzM3MDA1NzksImp0aSI6IjlhNjQ1NTI2LWQ4NzEtNGQ4Yi04ODQ0LTE2MWZmMmQ0ZWZmOSIsInNjcCI6WyJ1cHA6dmVyaWZ5Il0sInB1ciI6InZlcmlmeSB3aXRoIG9yaWdpbiIsInRncCI6W10sInRpZCI6WyJjYzczOGI0Ni1mNjFiLTUwZjctMjFhMS1jMjI1NjkyMGIxYzEiXSwib3JkIjpbXX0.o2TopFB07Vu2GgvHZfurKx9gg8QVeOS7ao5j5WzIzTy_T7O3I6ZbCPWVfqlEAmISyfsbh2ENpNjbX-3UiNlpmw',
+  stage: EStages.prod,
+};
+
 
 class UbirchVerificationMock extends UbirchVerification {
   constructor(config: IUbirchVerificationConfig) {
@@ -45,18 +52,21 @@ class UbirchVerificationMock extends UbirchVerification {
 }
 
 let testhash_verifiable;
+let testhash_from_complicated_device;
 let verifier: UbirchVerificationMock;
+let prodVerifier: UbirchVerificationMock;
 
 const deepCopy = <T>(obj: T) => JSON.parse(JSON.stringify(obj)) as T;
 
-beforeEach(() => {
-  (global.fetch as jest.Mock).mockClear().mockReset();
-  testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
-  verifier = new UbirchVerificationMock(defaultSettings);
-  verifier.log(null);
-});
-
 describe('Verification', () => {
+  beforeEach(() => {
+    (global.fetch as jest.Mock).mockClear().mockReset();
+    testhash_verifiable = 'EZ3KK48ShoOeHLuNVv+1IjguEhwVruSD2iY3aePJm+8=';
+    testhash_from_complicated_device = 'kmoC3n84AA4Oqyhe8If5gCoQQ8fG+9JRMUST2vH8jSI=';
+    verifier = new UbirchVerificationMock(defaultSettings);
+    verifier.log(null);
+  });
+
   describe('constructor', () => {
     test("should throw an error if access token isn't specified", () => {
       expect(
@@ -610,6 +620,7 @@ describe('Verification', () => {
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
       EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
+      EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
       EVerificationState.VERIFICATION_FAILED,
     ];
 
@@ -640,6 +651,7 @@ describe('Verification', () => {
       EInfo.START_VERIFICATION_CALL,
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
+      EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
       EVerificationState.VERIFICATION_FAILED,
     ];
 
@@ -674,6 +686,7 @@ describe('Verification', () => {
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
       EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
+      EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
       EVerificationState.VERIFICATION_FAILED,
     ];
 
@@ -707,6 +720,7 @@ describe('Verification', () => {
       EInfo.START_VERIFICATION_CALL,
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
+      EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
       EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
       EVerificationState.VERIFICATION_FAILED,
     ];
@@ -745,6 +759,7 @@ describe('Verification', () => {
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
       EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
+      EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
       EVerificationState.VERIFICATION_FAILED,
     ];
 
@@ -767,6 +782,48 @@ describe('Verification', () => {
       });
 
     verifier.verifyHash(testhash_verifiable).then((_) => {
+      expect(infoReceived).toEqual(infoChain);
+      subscription.unsubscribe();
+      done();
+    });
+  });
+});
+
+describe('Prod Verification', () => {
+  beforeEach(() => {
+    (global.fetch as jest.Mock).mockClear().mockReset();
+    testhash_from_complicated_device = 'kmoC3n84AA4Oqyhe8If5gCoQQ8fG+9JRMUST2vH8jSI=';
+    prodVerifier = new UbirchVerificationMock(prodSettings);
+    prodVerifier.log(null);
+  });
+  xtest('hash anchored by device with complicated UUID format shall be verifiable', (done) => {
+    const infoReceived = [];
+    const infoChain = [
+      EVerificationState.VERIFICATION_PENDING,
+      EInfo.START_VERIFICATION_CALL,
+      EInfo.START_CHECKING_RESPONSE,
+      EInfo.UPP_HAS_BEEN_FOUND,
+      EError.VERIFICATION_FAILED_CANNOT_DECODE_HWDEVICEID_FROM_UPP,
+      EVerificationState.VERIFICATION_FAILED,
+    ];
+
+    const subscription = prodVerifier.messenger.subscribe((message: UbirchMessage) => {
+      if (message !== null) {
+        infoReceived.push(message.code);
+      }
+    });
+
+    (global.fetch as jest.Mock)
+      .mockResolvedValueOnce({
+        status: 200,
+        json: () => verifyResult,
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        json: () => keyServiceResult,
+      });
+
+    prodVerifier.verifyHash(testhash_from_complicated_device).then((_) => {
       expect(infoReceived).toEqual(infoChain);
       subscription.unsubscribe();
       done();

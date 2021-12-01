@@ -33,14 +33,6 @@ import i18n from '../utils/translations';
 const API_VERSION = '/v2';
 
 export class UbirchVerification {
-  private static AllowedMessageKeysFromExternal = [
-    EError.URL_PARAMS_CORRUPT,
-    EError.LOCATION_MALFORMED,
-    EError.URL_PARAMS_FORMFILL_FAILED,
-    EInfo.URL_PARAMS_PARSED_SUCCESS,
-    EInfo.URL_PARAMS_FORMFILL_SUCCESS
-  ];
-
   protected stage: EStages = EStages.prod;
   protected algorithm: EHashAlgorithms = EHashAlgorithms.SHA256;
   protected accessToken: string;
@@ -49,7 +41,7 @@ export class UbirchVerification {
   protected messageSubject$: BehaviorSubject<UbirchMessage> = new BehaviorSubject<UbirchMessage>(null);
   private messenger$: Observable<UbirchMessage> = this.messageSubject$.asObservable();
 
-  constructor(config: IUbirchVerificationConfig, formUtil?: IUbirchFormUtils) {
+  constructor(config: IUbirchVerificationConfig) {
     if (!config.accessToken) {
       this.handleError(EError.MISSING_ACCESS_TOKEN);
     }
@@ -57,74 +49,6 @@ export class UbirchVerification {
     this.stage = config.stage || this.stage;
     this.algorithm = config.algorithm || this.algorithm;
     this.language = config.language || this.language;
-    this.connectFormUtilMessages(formUtil);
-  }
-
-  private connectFormUtilMessages(formUtil: IUbirchFormUtils) {
-    if (formUtil) {
-      const subscription = formUtil.messenger.subscribe((message: UbirchMessage) => {
-        if (message !== null && UbirchVerification.AllowedMessageKeysFromExternal.includes(message.code as EError | EInfo)) {
-          this.messageSubject$.next(message);
-        }
-      });
-    }
-  }
-
-  public createHash(json: string, hashAlgorithm: EHashAlgorithms = this.algorithm, leaveUntouched = false): string {
-    let transIdAB: ArrayBuffer;
-    const formatedJson = leaveUntouched ? json : this.formatJSON(json);
-
-    switch (hashAlgorithm) {
-      case EHashAlgorithms.SHA256: {
-        transIdAB = sha256.arrayBuffer(formatedJson);
-        break;
-      }
-      case EHashAlgorithms.SHA512: {
-        transIdAB = sha512.arrayBuffer(formatedJson);
-        break;
-      }
-    }
-    const transId: string = btoa(
-      new Uint8Array(transIdAB).reduce((data, byte) => data + String.fromCharCode(byte), '')
-    );
-
-    return transId;
-  }
-
-  public get messenger(): Observable<UbirchMessage> {
-    return this.messenger$;
-  }
-
-  protected getHWDeviceId(upp: string): string {
-    try {
-      const decodedUpp = UbirchProtocol.tools.upp(upp);
-      const hwDeviceId = UbirchProtocol.tools.getUUIDFromUpp(decodedUpp);
-      return hwDeviceId;
-    } catch (e) {
-      this.handleError(EError.VERIFICATION_FAILED_CANNOT_DECODE_HWDEVICEID_FROM_UPP);
-    }
-  }
-
-  protected verifyDevice(pubKey: string, upp: string): boolean {
-    try {
-      return UbirchProtocol.verify(pubKey, upp);
-    } catch (e) {
-      this.handleError(EError.VERIFICATION_FAILED_DEVICE_PUBKEY_CANNOT_BE_VERIFIED)
-    }
-  }
-
-  protected async verifySignature(upp: string, hwDeviceId: string): Promise<void> {
-    try {
-      const pubKey = await this.getPubKey(hwDeviceId);
-      const verified = !!pubKey && this.verifyDevice(pubKey, upp);
-
-      if (!verified) {
-        this.handleError(EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED);
-      }
-      this.handleInfo(EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY);
-    } catch (e) {
-      this.handleError(EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED);
-    }
   }
 
   public async verifyHash(hash: string): Promise<IUbirchVerificationResult> {
@@ -179,12 +103,73 @@ export class UbirchVerification {
     }
   }
 
+  public get messenger(): Observable<UbirchMessage> {
+    return this.messenger$;
+  }
+
   public formatJSON(json: string, sort = true): string {
     try {
       const object: { [key: string]: any } = JSON.parse(json);
       return JSON.stringify(sort ? this.sortObjectRecursive(object) : object);
     } catch (e) {
       this.handleError(EError.JSON_MALFORMED, { errorMessage: e.message });
+    }
+  }
+
+  public createHash(json: string, hashAlgorithm: EHashAlgorithms = this.algorithm, leaveUntouched = false): string {
+    let transIdAB: ArrayBuffer;
+    const formatedJson = leaveUntouched ? json : this.formatJSON(json);
+
+    switch (hashAlgorithm) {
+      case EHashAlgorithms.SHA256: {
+        transIdAB = sha256.arrayBuffer(formatedJson);
+        break;
+      }
+      case EHashAlgorithms.SHA512: {
+        transIdAB = sha512.arrayBuffer(formatedJson);
+        break;
+      }
+    }
+    const transId: string = btoa(
+      new Uint8Array(transIdAB).reduce((data, byte) => data + String.fromCharCode(byte), '')
+    );
+
+    return transId;
+  }
+
+  public setLanguage(language: ELanguages): void {
+    i18n.changeLanguage(language);
+  }
+
+  protected getHWDeviceId(upp: string): string {
+    try {
+      const decodedUpp = UbirchProtocol.tools.upp(upp);
+      const hwDeviceId = UbirchProtocol.tools.getUUIDFromUpp(decodedUpp);
+      return hwDeviceId;
+    } catch (e) {
+      this.handleError(EError.VERIFICATION_FAILED_CANNOT_DECODE_HWDEVICEID_FROM_UPP);
+    }
+  }
+
+  protected verifyDevice(pubKey: string, upp: string): boolean {
+    try {
+      return UbirchProtocol.verify(pubKey, upp);
+    } catch (e) {
+      this.handleError(EError.VERIFICATION_FAILED_DEVICE_PUBKEY_CANNOT_BE_VERIFIED)
+    }
+  }
+
+  protected async verifySignature(upp: string, hwDeviceId: string): Promise<void> {
+    try {
+      const pubKey = await this.getPubKey(hwDeviceId);
+      const verified = !!pubKey && this.verifyDevice(pubKey, upp);
+
+      if (!verified) {
+        this.handleError(EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED);
+      }
+      this.handleInfo(EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY);
+    } catch (e) {
+      this.handleError(EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED);
     }
   }
 

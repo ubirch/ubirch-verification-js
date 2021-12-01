@@ -42,6 +42,56 @@ export class UbirchFormUtils implements IUbirchFormUtils {
     return this.messenger$;
   }
 
+  /**
+   * get params of form hash or search part of url
+   * @param windowRef Reference to window
+   * @param separator data separator string
+   */
+  public getFormParamsFromUrl = (windowRef: Window, separator: string): DataParams => {
+    const param: DataParams = this.parseParams(this.handleFragment(windowRef), separator);
+    this.handleInfo(EInfo.URL_PARAMS_PARSED_SUCCESS);
+    return param;
+  }
+
+  /**
+   * put params into form fields
+   * @param params object that contains field params
+   * @param documentRef Reference to document
+   */
+  public setDataIntoForm(params: DataParams, documentRef: Document): void {
+    try {
+      Object.entries(params).forEach(([key, value]) => {
+        if (this.paramsFormIdsMapping && this.paramsFormIdsMapping.length > 0) {
+          const idIndex = this.paramsFormIdsMapping.indexOf(key);
+          if (idIndex < 0) {
+            console.warn('No mapping defined for ' + key);
+          } else {
+            key = this.formIds[idIndex];
+          }
+        }
+        if (Array.isArray(value)) {
+          value.forEach((valueItem, index) => {
+            const keyStr = `${key}_${index}`;
+            const element = documentRef.getElementById(keyStr);
+            if (element && element.tagName === 'INPUT') {
+              (element as HTMLInputElement).value = valueItem;
+            }
+          });
+        } else {
+          const element = documentRef.getElementById(key);
+          if (element && element.tagName === 'INPUT') {
+            (element as HTMLInputElement).value = value;
+          }
+        }
+      });
+      this.handleInfo(EInfo.URL_PARAMS_FORMFILL_SUCCESS);
+    } catch (e) {
+      this.handleError(EError.URL_PARAMS_FORMFILL_FAILED, {
+        errorMessage: e.message as string,
+      });
+    }
+  }
+
   private log(logInfo: UbirchMessage): void {
     this.messageSubject$.next(logInfo);
   }
@@ -129,55 +179,6 @@ export class UbirchFormUtils implements IUbirchFormUtils {
     return Object.fromEntries(paramsString.split(separator).map(splitDataset));
   };
 
-  /**
-   * get params of form hash or search part of url
-   * @param windowRef Reference to window
-   * @param separator data separator string
-   */
-  public getFormParamsFromUrl = (windowRef: Window, separator: string): DataParams => {
-    const param: DataParams = this.parseParams(this.handleFragment(windowRef), separator);
-    this.handleInfo(EInfo.URL_PARAMS_PARSED_SUCCESS);
-    return param;
-  }
-
-  /**
-   * put params into form fields
-   * @param params object that contains field params
-   * @param documentRef Reference to document
-   */
-  public setDataIntoForm(params: DataParams, documentRef: Document): void {
-    try {
-      Object.entries(params).forEach(([key, value]) => {
-        if (this.paramsFormIdsMapping && this.paramsFormIdsMapping.length > 0) {
-          const idIndex = this.paramsFormIdsMapping.indexOf(key);
-          if (idIndex < 0) {
-            console.warn('No mapping defined for ' + key);
-          } else {
-            key = this.formIds[idIndex];
-          }
-        }
-        if (Array.isArray(value)) {
-          value.forEach((valueItem, index) => {
-            const keyStr = `${key}_${index}`;
-            const element = documentRef.getElementById(keyStr);
-            if (element && element.tagName === 'INPUT') {
-              (element as HTMLInputElement).value = valueItem;
-            }
-          });
-        } else {
-          const element = documentRef.getElementById(key);
-          if (element && element.tagName === 'INPUT') {
-            (element as HTMLInputElement).value = value;
-          }
-        }
-      });
-      this.handleInfo(EInfo.URL_PARAMS_FORMFILL_SUCCESS);
-    } catch (e) {
-      this.handleError(EError.URL_PARAMS_FORMFILL_FAILED, {
-        errorMessage: e.message as string,
-      });
-    }
-  }
 }
 
 window['UbirchFormUtils'] = UbirchFormUtils;

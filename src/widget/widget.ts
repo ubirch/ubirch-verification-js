@@ -1,12 +1,20 @@
 import classnames from 'classnames';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import environment from '../environment';
-import { EError, ELanguages, EMessageType, EVerificationState, IUbirchBlockchainAnchor, IUbirchVerificationWidgetConfig, UbirchMessage } from '../models/models';
+import { EError, EInfo, ELanguages, EMessageType, EVerificationState, IUbirchBlockchainAnchor, IUbirchFormUtils, IUbirchVerificationWidgetConfig, UbirchMessage } from '../models/models';
 import i18n from '../utils/translations';
 import UbirchVerification from '../verification';
 import styles from './widget.module.scss';
 
 export class UbirchVerificationWidget extends UbirchVerification {
+  private static AllowedMessageKeysFromExternal = [
+    EError.URL_PARAMS_CORRUPT,
+    EError.LOCATION_MALFORMED,
+    EError.URL_PARAMS_FORMFILL_FAILED,
+    EInfo.URL_PARAMS_PARSED_SUCCESS,
+    EInfo.URL_PARAMS_FORMFILL_SUCCESS
+  ];
+
   private host: HTMLElement;
   private linkToConsole = false;
   private openConsoleInSameTarget = false;
@@ -14,7 +22,7 @@ export class UbirchVerificationWidget extends UbirchVerification {
   private resultText = '';
   private blockchainIconsAnchors = '';
 
-  constructor(config: IUbirchVerificationWidgetConfig) {
+  constructor(config: IUbirchVerificationWidgetConfig, formUtil?: IUbirchFormUtils) {
     super(config);
     const host = document.querySelector(config.hostSelector);
     if (!host)
@@ -24,6 +32,7 @@ export class UbirchVerificationWidget extends UbirchVerification {
     if (typeof config.openConsoleInSameTarget === 'boolean')
       this.openConsoleInSameTarget = config.openConsoleInSameTarget;
     if (config.language) this.setLanguage(config.language);
+    this.connectFormUtilMessages(formUtil);
     this.messenger.subscribe((message) => {
       if (message) {
         this.updateHeadlineText(message);
@@ -32,10 +41,6 @@ export class UbirchVerificationWidget extends UbirchVerification {
         this.render(message);
       }
     });
-  }
-
-  public setLanguage(language: ELanguages): void {
-    i18n.changeLanguage(language);
   }
 
   private render(message: UbirchMessage): void {
@@ -174,6 +179,16 @@ export class UbirchVerificationWidget extends UbirchVerification {
 
   private createIconString(src: string, id: string): string {
     return `<img src="${src}" id="${id}" class="${styles.container__seal}" alt="seal icon" />`;
+  }
+
+  private connectFormUtilMessages(formUtil: IUbirchFormUtils) {
+    if (formUtil) {
+      const subscription = formUtil.messenger.subscribe((message: UbirchMessage) => {
+        if (message !== null && UbirchVerificationWidget.AllowedMessageKeysFromExternal.includes(message.code as EError | EInfo)) {
+          this.messageSubject$.next(message);
+        }
+      });
+    }
   }
 }
 
