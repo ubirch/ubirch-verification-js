@@ -796,7 +796,7 @@ describe('Prod Verification', () => {
     prodVerifier = new UbirchVerificationMock(prodSettings);
     prodVerifier.log(null);
   });
-  xtest('hash anchored by device with complicated UUID format shall be verifiable', (done) => {
+  xtest('hash anchored by device with complicated UUID (cc738b46-f61b-50f7-21a1-c2256920b1c1) format shall be verifiable', (done) => {
     const infoReceived = [];
     const infoChain = [
       EVerificationState.VERIFICATION_PENDING,
