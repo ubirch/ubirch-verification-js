@@ -37,6 +37,57 @@ If you want to include ubirch verification widget directly in script tag add the
 
 ## Example Code
 
+### Simple Verification Widget Example with Script Tag Inclusion
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simple Ubirch Verification Widget</title>
+</head>
+<body>
+<div id="form-area">
+  <div class="section">
+    <div class="input-field" style="padding: 10px;">
+      <label for="hash-input">hash:</label><br>
+      <input placeholder="" type="text" id="hash-input" style="width: 600px;" value="fDqiCojhrAUSaDPIUi52msChXyB3VRWFWAT+V0WhFiQ=">
+    </div>
+    <button id="hash-test">
+      Test hash verification
+    </button>
+  </div>
+  <div id="widget-root"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.8.0/sha512.min.js"></script>
+<script src="https://unpkg.com/@ubirch/ubirch-verification-js/dist/index.js"></script>
+<script>
+  let ubirchVerificationWidget;
+  const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiYzBiNTc3ZmItMWNlZi00YzZmLThjNTAtOGQzYTFlNmVhNzUzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2NzI0ODQ3NDgsImlhdCI6MTYzOTQ3OTk4NywianRpIjoiMTJlOWI0YTItMGU2Zi00ZGI5LWJjNjgtMDMwNDM1MjhmZDkzIiwic2NwIjpbInVwcDp2ZXJpZnkiXSwicHVyIjoiMjAyMiBEZWZhdWx0IFRlc3QgV2lsZGNhcmQgVG9rZW4iLCJ0Z3AiOltdLCJ0aWQiOlsiKiJdLCJvcmQiOltdfQ.MYTjEHGNG-BT_rdJtSXwfbFZZ53gtjWRbUc7iZlVNv0YPmVOVtQ5U_xUPJV5l7WDvyFrhqAnh5TtVvmo4j3oew";
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // create UbirchVerification instance
+    ubirchVerificationWidget = new window.UbirchVerificationWidget({
+      algorithm: "sha256",
+      stage: "dev",
+      accessToken: token,
+      hostSelector: '#widget-root',
+    });
+  });
+
+  // test hash button click listener
+  document.getElementById('hash-test').addEventListener('click', function () {
+    ubirchVerificationWidget.verifyHash(document.getElementById('hash-input').value);
+  });
+</script>
+</body>
+</html>
+```
+
+
 ### Hash/JSON Verification
 
 As said before for the use of the verification widget we need a div tag with an id,
