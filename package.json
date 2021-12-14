@@ -33,7 +33,7 @@
   "bugs": {
     "url": "https://github.com/ubirch/ubirch-verification-js/issues"
   },
-  "homepage": "https://github.com/ubirch/ubirch-verification-js#readme",
+  "homepage": "https://developer.ubirch.com/ubirch-verification-js/",
   "devDependencies": {
     "@types/jest": "^26.0.20",
     "@types/webpack-dev-server": "^3.11.3",
