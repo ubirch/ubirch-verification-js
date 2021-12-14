@@ -17,10 +17,22 @@ A working example can be found in the Repository [ubirch-verify-widget](https://
 
 ### From NPM registry
 
+Install package from npm
+
 ```
     npm i @ubirch/ubirch-verification-js js-sha256 js-sha512
     // or using Yarn
     yarn add @ubirch/ubirch-verification-js js-sha256 js-sha512
+```
+
+### Use Verification Widget from Script Tag
+
+If you want to include ubirch verification widget directly in script tag add the following lines to your html page: 
+
+```
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.8.0/sha512.min.js"></script>
+<script src="https://unpkg.com/@ubirch/ubirch-verification-js/dist/index.js"></script>
 ```
 
 ## Example Code

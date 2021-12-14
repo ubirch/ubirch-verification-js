@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ubirch Verification Widget</title>
+  <style>
+    .section {
+      margin: 10px;
+    }
+
+    button {
+      margin: 10px 0;
+      padding: 7px;
+      background-color: black;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+<div id="form-area">
+  <div class="section">
+    <div class="input-field">
+      <label for="json-input">JSON:</label><br>
+      <textarea rows="10" cols="80" placeholder="" type="text" id="json-input">
+  {"b":"19111111","d":["20210104","20210127"],"f":"\\nNewline\\\\n\\\\\\n","g":"<p>Hällo</p>","i":"Altötting","p":"#%;,.<>-+*\"'?$&:*","r":"BioNTech / Pfizer Corminaty®","s":"2kmsq5fzqiu","t":"vaccination"}</textarea
+      >
+    </div>
+  </div>
+  <div class="section">
+    Hash Algorythm:
+    <input type="radio" id="sha256" name="hashalgo" value="sha256" onchange="changeHashAlgo(this);" checked>
+    <label for="sha256">sha256</label>
+    <input type="radio" id="sha512" name="hashalgo" value="sha512" onchange="changeHashAlgo(this);">
+    <label for="sha512">sha512</label>
+    <button id="hash-from-json">Get hash from JSON</button>
+  </div>
+  <div class="section">
+    <div class="input-field" style="padding: 10px;">
+      <label for="hash-input">hash:</label><br>
+      <input placeholder="" type="text" id="hash-input" style="width: 600px;">
+    </div>
+    <button id="hash-test">
+      Test hash verification
+    </button>
+  </div>
+
+
+  <div id="widget-root"></div>
+  <div class="input-field">
+    <label for="log">Log:</label><br>
+    <textarea rows="10" cols="80" placeholder="" type="text" id="log"></textarea>
+  </div>
+  <div class="input-field">
+    <label for="output">Output:</label><br>
+    <textarea rows="10" cols="80" placeholder="" type="text" id="output"></textarea>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.8.0/sha512.min.js"></script>
+<script src="https://unpkg.com/@ubirch/ubirch-verification-js/dist/index.js"></script>
+<script>
+  let ubirchVerificationWidget;
+  let subscription = null;
+  const hashAlgo = {
+    sha256: 'sha256',
+    sha512: 'sha512'
+  };
+  let selectedHashAlgo = hashAlgo.sha256;
+  const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiYzBiNTc3ZmItMWNlZi00YzZmLThjNTAtOGQzYTFlNmVhNzUzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2NzI0ODQ3NDgsImlhdCI6MTYzOTQ3OTk4NywianRpIjoiMTJlOWI0YTItMGU2Zi00ZGI5LWJjNjgtMDMwNDM1MjhmZDkzIiwic2NwIjpbInVwcDp2ZXJpZnkiXSwicHVyIjoiMjAyMiBEZWZhdWx0IFRlc3QgV2lsZGNhcmQgVG9rZW4iLCJ0Z3AiOltdLCJ0aWQiOlsiKiJdLCJvcmQiOltdfQ.MYTjEHGNG-BT_rdJtSXwfbFZZ53gtjWRbUc7iZlVNv0YPmVOVtQ5U_xUPJV5l7WDvyFrhqAnh5TtVvmo4j3oew";
+  const updateLog = (msg) => {
+    console.log(msg);
+
+    document.getElementById('log').value += JSON.stringify(msg, null, 2) + '\n\n';
+  };
+
+  // get hash from JSON button click listener
+  document.getElementById('hash-from-json').addEventListener('click', function () {
+    const genHash = ubirchVerificationWidget.createHash(document.getElementById('json-input').value);
+    document.getElementById('hash-input').value = genHash;
+  });
+
+  // test hash button click listener
+  document.getElementById('hash-test').addEventListener('click', function () {
+    ubirchVerificationWidget.verifyHash(document.getElementById('hash-input').value);
+  });
+
+  function setupVerificationWidget() {
+    if (token) {
+      // create UbirchVerification instance
+      ubirchVerificationWidget = new window.UbirchVerificationWidget({
+        algorithm: selectedHashAlgo,
+        stage: "dev",
+        accessToken: token,
+        hostSelector: '#widget-root',
+      });
+      document.getElementById('log').value = '';
+      if (!subscription) subscription = ubirchVerificationWidget.messenger.subscribe(updateLog);
+    } else {
+      // handle the error yourself and inform user about the missing token
+      const msg = 'Token input is empty!\n';
+      window.alert(msg);
+    }
+  }
+
+  function changeHashAlgo(elem) {
+    console.log(elem.value);
+    selectedHashAlgo = hashAlgo[elem.value];
+    setupVerificationWidget();
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    setupVerificationWidget();
+  });
+</script>
+</body>
+</html>
