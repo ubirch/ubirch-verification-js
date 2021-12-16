@@ -1,7 +1,7 @@
 import classnames from 'classnames';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import environment from '../environment';
-import { EError, EInfo, ELanguages, EMessageType, EVerificationState, IUbirchBlockchainAnchor, IUbirchFormUtils, IUbirchVerificationWidgetConfig, UbirchMessage } from '../models/models';
+import { EError, EInfo, EUbirchLanguages, EUbirchMessageTypes, EUbirchVerificationStateKeys, IUbirchBlockchainAnchor, IUbirchFormUtils, IUbirchVerificationWidgetConfig, UbirchMessage } from '../models/models';
 import i18n from '../utils/translations';
 import UbirchVerification from '../verification';
 import styles from './widget.module.scss';
@@ -45,7 +45,7 @@ export class UbirchVerificationWidget extends UbirchVerification {
 
   private render(message: UbirchMessage): void {
     const headlineClassList = this.getClassName(styles.container__verification_headline, message);
-    const noIconRow = message.type !== EMessageType.VERIFICATION_STATE;
+    const noIconRow = message.type !== EUbirchMessageTypes.VERIFICATION_STATE;
     this.host.innerHTML = `<div class="${styles.container}">
       <div class="${styles.container__row}">
         ${this.renderSealOutput(message)}
@@ -70,14 +70,14 @@ export class UbirchVerificationWidget extends UbirchVerification {
   }
 
   private updateHeadlineText(message: UbirchMessage): void {
-    if (message.type !== EMessageType.VERIFICATION_STATE) return;
+    if (message.type !== EUbirchMessageTypes.VERIFICATION_STATE) return;
 
     const suffix = message.code;
-    this.headlineText = i18n.t(`default:${EMessageType.VERIFICATION_STATE}.${suffix}`);
+    this.headlineText = i18n.t(`default:${EUbirchMessageTypes.VERIFICATION_STATE}.${suffix}`);
   }
 
   private updateResultText(message: UbirchMessage): void {
-    if (message.type !== EMessageType.VERIFICATION_STATE) {
+    if (message.type !== EUbirchMessageTypes.VERIFICATION_STATE) {
       this.resultText =
         message.code === EError.VERIFICATION_UNAVAILABLE
           ? i18n.t(`default:${message.type}.${message.code}`, {
@@ -89,14 +89,14 @@ export class UbirchVerificationWidget extends UbirchVerification {
 
   private renderSealOutput(message: UbirchMessage): string {
     if (
-      message.type !== EMessageType.VERIFICATION_STATE ||
-      message.code === EVerificationState.VERIFICATION_PENDING
+      message.type !== EUbirchMessageTypes.VERIFICATION_STATE ||
+      message.code === EUbirchVerificationStateKeys.VERIFICATION_PENDING
     ) {
       return '';
     }
-    const isSuccessful = message.code === EVerificationState.VERIFICATION_SUCCESSFUL;
+    const isSuccessful = message.code === EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL;
     const isPartiallySuccessful =
-      message.code === EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+      message.code === EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL;
 
     const sealSuffix = isSuccessful ? 'seal' : isPartiallySuccessful ? 'no_seal' : 'seal_error';
     const iconSrcSuffix = BlockchainSettings.ubirchIcons[sealSuffix];
@@ -107,7 +107,7 @@ export class UbirchVerificationWidget extends UbirchVerification {
     );
     let output: string;
     if (
-      message.type === EMessageType.VERIFICATION_STATE &&
+      message.type === EUbirchMessageTypes.VERIFICATION_STATE &&
       this.linkToConsole &&
       message.result !== undefined
     ) {
@@ -128,7 +128,7 @@ export class UbirchVerificationWidget extends UbirchVerification {
   }
 
   private updateBlockchainAnchors(message: UbirchMessage): void {
-    if (message.type === EMessageType.VERIFICATION_STATE && message.result) {
+    if (message.type === EUbirchMessageTypes.VERIFICATION_STATE && message.result) {
       this.blockchainIconsAnchors = message.result.anchors
         .map((anchor: IUbirchBlockchainAnchor, index: number) => {
           const { raw } = anchor;
@@ -160,19 +160,19 @@ export class UbirchVerificationWidget extends UbirchVerification {
   private getClassName(rootClassName: string, message: UbirchMessage): string {
     const classNames = classnames(rootClassName, {
       [styles.container__verification_info]:
-        message.type === EMessageType.INFO ||
-        (message.type === EMessageType.VERIFICATION_STATE &&
-          message.result?.verificationState === EVerificationState.VERIFICATION_PENDING),
+        message.type === EUbirchMessageTypes.INFO ||
+        (message.type === EUbirchMessageTypes.VERIFICATION_STATE &&
+          message.result?.verificationState === EUbirchVerificationStateKeys.VERIFICATION_PENDING),
       [styles.container__verification_success]:
-        message.type === EMessageType.VERIFICATION_STATE &&
-        message.result?.verificationState === EVerificationState.VERIFICATION_SUCCESSFUL,
+        message.type === EUbirchMessageTypes.VERIFICATION_STATE &&
+        message.result?.verificationState === EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL,
       [styles.container__verification_part_success]:
-        message.type === EMessageType.VERIFICATION_STATE &&
-        message.result?.verificationState === EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
+        message.type === EUbirchMessageTypes.VERIFICATION_STATE &&
+        message.result?.verificationState === EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL,
       [styles.container__verification_fail]:
-        message.type === EMessageType.ERROR ||
-        (message.type === EMessageType.VERIFICATION_STATE &&
-          message.result?.verificationState === EVerificationState.VERIFICATION_FAILED),
+        message.type === EUbirchMessageTypes.ERROR ||
+        (message.type === EUbirchMessageTypes.VERIFICATION_STATE &&
+          message.result?.verificationState === EUbirchVerificationStateKeys.VERIFICATION_FAILED),
     });
     return classNames;
   }

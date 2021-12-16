@@ -1,23 +1,24 @@
 import { Observable } from 'rxjs';
 
-export enum EHashAlgorithms {
+export enum EUbirchHashAlgorithms {
   SHA256 = 'sha256',
   SHA512 = 'sha512',
 }
 
-export enum ELanguages {
+export enum EUbirchLanguages {
   de = 'de',
   en = 'en',
 }
 
-export enum EStages {
+export enum EUbirchStages {
   local = 'local',
   dev = 'dev',
   demo = 'demo',
+  qa = 'qa',
   prod = 'prod',
 }
 
-export enum EVerificationState {
+export enum EUbirchVerificationStateKeys {
   VERIFICATION_PENDING = 'VERIFICATION_PENDING',
   VERIFICATION_FAILED = 'VERIFICATION_FAILED',
   VERIFICATION_PARTLY_SUCCESSFUL = 'VERIFICATION_PARTLY_SUCCESSFUL',
@@ -74,7 +75,7 @@ export enum EError {
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
 
-export enum EMessageType {
+export enum EUbirchMessageTypes {
   INFO = 'info',
   ERROR = 'error',
   VERIFICATION_STATE = 'verification-state',
@@ -86,32 +87,32 @@ export interface IUbirchErrorDetails {
 }
 
 export interface IUbirchInfo {
-  type: EMessageType.INFO;
+  type: EUbirchMessageTypes.INFO;
   message: string;
   code: EInfo;
 }
 
 export interface IUbirchError {
-  type: EMessageType.ERROR;
+  type: EUbirchMessageTypes.ERROR;
   message: string;
   code: EError;
   errorDetails?: IUbirchErrorDetails;
 }
 
 export interface IUbirchVerificationState {
-  type: EMessageType.VERIFICATION_STATE;
+  type: EUbirchMessageTypes.VERIFICATION_STATE;
   message: string;
-  code: EVerificationState;
+  code: EUbirchVerificationStateKeys;
   result?: IUbirchVerificationResult;
 }
 
 export type UbirchMessage = IUbirchInfo | IUbirchError | IUbirchVerificationState;
 
 export interface IUbirchVerificationConfig {
-  algorithm?: EHashAlgorithms;
+  algorithm?: EUbirchHashAlgorithms;
   accessToken: string;
-  stage?: EStages;
-  language?: ELanguages;
+  stage?: EUbirchStages;
+  language?: EUbirchLanguages;
 }
 
 export interface IUbirchVerificationWidgetConfig extends IUbirchVerificationConfig {
@@ -178,7 +179,7 @@ export interface IUbirchVerificationResult {
   upp: IUbirchUpp;
   anchors: IUbirchBlockchainAnchor[];
   firstAnchorTimestamp: string | null;
-  verificationState: EVerificationState;
+  verificationState: EUbirchVerificationStateKeys;
   failReason?: EError;
 }
 
@@ -227,4 +228,4 @@ export interface IUbirchVerificationAnchorProperties {
   txid: string;
 }
 
-export type DataParams = { [ index: string ]: string | string[] };
+export type TUbirchDataParams = { [ index: string ]: string | string[] };

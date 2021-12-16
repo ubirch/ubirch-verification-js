@@ -1,4 +1,4 @@
-import { EError, EInfo, EMessageType, EStages, IUbirchVerificationConfig, IUbirchVerificationWidgetConfig, UbirchMessage } from '../../models/models';
+import { EError, EInfo, EUbirchMessageTypes, EUbirchStages, IUbirchVerificationConfig, IUbirchVerificationWidgetConfig, UbirchMessage } from '../../models/models';
 import UbirchVerification from '../../verification';
 import UbirchVerificationWidget from '../../widget';
 import { UbirchFormUtils } from '../form-utils';
@@ -6,7 +6,7 @@ import { UbirchFormUtils } from '../form-utils';
 const defaultSettings: IUbirchVerificationWidgetConfig = {
   accessToken:
     'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiZDYzZWNjMDMtZjVhNy00ZDQzLTkxZDAtYTMwZDAzNGQ4ZGEzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2MTk4MjA2MzAsImlhdCI6MTYxMjQzNTI4MCwianRpIjoiOGJkMzExZDItZGEyYi00ZWJhLWExMmMtODYxYjRiYWU2MjliIiwidGFyZ2V0X2lkZW50aXRpZXMiOiIqIiwicm9sZSI6InZlcmlmaWVyIiwic2NvcGUiOiJ2ZXIiLCJwdXJwb3NlIjoiVWJpcmNoIERlZmF1bHQgVG9rZW4iLCJvcmlnaW5fZG9tYWlucyI6W119.tDovGseqjwaJZNX0ZtoGmZVvkcdVltR1nXYYAFpF4DHGAQ8MiRAfeJIYL0TNHsqBt_-60fw2j65neje_ThJ7Eg',
-  stage: EStages.dev,
+  stage: EUbirchStages.dev,
   hostSelector: 'body',
 };
 let widgetSettings: IUbirchVerificationWidgetConfig = {
@@ -67,7 +67,7 @@ describe('Get params from URL', () => {
             errorDetails: { notAllowedChars: ['^'] },
             message:
               'Called URL (from QRCode) contains at least one not allowed character that could corrupt this verification',
-            type: EMessageType.ERROR,
+            type: EUbirchMessageTypes.ERROR,
           },
         );
         subscription.unsubscribe();
@@ -90,7 +90,7 @@ describe('Get params from URL', () => {
             code: EError.LOCATION_MALFORMED,
             errorDetails: undefined,
             message: 'Called URL (from QRCode) is not in a correct URL format',
-            type: EMessageType.ERROR,
+            type: EUbirchMessageTypes.ERROR,
           });
         subscription.unsubscribe();
         done();
@@ -116,7 +116,7 @@ describe('Get params from URL', () => {
             },
             message:
               'Called URL (from QRCode) contains at least one not allowed character that could corrupt this verification',
-            type: EMessageType.ERROR,
+            type: EUbirchMessageTypes.ERROR,
           });
         subscription.unsubscribe();
         done();
@@ -137,7 +137,7 @@ describe('Get params from URL', () => {
           {
             code: EInfo.URL_PARAMS_PARSED_SUCCESS,
             message: 'The given parameters from called URL have been parsed successfully',
-            type: EMessageType.INFO
+            type: EUbirchMessageTypes.INFO
           });
         subscription.unsubscribe();
         done();
@@ -181,7 +181,7 @@ describe('Fill inputs with data', () => {
           {
             code: EInfo.URL_PARAMS_FORMFILL_SUCCESS,
             message: 'Successfully filled form with the given parameters from called URL',
-            type: EMessageType.INFO
+            type: EUbirchMessageTypes.INFO
           });
         subscription.unsubscribe();
         done();
@@ -243,7 +243,7 @@ describe('Fill inputs with data', () => {
               errorMessage: 'documentRef.getElementById is not a function',
             },
             message: 'Unable to fill the form with the given parameters from called URL',
-            type: EMessageType.ERROR,
+            type: EUbirchMessageTypes.ERROR,
           });
         subscription.unsubscribe();
         done();

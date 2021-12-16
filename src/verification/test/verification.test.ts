@@ -3,11 +3,11 @@ import * as keyServiceResult from './keyService.json';
 import UbirchProtocol from '@ubirch/ubirch-protocol-verifier/src/verify';
 import {
   EError,
-  EHashAlgorithms,
+  EUbirchHashAlgorithms,
   EInfo,
-  EStages,
+  EUbirchStages,
   EUppStates,
-  EVerificationState,
+  EUbirchVerificationStateKeys,
   UbirchMessage,
   IUbirchBlockchainAnchor,
   IUbirchVerificationConfig,
@@ -28,13 +28,13 @@ jest.mock('@ubirch/ubirch-protocol-verifier/src/verify', () => ({
 const defaultSettings: IUbirchVerificationConfig = {
   accessToken:
     'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLmRldi51YmlyY2guY29tIiwic3ViIjoiYzBiNTc3ZmItMWNlZi00YzZmLThjNTAtOGQzYTFlNmVhNzUzIiwiYXVkIjoiaHR0cHM6Ly92ZXJpZnkuZGV2LnViaXJjaC5jb20iLCJleHAiOjE2NzI1MDQxNTgsImlhdCI6MTYzNzU5ODYzMSwianRpIjoiYTlmNTFmYzUtZTgyZi00MDczLTlhYTYtZmI3Yjk3NGViYTIzIiwic2NwIjpbInVwcDp2ZXJpZnkiXSwicHVyIjoiMjAyMiBERVYgV2lsZGNhcmQgVGVzdCBUb2tlbiIsInRncCI6W10sInRpZCI6WyIqIl0sIm9yZCI6W119.gnzzkp7eO4HtaLOG9Df7ll3-UT9Yo-pXmeRUI21e3lkJan_ju_0mC6FdDHLLgiI9nsYlQ7rmyvKHzbyaLMLYGw',
-  stage: EStages.dev,
+  stage: EUbirchStages.dev,
 };
 
 const prodSettings: IUbirchVerificationConfig = {
   accessToken:
     'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rva2VuLnByb2QudWJpcmNoLmNvbSIsInN1YiI6IjUzYzNhMmZhLTkzMDEtNDAxOS1iM2VlLTRhOWQ4MTQyZDQzZSIsImF1ZCI6Imh0dHBzOi8vdmVyaWZ5LnByb2QudWJpcmNoLmNvbSIsImV4cCI6MTk0OTIzMzMxOSwibmJmIjoxNjMzNzAwNTIwLCJpYXQiOjE2MzM3MDA1NzksImp0aSI6IjlhNjQ1NTI2LWQ4NzEtNGQ4Yi04ODQ0LTE2MWZmMmQ0ZWZmOSIsInNjcCI6WyJ1cHA6dmVyaWZ5Il0sInB1ciI6InZlcmlmeSB3aXRoIG9yaWdpbiIsInRncCI6W10sInRpZCI6WyJjYzczOGI0Ni1mNjFiLTUwZjctMjFhMS1jMjI1NjkyMGIxYzEiXSwib3JkIjpbXX0.o2TopFB07Vu2GgvHZfurKx9gg8QVeOS7ao5j5WzIzTy_T7O3I6ZbCPWVfqlEAmISyfsbh2ENpNjbX-3UiNlpmw',
-  stage: EStages.prod,
+  stage: EUbirchStages.prod,
 };
 
 
@@ -152,7 +152,7 @@ describe('Verification', () => {
     test('should create a correct sha512 hash from json data due to parameter', () => {
       const trimmedAndSortedJson =
         '{"a":"-1","b":"2","x":{"1":"hallo","2":{"A":"x","B":"xx"},"3":"bello"}}';
-      const result = verifier.createHash(trimmedAndSortedJson, EHashAlgorithms.SHA512);
+      const result = verifier.createHash(trimmedAndSortedJson, EUbirchHashAlgorithms.SHA512);
       expect(result).toEqual(
         'l5y7KYeeAmASU76WhTsOfy4+L/o+r1LHg1Uqv/rClxgivyveUAJo/WCwZTsfBaK54zg4MKs08serUXKuFQgu+A=='
       );
@@ -160,7 +160,7 @@ describe('Verification', () => {
     test('should create a correct sha512 hash from json data due to config', () => {
       const verifier512 = new UbirchVerificationMock({
         ...defaultSettings,
-        algorithm: EHashAlgorithms.SHA512,
+        algorithm: EUbirchHashAlgorithms.SHA512,
       });
       const trimmedAndSortedJson =
         '{"a":"-1","b":"2","x":{"1":"hallo","2":{"A":"x","B":"xx"},"3":"bello"}}';
@@ -193,7 +193,7 @@ describe('Verification', () => {
           expect(response.upp).toBeDefined();
           expect(response.upp.state).toBe(EUppStates.created);
           expect(response.verificationState).toBe(
-            EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL
+            EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL
           );
           expect(response.failReason).toBeUndefined();
         });
@@ -208,7 +208,7 @@ describe('Verification', () => {
         .verifyHash(testhash_verifiable)
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
-          expect(response.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
+          expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
           expect(response.failReason).toBe(EError.CERTIFICATE_ID_CANNOT_BE_FOUND);
         });
     });
@@ -222,7 +222,7 @@ describe('Verification', () => {
         .verifyHash(testhash_verifiable)
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
-          expect(response.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
+          expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
           expect(response.failReason).toBe(EError.INTERNAL_SERVER_ERROR);
         });
     });
@@ -236,7 +236,7 @@ describe('Verification', () => {
         .verifyHash(testhash_verifiable)
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
-          expect(response.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
+          expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
           expect(response.failReason).toBe(EError.UNKNOWN_ERROR);
         });
     });
@@ -248,7 +248,7 @@ describe('Verification', () => {
         .verifyHash(testhash_verifiable)
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
-          expect(response.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
+          expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
           expect(response.failReason).toBe(EError.VERIFICATION_UNAVAILABLE);
         });
     });
@@ -262,7 +262,7 @@ describe('Verification', () => {
         .verifyHash(testhash_verifiable)
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
-          expect(response.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
+          expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
           expect(response.failReason).toBe(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
         });
     });
@@ -289,7 +289,7 @@ describe('Verification', () => {
 
       const infoReceived = [];
       const infoChain = [
-        EVerificationState.VERIFICATION_PENDING,
+        EUbirchVerificationStateKeys.VERIFICATION_PENDING,
         EInfo.START_VERIFICATION_CALL,
         EInfo.START_CHECKING_RESPONSE,
         EInfo.UPP_HAS_BEEN_FOUND,
@@ -300,7 +300,7 @@ describe('Verification', () => {
         EInfo.WARNING_EMPTY_BLXTX_FOUND,
         EInfo.WARNING_EMPTY_BLXTX_FOUND,
         EInfo.BLXTXS_FOUND_SUCCESS,
-        EVerificationState.VERIFICATION_SUCCESSFUL,
+        EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL,
       ];
 
       const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
@@ -313,7 +313,7 @@ describe('Verification', () => {
         .verifyHash(testhash_verifiable)
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
-          expect(response.verificationState).toBe(EVerificationState.VERIFICATION_SUCCESSFUL);
+          expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL);
           expect(infoReceived).toEqual(infoChain);
           subscription.unsubscribe();
           done();
@@ -338,13 +338,13 @@ describe('Verification', () => {
 
       const infoReceived = [];
       const infoChain = [
-        EVerificationState.VERIFICATION_PENDING,
+        EUbirchVerificationStateKeys.VERIFICATION_PENDING,
         EInfo.START_VERIFICATION_CALL,
         EInfo.START_CHECKING_RESPONSE,
         EInfo.UPP_HAS_BEEN_FOUND,
         EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY,
         EInfo.NO_BLXTX_FOUND,
-        EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
+        EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL,
       ];
 
       const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
@@ -358,7 +358,7 @@ describe('Verification', () => {
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
           expect(response.verificationState).toBe(
-            EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL
+            EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL
           );
           expect(infoReceived).toEqual(infoChain);
           subscription.unsubscribe();
@@ -382,13 +382,13 @@ describe('Verification', () => {
 
       const infoReceived = [];
       const infoChain = [
-        EVerificationState.VERIFICATION_PENDING,
+        EUbirchVerificationStateKeys.VERIFICATION_PENDING,
         EInfo.START_VERIFICATION_CALL,
         EInfo.START_CHECKING_RESPONSE,
         EInfo.UPP_HAS_BEEN_FOUND,
         EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY,
         EInfo.NO_BLXTX_FOUND,
-        EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL,
+        EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL,
       ];
 
       const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
@@ -402,7 +402,7 @@ describe('Verification', () => {
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
           expect(response.verificationState).toBe(
-            EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL
+            EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL
           );
           expect(infoReceived).toEqual(infoChain);
           subscription.unsubscribe();
@@ -427,7 +427,7 @@ describe('Verification', () => {
         .verifyHash(testhash_verifiable)
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
-          expect(response.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
+          expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
           expect(response.failReason).toBe(EError.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE);
         });
     });
@@ -447,7 +447,7 @@ describe('Verification', () => {
         .verifyHash(testhash_verifiable)
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
-          expect(response.verificationState).toBe(EVerificationState.VERIFICATION_FAILED);
+          expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
           expect(response.failReason).toBe(EError.UNKNOWN_ERROR);
         });
     });
@@ -469,7 +469,7 @@ describe('Verification', () => {
           expect(response).toBeDefined();
           expect(response.upp).toBeDefined();
           expect(response.upp.state).toBe(EUppStates.anchored);
-          expect(response.verificationState).toBe(EVerificationState.VERIFICATION_SUCCESSFUL);
+          expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL);
           expect(response.anchors).toBeDefined();
           expect(response.anchors).toHaveLength(3);
           expect(response.firstAnchorTimestamp).toBe('2020-10-21T10:13:16.548Z');
@@ -507,7 +507,7 @@ describe('Verification', () => {
           expect(response).toBeDefined();
           expect(response.upp).toBeDefined();
           expect(response.upp.state).toBe(EUppStates.anchored);
-          expect(response.verificationState).toBe(EVerificationState.VERIFICATION_SUCCESSFUL);
+          expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL);
           expect(response.anchors).toBeDefined();
           expect(response.anchors).toHaveLength(3);
           expect(response.firstAnchorTimestamp).toBe('2020-10-21T10:13:16.548Z');
@@ -579,13 +579,13 @@ describe('Verification', () => {
     test('that watchInfosAndErrors observable is called', (done) => {
       const infoReceived = [];
       const infoChain = [
-        EVerificationState.VERIFICATION_PENDING,
+        EUbirchVerificationStateKeys.VERIFICATION_PENDING,
         EInfo.START_VERIFICATION_CALL,
         EInfo.START_CHECKING_RESPONSE,
         EInfo.UPP_HAS_BEEN_FOUND,
         EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY,
         EInfo.BLXTXS_FOUND_SUCCESS,
-        EVerificationState.VERIFICATION_SUCCESSFUL,
+        EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL,
       ];
 
       const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
@@ -615,13 +615,13 @@ describe('Verification', () => {
   test('pubKey request rejected', (done) => {
     const infoReceived = [];
     const infoChain = [
-      EVerificationState.VERIFICATION_PENDING,
+      EUbirchVerificationStateKeys.VERIFICATION_PENDING,
       EInfo.START_VERIFICATION_CALL,
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
       EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
       EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
-      EVerificationState.VERIFICATION_FAILED,
+      EUbirchVerificationStateKeys.VERIFICATION_FAILED,
     ];
 
     const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
@@ -647,12 +647,12 @@ describe('Verification', () => {
   test('molformed pubKey response recieved', (done) => {
     const infoReceived = [];
     const infoChain = [
-      EVerificationState.VERIFICATION_PENDING,
+      EUbirchVerificationStateKeys.VERIFICATION_PENDING,
       EInfo.START_VERIFICATION_CALL,
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
       EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
-      EVerificationState.VERIFICATION_FAILED,
+      EUbirchVerificationStateKeys.VERIFICATION_FAILED,
     ];
 
     const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
@@ -681,13 +681,13 @@ describe('Verification', () => {
   test('pubKey response recieved with not success code', (done) => {
     const infoReceived = [];
     const infoChain = [
-      EVerificationState.VERIFICATION_PENDING,
+      EUbirchVerificationStateKeys.VERIFICATION_PENDING,
       EInfo.START_VERIFICATION_CALL,
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
       EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
       EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
-      EVerificationState.VERIFICATION_FAILED,
+      EUbirchVerificationStateKeys.VERIFICATION_FAILED,
     ];
 
     const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
@@ -716,13 +716,13 @@ describe('Verification', () => {
   test('undefined pubKey recieved', (done) => {
     const infoReceived = [];
     const infoChain = [
-      EVerificationState.VERIFICATION_PENDING,
+      EUbirchVerificationStateKeys.VERIFICATION_PENDING,
       EInfo.START_VERIFICATION_CALL,
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
       EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
       EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
-      EVerificationState.VERIFICATION_FAILED,
+      EUbirchVerificationStateKeys.VERIFICATION_FAILED,
     ];
 
     const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
@@ -754,13 +754,13 @@ describe('Verification', () => {
   test('unverified pubKey received', (done) => {
     const infoReceived = [];
     const infoChain = [
-      EVerificationState.VERIFICATION_PENDING,
+      EUbirchVerificationStateKeys.VERIFICATION_PENDING,
       EInfo.START_VERIFICATION_CALL,
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
       EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
       EError.VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED,
-      EVerificationState.VERIFICATION_FAILED,
+      EUbirchVerificationStateKeys.VERIFICATION_FAILED,
     ];
 
     const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
@@ -799,12 +799,12 @@ describe('Prod Verification', () => {
   test('hash anchored by device with complicated UUID (cc738b46-f61b-50f7-21a1-c2256920b1c1) format shall be verifiable', (done) => {
     const infoReceived = [];
     const infoChain = [
-      EVerificationState.VERIFICATION_PENDING,
+      EUbirchVerificationStateKeys.VERIFICATION_PENDING,
       EInfo.START_VERIFICATION_CALL,
       EInfo.START_CHECKING_RESPONSE,
       EInfo.UPP_HAS_BEEN_FOUND,
       EError.VERIFICATION_FAILED_CANNOT_DECODE_HWDEVICEID_FROM_UPP,
-      EVerificationState.VERIFICATION_FAILED,
+      EUbirchVerificationStateKeys.VERIFICATION_FAILED,
     ];
 
     const subscription = prodVerifier.messenger.subscribe((message: UbirchMessage) => {

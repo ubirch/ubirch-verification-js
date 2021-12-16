@@ -6,13 +6,13 @@ import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.js
 import environment from '../environment';
 import {
   EError,
-  EHashAlgorithms,
+  EUbirchHashAlgorithms,
   EInfo,
-  ELanguages,
-  EStages,
+  EUbirchLanguages,
+  EUbirchStages,
   EUppStates,
-  EVerificationState,
-  EMessageType,
+  EUbirchVerificationStateKeys,
+  EUbirchMessageTypes,
   IUbirchBlockchain,
   IUbirchBlockchainAnchor,
   IUbirchBlockchainAnchorProperties,
@@ -33,10 +33,10 @@ import i18n from '../utils/translations';
 const API_VERSION = '/v2';
 
 export class UbirchVerification {
-  protected stage: EStages = EStages.prod;
-  protected algorithm: EHashAlgorithms = EHashAlgorithms.SHA256;
+  protected stage: EUbirchStages = EUbirchStages.prod;
+  protected algorithm: EUbirchHashAlgorithms = EUbirchHashAlgorithms.SHA256;
   protected accessToken: string;
-  protected language?: ELanguages = ELanguages.en;
+  protected language?: EUbirchLanguages = EUbirchLanguages.en;
 
   protected messageSubject$: BehaviorSubject<UbirchMessage> = new BehaviorSubject<UbirchMessage>(null);
   private messenger$: Observable<UbirchMessage> = this.messageSubject$.asObservable();
@@ -56,7 +56,7 @@ export class UbirchVerification {
       hash
     );
 
-    this.handleVerificationState(EVerificationState.VERIFICATION_PENDING);
+    this.handleVerificationState(EUbirchVerificationStateKeys.VERIFICATION_PENDING);
     this.handleInfo(EInfo.START_VERIFICATION_CALL);
 
     try {
@@ -67,7 +67,7 @@ export class UbirchVerification {
       const ubirchUpp: IUbirchUpp = this.extractUpp(verificationResponse);
 
       verificationResult.upp = ubirchUpp;
-      verificationResult.verificationState = EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+      verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL;
 
       this.handleInfo(EInfo.UPP_HAS_BEEN_FOUND);
 
@@ -83,11 +83,11 @@ export class UbirchVerification {
         verificationResult.anchors = blxAnchors;
         verificationResult.firstAnchorTimestamp = firstAnchorTimestamp;
         verificationResult.upp.state = EUppStates.anchored;
-        verificationResult.verificationState = EVerificationState.VERIFICATION_SUCCESSFUL;
+        verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL;
 
         this.handleInfo(EInfo.BLXTXS_FOUND_SUCCESS);
       } else {
-        verificationResult.verificationState = EVerificationState.VERIFICATION_PARTLY_SUCCESSFUL;
+        verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL;
 
         this.handleInfo(EInfo.NO_BLXTX_FOUND);
       }
@@ -95,7 +95,7 @@ export class UbirchVerification {
       this.handleVerificationState(verificationResult.verificationState, verificationResult);
       return verificationResult;
     } catch (err) {
-      verificationResult.verificationState = EVerificationState.VERIFICATION_FAILED;
+      verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_FAILED;
       verificationResult.failReason = err.code || EError.UNKNOWN_ERROR;
 
       this.handleVerificationState(verificationResult.verificationState, verificationResult);
@@ -116,16 +116,16 @@ export class UbirchVerification {
     }
   }
 
-  public createHash(json: string, hashAlgorithm: EHashAlgorithms = this.algorithm, leaveUntouched = false): string {
+  public createHash(json: string, hashAlgorithm: EUbirchHashAlgorithms = this.algorithm, leaveUntouched = false): string {
     let transIdAB: ArrayBuffer;
     const formatedJson = leaveUntouched ? json : this.formatJSON(json);
 
     switch (hashAlgorithm) {
-      case EHashAlgorithms.SHA256: {
+      case EUbirchHashAlgorithms.SHA256: {
         transIdAB = sha256.arrayBuffer(formatedJson);
         break;
       }
-      case EHashAlgorithms.SHA512: {
+      case EUbirchHashAlgorithms.SHA512: {
         transIdAB = sha512.arrayBuffer(formatedJson);
         break;
       }
@@ -137,7 +137,7 @@ export class UbirchVerification {
     return transId;
   }
 
-  public setLanguage(language: ELanguages): void {
+  public setLanguage(language: EUbirchLanguages): void {
     i18n.changeLanguage(language);
   }
 
@@ -180,7 +180,7 @@ export class UbirchVerification {
         : i18n.t(`default:error.${code}`);
 
     const err: IUbirchError = {
-      type: EMessageType.ERROR,
+      type: EUbirchMessageTypes.ERROR,
       message: errorMsg,
       code,
       errorDetails,
@@ -194,7 +194,7 @@ export class UbirchVerification {
     const infoMsg: string = i18n.t(`default:info.${code}`);
 
     const info: IUbirchInfo = {
-      type: EMessageType.INFO,
+      type: EUbirchMessageTypes.INFO,
       message: infoMsg,
       code,
     };
@@ -203,13 +203,13 @@ export class UbirchVerification {
   }
 
   protected handleVerificationState(
-    code: EVerificationState,
+    code: EUbirchVerificationStateKeys,
     result?: IUbirchVerificationResult
   ): void {
     const infoMsg: string = i18n.t(`default:verification-state.${code}`);
 
     const info: IUbirchVerificationState = {
-      type: EMessageType.VERIFICATION_STATE,
+      type: EUbirchMessageTypes.VERIFICATION_STATE,
       message: infoMsg,
       code,
       result,
@@ -313,7 +313,7 @@ export class UbirchVerification {
       upp: undefined,
       anchors: [],
       firstAnchorTimestamp: null,
-      verificationState: EVerificationState.VERIFICATION_PENDING,
+      verificationState: EUbirchVerificationStateKeys.VERIFICATION_PENDING,
     };
 
     return result;

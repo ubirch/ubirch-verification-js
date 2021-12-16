@@ -1,12 +1,12 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import {
   EError,
-  EMessageType,
+  EUbirchMessageTypes,
   IUbirchFormUtilsConfig,
   IUbirchError,
   IUbirchErrorDetails,
   UbirchMessage,
-  DataParams,
+  TUbirchDataParams,
   EInfo,
   IUbirchInfo,
   IUbirchFormUtils
@@ -47,8 +47,8 @@ export class UbirchFormUtils implements IUbirchFormUtils {
    * @param windowRef Reference to window
    * @param separator data separator string
    */
-  public getFormParamsFromUrl = (windowRef: Window, separator: string): DataParams => {
-    const param: DataParams = this.parseParams(this.handleFragment(windowRef), separator);
+  public getFormParamsFromUrl = (windowRef: Window, separator: string): TUbirchDataParams => {
+    const param: TUbirchDataParams = this.parseParams(this.handleFragment(windowRef), separator);
     this.handleInfo(EInfo.URL_PARAMS_PARSED_SUCCESS);
     return param;
   }
@@ -58,7 +58,7 @@ export class UbirchFormUtils implements IUbirchFormUtils {
    * @param params object that contains field params
    * @param documentRef Reference to document
    */
-  public setDataIntoForm(params: DataParams, documentRef: Document): void {
+  public setDataIntoForm(params: TUbirchDataParams, documentRef: Document): void {
     try {
       Object.entries(params).forEach(([key, value]) => {
         if (this.paramsFormIdsMapping && this.paramsFormIdsMapping.length > 0) {
@@ -100,7 +100,7 @@ export class UbirchFormUtils implements IUbirchFormUtils {
     const infoMsg: string = i18n.t(`default:info.${code}`);
 
     const info: IUbirchInfo = {
-      type: EMessageType.INFO,
+      type: EUbirchMessageTypes.INFO,
       message: infoMsg,
       code,
     };
@@ -112,7 +112,7 @@ export class UbirchFormUtils implements IUbirchFormUtils {
     const errorMsg: string = i18n.t(`default:error.${code}`);
 
     const err: IUbirchError = {
-      type: EMessageType.ERROR,
+      type: EUbirchMessageTypes.ERROR,
       message: errorMsg,
       code,
       errorDetails,
@@ -165,7 +165,7 @@ export class UbirchFormUtils implements IUbirchFormUtils {
     }
   }
 
-  private parseParams = (paramsString: string, separator: string): DataParams => {
+  private parseParams = (paramsString: string, separator: string): TUbirchDataParams => {
     const splitDataset = (dataset: string) => {
       const arraySeparator = ',';
 
