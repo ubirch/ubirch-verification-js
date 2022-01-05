@@ -1,1 +1,3 @@
 remote_theme: ubirch/ubirch-docu-theme@main
+plugins:
+  - jekyll-remote-theme
