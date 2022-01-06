@@ -1,3 +1,5 @@
+title: UBIRCH Verification JS
+description: JavaScript package to verify UBIRCH Protocol Packages (UPPs)
 remote_theme: ubirch/ubirch-docu-theme@main
 plugins:
   - jekyll-remote-theme
