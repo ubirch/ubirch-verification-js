@@ -1,4 +1,4 @@
-title: UBIRCH Verification JS
+title: UBIRCH-VERIFICATION-JS
 description: JavaScript package to verify UBIRCH Protocol Packages (UPPs)
 remote_theme: ubirch/ubirch-docu-theme@main
 plugins:
