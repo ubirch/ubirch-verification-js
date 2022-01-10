@@ -235,7 +235,7 @@ const ubirchVerification = new UbirchVerification({
 | <code>stage</code>       | String  | 'dev, demo, 'qa', 'prod' | 'prod'  |optional param to set UBRICH stage against which UbirchVerification tries to verify |
 | <code>language</code>    | String  | 'de', 'en'  | 'de' | optional param to set language of widget strings                               |
 
-#### Verify hash: `verifyHash(hash: string): Promise<IUbirchVerificationResult>`
+#### Verify hash: `verifyHash(hash: string, verbose = false): Promise<IUbirchVerificationResult>`
 
 You can verify a hash (hashed JSON data) against the UBIRCH system.
 
@@ -257,6 +257,7 @@ ubirchVerificationWidget
 | Attribute         | Type    | Values       |  Default      | Description                                                    |
 | ----------------  | ------- | -----------  | -----------   | -------------------------------------------------------------- |
 | <code>hash</code> | string  |              | **REQUIRED** | hash that shall be verified against the UBIRCH system. **Attention**: uses the hashing algorithm and verifies against the stage defined in the UbirchVerification constructor's <code>algorithm</code> field |
+| <code>verbose</code> | boolean  |              | <code>false</code> | optional parameter, set it to `true` if you need the whole verification tree with full path from UPP to upper AND lower blockchain nodes and through all UBIRCH foundation and master trees |
 
 
 The response will be a `Promise` in this structure:

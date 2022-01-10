@@ -81,6 +81,13 @@ export enum EUbirchMessageTypes {
   VERIFICATION_STATE = 'verification-state',
 }
 
+export enum EUbirchVerificationTreeNodeType {
+  UPP = 'UPP',
+  FOUNDATION_TREE = 'FOUNDATION_TREE',
+  MASTER_TREE = 'MASTER_TREE',
+  PUBLIC_CHAIN = 'PUBLIC_CHAIN'
+}
+
 export interface IUbirchErrorDetails {
   errorMessage?: string;
   notAllowedChars?: string[];
@@ -178,6 +185,7 @@ export interface IUbirchVerificationResult {
   hash: string;
   upp: IUbirchUpp;
   anchors: IUbirchBlockchainAnchor[];
+  anchorsRaw?: IUbirchVerificationTree;
   firstAnchorTimestamp: string | null;
   verificationState: EUbirchVerificationStateKeys;
   failReason?: EError;
@@ -202,6 +210,26 @@ export interface IUbirchBlockchainAnchor {
 export interface IUbirchBlockchain {
   nodeIcon: string;
   explorerUrl: IUbirchBlockhainTransidCheckUrl;
+}
+
+export interface IUbirchVerificationTree {
+  upper_path: IUbirchVerificationTreeNode[];
+  upper_blockchains: IUbirchBlockchainAnchorRAW[]
+  lower_path: IUbirchVerificationTreeNode[];
+  lower_blockchains: IUbirchBlockchainAnchorRAW[]
+}
+
+export interface IUbirchVerificationTreeNode {
+  label: EUbirchVerificationTreeNodeType;
+  properties: IUbirchVerificationTreeNodeProperties;
+}
+
+export interface IUbirchVerificationTreeNodeProperties {
+  hash: string;
+  timestamp: string;
+  next_hash: string;
+  prev_hash?: string;
+  signature?: string;
 }
 
 export interface IUbirchBlockhainTransidCheckUrl {

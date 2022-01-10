@@ -26,7 +26,7 @@ import {
   IUbirchVerificationConfig,
   IUbirchVerificationResponse,
   IUbirchVerificationResult,
-  IUbirchFormUtils,
+  IUbirchFormUtils, IUbirchVerificationTree,
 } from '../models/models';
 import i18n from '../utils/translations';
 
@@ -51,7 +51,7 @@ export class UbirchVerification {
     this.language = config.language || this.language;
   }
 
-  public async verifyHash(hash: string): Promise<IUbirchVerificationResult> {
+  public async verifyHash(hash: string, verbose = false): Promise<IUbirchVerificationResult> {
     const verificationResult: IUbirchVerificationResult = this.createInitialUbirchVerificationResult(
       hash
     );
@@ -80,6 +80,9 @@ export class UbirchVerification {
       const firstAnchorTimestamp = this.findFirstAnchorTimestamp(blxAnchors);
 
       if (blxAnchors.length > 0) {
+        if (verbose) {
+          verificationResult.anchorsRaw = verificationResponse.anchors as IUbirchVerificationTree;
+        }
         verificationResult.anchors = blxAnchors;
         verificationResult.firstAnchorTimestamp = firstAnchorTimestamp;
         verificationResult.upp.state = EUppStates.anchored;

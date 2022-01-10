@@ -11,7 +11,7 @@ import {
   UbirchMessage,
   IUbirchBlockchainAnchor,
   IUbirchVerificationConfig,
-  IUbirchVerificationResult,
+  IUbirchVerificationResult, EUbirchVerificationTreeNodeType,
 } from '../../models/models';
 import { UbirchVerification } from '../verification';
 
@@ -140,6 +140,27 @@ describe('Verification', () => {
       );
     });
   });
+
+  function checkSuccessfulVerificationCall(response: IUbirchVerificationResult) {
+    expect(response).toBeDefined();
+    expect(response.upp).toBeDefined();
+    expect(response.upp.state).toBe(EUppStates.anchored);
+    expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL);
+    expect(response.anchors).toBeDefined();
+    expect(response.anchors).toHaveLength(3);
+    expect(response.firstAnchorTimestamp).toBe('2020-10-21T10:13:16.548Z');
+
+    const firstAnchor: IUbirchBlockchainAnchor = response.anchors[ 0 ];
+    expect(firstAnchor.iconUrl).toBeDefined();
+    expect(firstAnchor.label).toEqual('IOTA Mainnet Network');
+    expect(firstAnchor.networkInfo).toBeDefined();
+    expect(firstAnchor.networkType).toBeDefined();
+    expect(firstAnchor.timestamp).toBeDefined();
+    expect(firstAnchor.txid).toBeDefined();
+    expect(firstAnchor.raw).toBeDefined();
+
+    expect(response.failReason).toBeUndefined();
+  }
 
   describe('createHash', () => {
     test('should create a correct sha256 hash from json data', () => {
@@ -466,24 +487,41 @@ describe('Verification', () => {
       return verifier
         .verifyHash(testhash_verifiable)
         .then((response: IUbirchVerificationResult) => {
-          expect(response).toBeDefined();
-          expect(response.upp).toBeDefined();
-          expect(response.upp.state).toBe(EUppStates.anchored);
-          expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL);
-          expect(response.anchors).toBeDefined();
-          expect(response.anchors).toHaveLength(3);
-          expect(response.firstAnchorTimestamp).toBe('2020-10-21T10:13:16.548Z');
+          checkSuccessfulVerificationCall(response);
+        });
+    });
 
-          const firstAnchor: IUbirchBlockchainAnchor = response.anchors[0];
-          expect(firstAnchor.iconUrl).toBeDefined();
-          expect(firstAnchor.label).toEqual('IOTA Mainnet Network');
-          expect(firstAnchor.networkInfo).toBeDefined();
-          expect(firstAnchor.networkType).toBeDefined();
-          expect(firstAnchor.timestamp).toBeDefined();
-          expect(firstAnchor.txid).toBeDefined();
-          expect(firstAnchor.raw).toBeDefined();
+    test('should send the hash successfully and return a VERIFICATION_SUCCESSFUL response with verbose information', () => {
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => verifyResult,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
 
-          expect(response.failReason).toBeUndefined();
+      return verifier
+        .verifyHash(testhash_verifiable, true)
+        .then((response: IUbirchVerificationResult) => {
+          checkSuccessfulVerificationCall(response);
+          expect(response.anchorsRaw).toBeDefined();
+          expect(response.anchorsRaw.upper_path).toBeDefined();
+          expect(response.anchorsRaw.upper_path).toHaveLength(6);
+          expect(response.anchorsRaw.upper_path[0].label).toBe(EUbirchVerificationTreeNodeType.UPP);
+          expect(response.anchorsRaw.upper_path[1].label).toBe(EUbirchVerificationTreeNodeType.FOUNDATION_TREE);
+          expect(response.anchorsRaw.upper_path[5].label).toBe(EUbirchVerificationTreeNodeType.MASTER_TREE);
+          expect(response.anchorsRaw.lower_path).toBeDefined();
+          expect(response.anchorsRaw.lower_path).toHaveLength(9);
+          expect(response.anchorsRaw.lower_path[0].label).toBe(EUbirchVerificationTreeNodeType.MASTER_TREE);
+          expect(response.anchorsRaw.lower_path[8].label).toBe(EUbirchVerificationTreeNodeType.MASTER_TREE);
+          expect(response.anchorsRaw.upper_blockchains).toBeDefined();
+          expect(response.anchorsRaw.upper_blockchains).toHaveLength(3);
+          expect(response.anchorsRaw.upper_blockchains[0].label).toBe(EUbirchVerificationTreeNodeType.PUBLIC_CHAIN);
+          expect(response.anchorsRaw.lower_blockchains).toBeDefined();
+          expect(response.anchorsRaw.lower_blockchains).toHaveLength(3);
+          expect(response.anchorsRaw.lower_blockchains[0].label).toBe(EUbirchVerificationTreeNodeType.PUBLIC_CHAIN);
         });
     });
 
