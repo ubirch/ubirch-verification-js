@@ -30,6 +30,11 @@ export enum EUppStates {
   anchored = 'anchored',
 }
 
+export enum EBlxAnchors {
+  upper_blockchains = 'upper_blockchains',
+  lower_blockchains = 'lower_blockchains'
+}
+
 export enum EInfo {
   URL_PARAMS_PARSED_SUCCESS = 'URL_PARAMS_PARSED_SUCCESS',
   URL_PARAMS_FORMFILL_SUCCESS = 'URL_PARAMS_FORMFILL_SUCCESS',
@@ -155,10 +160,8 @@ export interface IUbirchVerificationEnvConfig {
 }
 
 export interface IUbirchVerificationResponse {
-  anchors: {
-    upper_blockchains: IUbirchBlockchainAnchorRAW[];
-  };
-  prev: any; // @todo define type
+  anchors: IUbirchVerificationTree;
+  prev: string;
   upp: string;
 }
 
@@ -185,7 +188,8 @@ export interface IUbirchVerificationResult {
   hash: string;
   upp: IUbirchUpp;
   anchors: IUbirchBlockchainAnchor[];
-  anchorsRaw?: IUbirchVerificationTree;
+  lowerAnchors?: IUbirchBlockchainAnchor[];
+  rawData?: IUbirchVerificationResponse;
   firstAnchorTimestamp: string | null;
   verificationState: EUbirchVerificationStateKeys;
   failReason?: EError;
@@ -197,7 +201,6 @@ export interface IUbirchUpp {
 }
 
 export interface IUbirchBlockchainAnchor {
-  raw: IUbirchBlockchainAnchorProperties;
   txid: string;
   networkInfo: string;
   networkType: string;
@@ -240,20 +243,6 @@ export interface IUbirchBlockhainTransidCheckUrl {
 
 export interface IUbirchBlockchainNet {
   url: string;
-}
-
-export interface IUbirchVerificationAnchorProperties {
-  blockchain: string;
-  created: string;
-  hash: string;
-  message: string;
-  network_info: string;
-  network_type: string;
-  prev_hash: string;
-  public_chaing: string;
-  status: string;
-  timestamp: string;
-  txid: string;
 }
 
 export type TUbirchDataParams = { [ index: string ]: string | string[] };

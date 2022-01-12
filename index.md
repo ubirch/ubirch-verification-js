@@ -272,29 +272,19 @@ interface IUbirchVerificationResult {
   anchors: IUbirchBlockchainAnchor[];
   firstAnchorTimestamp: string | null;
   verificationState: 'VERIFICATION_PENDING' | 'VERIFICATION_FAILED' | 'VERIFICATION_PARTLY_SUCCESSFUL' | 'VERIFICATION_SUCCESSFUL';
-  failReason: EError;
+  rawData?: any;
+  lowerAnchors?: IUbirchBlockchainAnchor[];
+  failReason?: EError;
 }
 ```
-
-The failReason is an optional parameter that will be present if an error occurred, containing an error key indicating which error has happened. 
+* `rawData` is an optional parameter that will be present only available if verbose flag is set; contains the raw JSON response from verification API
+* `lowerAnchors` is an optional parameter that will be present only available if verbose flag is set; contains the predecessor blockchain anchors in the trust chain
+* `failReason` is an optional parameter that will be present if an error occurred, containing an error key indicating which error has happened. 
 
 The anchors will be in the following structure:
 
 ```ts
 interface IUbirchBlockchainAnchor {
-  raw: {
-    blockchain: string;
-    created: string;
-    hash: string;
-    message: string;
-    network_info: string;
-    network_type: string;
-    prev_hash: string;
-    public_chain: string;
-    status: string;
-    timestamp: string;
-    txid: string;
-  };
   txid: string;
   networkInfo: string;
   networkType: string;
@@ -304,6 +294,10 @@ interface IUbirchBlockchainAnchor {
   label: string;
 }
 ```
+**Remark:**
+the `raw` parameter has been removed from `IUbirchBlockchainAnchor` interface.
+If you need it you have to call the verifiyHash endpoint with the `verbose` flag set to true.
+The raw anchors result will be part of the `rawData` parameter of the `IUbirchVerificationResult`.
 
 #### Create Hash from JSON: <code>createHash(json: string, hashAlgorithm: EHashAlgorithms = this.algorithm, leaveUntouched = false): string</code>
 

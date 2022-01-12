@@ -157,7 +157,6 @@ describe('Verification', () => {
     expect(firstAnchor.networkType).toBeDefined();
     expect(firstAnchor.timestamp).toBeDefined();
     expect(firstAnchor.txid).toBeDefined();
-    expect(firstAnchor.raw).toBeDefined();
 
     expect(response.failReason).toBeUndefined();
   }
@@ -506,22 +505,27 @@ describe('Verification', () => {
         .verifyHash(testhash_verifiable, true)
         .then((response: IUbirchVerificationResult) => {
           checkSuccessfulVerificationCall(response);
-          expect(response.anchorsRaw).toBeDefined();
-          expect(response.anchorsRaw.upper_path).toBeDefined();
-          expect(response.anchorsRaw.upper_path).toHaveLength(6);
-          expect(response.anchorsRaw.upper_path[0].label).toBe(EUbirchVerificationTreeNodeType.UPP);
-          expect(response.anchorsRaw.upper_path[1].label).toBe(EUbirchVerificationTreeNodeType.FOUNDATION_TREE);
-          expect(response.anchorsRaw.upper_path[5].label).toBe(EUbirchVerificationTreeNodeType.MASTER_TREE);
-          expect(response.anchorsRaw.lower_path).toBeDefined();
-          expect(response.anchorsRaw.lower_path).toHaveLength(9);
-          expect(response.anchorsRaw.lower_path[0].label).toBe(EUbirchVerificationTreeNodeType.MASTER_TREE);
-          expect(response.anchorsRaw.lower_path[8].label).toBe(EUbirchVerificationTreeNodeType.MASTER_TREE);
-          expect(response.anchorsRaw.upper_blockchains).toBeDefined();
-          expect(response.anchorsRaw.upper_blockchains).toHaveLength(3);
-          expect(response.anchorsRaw.upper_blockchains[0].label).toBe(EUbirchVerificationTreeNodeType.PUBLIC_CHAIN);
-          expect(response.anchorsRaw.lower_blockchains).toBeDefined();
-          expect(response.anchorsRaw.lower_blockchains).toHaveLength(3);
-          expect(response.anchorsRaw.lower_blockchains[0].label).toBe(EUbirchVerificationTreeNodeType.PUBLIC_CHAIN);
+          expect(response.lowerAnchors).toBeDefined();
+          expect(response.lowerAnchors).toHaveLength(3);
+          expect(response.rawData).toBeDefined();
+          expect(response.rawData.upp).toBeDefined();
+          expect(response.rawData.prev).toBeDefined();
+          expect(response.rawData.anchors).toBeDefined();
+          expect(response.rawData.anchors.upper_path).toBeDefined();
+          expect(response.rawData.anchors.upper_path).toHaveLength(6);
+          expect(response.rawData.anchors.upper_path[0].label).toBe(EUbirchVerificationTreeNodeType.UPP);
+          expect(response.rawData.anchors.upper_path[1].label).toBe(EUbirchVerificationTreeNodeType.FOUNDATION_TREE);
+          expect(response.rawData.anchors.upper_path[5].label).toBe(EUbirchVerificationTreeNodeType.MASTER_TREE);
+          expect(response.rawData.anchors.lower_path).toBeDefined();
+          expect(response.rawData.anchors.lower_path).toHaveLength(9);
+          expect(response.rawData.anchors.lower_path[0].label).toBe(EUbirchVerificationTreeNodeType.MASTER_TREE);
+          expect(response.rawData.anchors.lower_path[8].label).toBe(EUbirchVerificationTreeNodeType.MASTER_TREE);
+          expect(response.rawData.anchors.upper_blockchains).toBeDefined();
+          expect(response.rawData.anchors.upper_blockchains).toHaveLength(3);
+          expect(response.rawData.anchors.upper_blockchains[0].label).toBe(EUbirchVerificationTreeNodeType.PUBLIC_CHAIN);
+          expect(response.rawData.anchors.lower_blockchains).toBeDefined();
+          expect(response.rawData.anchors.lower_blockchains).toHaveLength(3);
+          expect(response.rawData.anchors.lower_blockchains[0].label).toBe(EUbirchVerificationTreeNodeType.PUBLIC_CHAIN);
         });
     });
 
@@ -558,7 +562,6 @@ describe('Verification', () => {
           expect(firstAnchor.networkType).toBeDefined();
           expect(firstAnchor.timestamp).toBeDefined();
           expect(firstAnchor.txid).toBeDefined();
-          expect(firstAnchor.raw).toBeDefined();
 
           expect(response.failReason).toBeUndefined();
         });

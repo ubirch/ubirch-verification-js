@@ -1,32 +1,32 @@
+import UbirchProtocol from '@ubirch/ubirch-protocol-verifier/src/verify';
 import { sha256 } from 'js-sha256';
 import { sha512 } from 'js-sha512';
-import UbirchProtocol from '@ubirch/ubirch-protocol-verifier/src/verify';
 import { BehaviorSubject, Observable } from 'rxjs';
 import * as BlockchainSettings from '../blockchain-assets/blockchain-settings.json';
 import environment from '../environment';
 import {
+  EBlxAnchors,
   EError,
-  EUbirchHashAlgorithms,
   EInfo,
+  EUbirchHashAlgorithms,
   EUbirchLanguages,
-  EUbirchStages,
-  EUppStates,
-  EUbirchVerificationStateKeys,
   EUbirchMessageTypes,
+  EUbirchStages,
+  EUbirchVerificationStateKeys,
+  EUppStates,
   IUbirchBlockchain,
   IUbirchBlockchainAnchor,
   IUbirchBlockchainAnchorProperties,
   IUbirchBlockchainAnchorRAW,
-  IUbirchInfo,
   IUbirchError,
   IUbirchErrorDetails,
-  IUbirchVerificationState,
-  UbirchMessage,
+  IUbirchInfo,
   IUbirchUpp,
   IUbirchVerificationConfig,
   IUbirchVerificationResponse,
   IUbirchVerificationResult,
-  IUbirchFormUtils, IUbirchVerificationTree,
+  IUbirchVerificationState,
+  UbirchMessage,
 } from '../models/models';
 import i18n from '../utils/translations';
 
@@ -60,7 +60,7 @@ export class UbirchVerification {
     this.handleInfo(EInfo.START_VERIFICATION_CALL);
 
     try {
-      const verificationResponse = await this.sendVerificationRequest(hash);
+      const verificationResponse: IUbirchVerificationResponse = await this.sendVerificationRequest(hash);
 
       this.handleInfo(EInfo.START_CHECKING_RESPONSE);
 
@@ -81,7 +81,8 @@ export class UbirchVerification {
 
       if (blxAnchors.length > 0) {
         if (verbose) {
-          verificationResult.anchorsRaw = verificationResponse.anchors as IUbirchVerificationTree;
+          verificationResult.rawData = verificationResponse;
+          verificationResult.lowerAnchors = this.checkBlockchainTXs(verificationResponse, EBlxAnchors.lower_blockchains);
         }
         verificationResult.anchors = blxAnchors;
         verificationResult.firstAnchorTimestamp = firstAnchorTimestamp;
@@ -338,10 +339,10 @@ export class UbirchVerification {
     return ubirchUpp;
   }
 
-  protected checkBlockchainTXs(resultObj: IUbirchVerificationResponse): IUbirchBlockchainAnchor[] {
+  protected checkBlockchainTXs(resultObj: IUbirchVerificationResponse, whichBlx = EBlxAnchors.upper_blockchains): IUbirchBlockchainAnchor[] {
     // extract blockchain anchors and fill with given data from blockchain_settings
 
-    const blxTXs = resultObj.anchors?.upper_blockchains;
+    const blxTXs = whichBlx === EBlxAnchors.upper_blockchains ? resultObj.anchors?.upper_blockchains : resultObj.anchors?.lower_blockchains;
 
     if (!blxTXs || !blxTXs.length) {
       return [];
@@ -400,7 +401,6 @@ export class UbirchVerification {
       : bloxTxProps.blockchain;
 
     const ubirchBlockchainAnchor: IUbirchBlockchainAnchor = {
-      raw: bloxTxProps,
       txid: bloxTxProps.txid,
       networkInfo: bloxTxProps.network_info,
       networkType: networkType,
