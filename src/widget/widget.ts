@@ -131,18 +131,16 @@ export class UbirchVerificationWidget extends UbirchVerification {
     if (message.type === EUbirchMessageTypes.VERIFICATION_STATE && message.result) {
       this.blockchainIconsAnchors = message.result.anchors
         .map((anchor: IUbirchBlockchainAnchor, index: number) => {
-          const { raw } = anchor;
-          const { blockchain, network_type } = raw;
-          const blox = BlockchainSettings.blockchainSettings[blockchain] || undefined;
-          if (!blox || !raw.txid) {
+          const blox = BlockchainSettings.blockchainSettings[anchor.blockchain] || undefined;
+          if (!blox || !anchor.txid) {
             return '';
           }
 
-          const { url } = blox.explorerUrl[network_type];
+          const { url } = blox.explorerUrl[anchor.networkType];
           const iconId = `blockchain_transid_check_${index}`;
-          const titleString = raw.network_info ? raw.network_info : raw.blockchain;
+          const titleString = anchor.networkInfo ? anchor.networkInfo : anchor.blockchain;
           return `
-            <a href="${url}${raw.txid}" title="${titleString}" target="_blank">
+            <a href="${url}${anchor.txid}" title="${titleString}" target="_blank">
               ${this.createIconString(`${environment.assets_url_prefix}${blox.nodeIcon || ''}`, iconId)}
             </a>
           `;

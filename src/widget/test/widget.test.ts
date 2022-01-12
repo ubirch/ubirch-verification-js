@@ -611,9 +611,9 @@ describe('Widget', () => {
       const firstIcon = icons[0];
       expect(firstIcon).toBeDefined();
       const firstIconImage = firstIcon.children[0];
-      const firstBlox = BlockchainSettings.blockchainSettings[firstAnchor.raw.blockchain];
+      const firstBlox = BlockchainSettings.blockchainSettings[firstAnchor.blockchain];
       firstBlox.nodeIcon = undefined;
-      const firstUrl = firstBlox.explorerUrl[firstAnchor.raw.network_type].url;
+      const firstUrl = firstBlox.explorerUrl[firstAnchor.networkType].url;
       expect(firstIcon.getAttribute('href')).toContain(
         firstUrl
       );

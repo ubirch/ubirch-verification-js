@@ -204,6 +204,7 @@ export interface IUbirchBlockchainAnchor {
   txid: string;
   networkInfo: string;
   networkType: string;
+  blockchain: string;
   timestamp: string;
   iconUrl: string;
   blxTxExplorerUrl: string;

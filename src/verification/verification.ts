@@ -404,6 +404,7 @@ export class UbirchVerification {
       txid: bloxTxProps.txid,
       networkInfo: bloxTxProps.network_info,
       networkType: networkType,
+      blockchain: bloxTxProps.blockchain,
       timestamp: bloxTxProps.timestamp,
       iconUrl: bloxTxData.nodeIcon,
       blxTxExplorerUrl: blxExplorerUrl,
