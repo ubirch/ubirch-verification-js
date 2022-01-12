@@ -149,6 +149,7 @@ describe('Verification', () => {
     expect(response.anchors).toBeDefined();
     expect(response.anchors).toHaveLength(3);
     expect(response.firstAnchorTimestamp).toBe('2020-10-21T10:13:16.548Z');
+    expect(response.creationTimestamp).toBe('2020-10-21T10:11:02.397Z');
 
     const firstAnchor: IUbirchBlockchainAnchor = response.anchors[ 0 ];
     expect(firstAnchor.iconUrl).toBeDefined();
@@ -553,6 +554,7 @@ describe('Verification', () => {
           expect(response.anchors).toBeDefined();
           expect(response.anchors).toHaveLength(3);
           expect(response.firstAnchorTimestamp).toBe('2020-10-21T10:13:16.548Z');
+          expect(response.creationTimestamp).toBe('2020-10-21T10:11:02.397Z');
 
           const firstAnchor: IUbirchBlockchainAnchor = response.anchors[0];
           expect(firstAnchor.blxTxExplorerUrl).toBeDefined();

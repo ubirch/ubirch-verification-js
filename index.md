@@ -271,12 +271,15 @@ interface IUbirchVerificationResult {
   };
   anchors: IUbirchBlockchainAnchor[];
   firstAnchorTimestamp: string | null;
+  creationTimestamp: string;
   verificationState: 'VERIFICATION_PENDING' | 'VERIFICATION_FAILED' | 'VERIFICATION_PARTLY_SUCCESSFUL' | 'VERIFICATION_SUCCESSFUL';
   rawData?: any;
   lowerAnchors?: IUbirchBlockchainAnchor[];
   failReason?: EError;
 }
 ```
+* `creationTimestamp` constains the timestamp when the UPP has been created in the UBIRCH system
+* `firstAnchorTimestamp` constains the timestamp when the UPP has been anchored in a blockchain the first time; will be null before first blockchain anchoring
 * `rawData` is an optional parameter that will be present only available if verbose flag is set; contains the raw JSON response from verification API
 * `lowerAnchors` is an optional parameter that will be present only available if verbose flag is set; contains the predecessor blockchain anchors in the trust chain
 * `failReason` is an optional parameter that will be present if an error occurred, containing an error key indicating which error has happened. 

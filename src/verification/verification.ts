@@ -12,7 +12,7 @@ import {
   EUbirchLanguages,
   EUbirchMessageTypes,
   EUbirchStages,
-  EUbirchVerificationStateKeys,
+  EUbirchVerificationStateKeys, EUbirchVerificationTreeNodeType,
   EUppStates,
   IUbirchBlockchain,
   IUbirchBlockchainAnchor,
@@ -25,7 +25,7 @@ import {
   IUbirchVerificationConfig,
   IUbirchVerificationResponse,
   IUbirchVerificationResult,
-  IUbirchVerificationState,
+  IUbirchVerificationState, IUbirchVerificationTreeNode,
   UbirchMessage,
 } from '../models/models';
 import i18n from '../utils/translations';
@@ -78,6 +78,7 @@ export class UbirchVerification {
 
       const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(verificationResponse);
       const firstAnchorTimestamp = this.findFirstAnchorTimestamp(blxAnchors);
+      const creationTimestamp = this.getCreationTimestamp(verificationResponse);
 
       if (blxAnchors.length > 0) {
         if (verbose) {
@@ -85,6 +86,7 @@ export class UbirchVerification {
           verificationResult.lowerAnchors = this.checkBlockchainTXs(verificationResponse, EBlxAnchors.lower_blockchains);
         }
         verificationResult.anchors = blxAnchors;
+        verificationResult.creationTimestamp = creationTimestamp;
         verificationResult.firstAnchorTimestamp = firstAnchorTimestamp;
         verificationResult.upp.state = EUppStates.anchored;
         verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL;
@@ -316,6 +318,7 @@ export class UbirchVerification {
       hash: hashP,
       upp: undefined,
       anchors: [],
+      creationTimestamp: undefined,
       firstAnchorTimestamp: null,
       verificationState: EUbirchVerificationStateKeys.VERIFICATION_PENDING,
     };
@@ -353,6 +356,23 @@ export class UbirchVerification {
       .filter((probablyAnchor: IUbirchBlockchainAnchor) => probablyAnchor !== undefined);
 
     return ubirchBlxTxAnchors;
+  }
+
+  protected getCreationTimestamp (resultObj: IUbirchVerificationResponse): string {
+
+    const upperPath: IUbirchVerificationTreeNode[] = resultObj.anchors?.upper_path;
+
+    if (!upperPath || !upperPath.length) {
+      return undefined;
+    }
+
+    const uppData: IUbirchVerificationTreeNode = upperPath[0];
+
+    if (!uppData || uppData.label !== EUbirchVerificationTreeNodeType.UPP) {
+      return undefined;
+    }
+
+    return  uppData.properties?.timestamp;
   }
 
   protected findFirstAnchorTimestamp(ubirchBlxTxAnchors: IUbirchBlockchainAnchor[]): string | null {

@@ -188,10 +188,11 @@ export interface IUbirchVerificationResult {
   hash: string;
   upp: IUbirchUpp;
   anchors: IUbirchBlockchainAnchor[];
-  lowerAnchors?: IUbirchBlockchainAnchor[];
-  rawData?: IUbirchVerificationResponse;
+  creationTimestamp: string;
   firstAnchorTimestamp: string | null;
   verificationState: EUbirchVerificationStateKeys;
+  lowerAnchors?: IUbirchBlockchainAnchor[];
+  rawData?: IUbirchVerificationResponse;
   failReason?: EError;
 }
 
