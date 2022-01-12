@@ -61,7 +61,20 @@ const successVerificationMessage: UbirchMessage = {
     anchors: testAnchors,
     verificationState: EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL,
     firstAnchorTimestamp: '2021-01-27T17:37:16.543Z',
+    creationTimestamp: '2020-10-21T10:11:02.397Z'
   },
+};
+
+const defaultResult = {
+  hash: '',
+  upp: {
+    upp: '',
+    state: EUppStates.anchored,
+  },
+  anchors: [],
+  verificationState: EUbirchVerificationStateKeys.VERIFICATION_FAILED,
+  firstAnchorTimestamp: '',
+  creationTimestamp: ''
 };
 
 beforeAll(() => {
@@ -263,6 +276,7 @@ describe('Widget', () => {
               anchors: [],
               verificationState: EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL,
               firstAnchorTimestamp: '',
+              creationTimestamp: ''
             },
           },
         ];
@@ -300,16 +314,7 @@ describe('Widget', () => {
             type: EUbirchMessageTypes.VERIFICATION_STATE,
             code: EUbirchVerificationStateKeys.VERIFICATION_FAILED,
             message: en['verification-state'].VERIFICATION_FAILED,
-            result: {
-              hash: '',
-              upp: {
-                upp: '',
-                state: EUppStates.anchored,
-              },
-              anchors: [],
-              verificationState: EUbirchVerificationStateKeys.VERIFICATION_FAILED,
-              firstAnchorTimestamp: '',
-            },
+            result: defaultResult,
           },
         ];
 
@@ -350,16 +355,7 @@ describe('Widget', () => {
             type: EUbirchMessageTypes.VERIFICATION_STATE,
             code: EUbirchVerificationStateKeys.VERIFICATION_FAILED,
             message: en['verification-state'].VERIFICATION_FAILED,
-            result: {
-              hash: '',
-              upp: {
-                upp: '',
-                state: EUppStates.anchored,
-              },
-              anchors: [],
-              verificationState: EUbirchVerificationStateKeys.VERIFICATION_FAILED,
-              firstAnchorTimestamp: '',
-            },
+            result: defaultResult,
           },
         ];
 
@@ -398,16 +394,7 @@ describe('Widget', () => {
             type: EUbirchMessageTypes.VERIFICATION_STATE,
             code: EUbirchVerificationStateKeys.VERIFICATION_FAILED,
             message: en['verification-state'].VERIFICATION_FAILED,
-            result: {
-              hash: '',
-              upp: {
-                upp: '',
-                state: EUppStates.anchored,
-              },
-              anchors: [],
-              verificationState: EUbirchVerificationStateKeys.VERIFICATION_FAILED,
-              firstAnchorTimestamp: '',
-            },
+            result: defaultResult,
           },
         ];
 
@@ -446,16 +433,7 @@ describe('Widget', () => {
             type: EUbirchMessageTypes.VERIFICATION_STATE,
             code: EUbirchVerificationStateKeys.VERIFICATION_FAILED,
             message: en['verification-state'].VERIFICATION_FAILED,
-            result: {
-              hash: '',
-              upp: {
-                upp: '',
-                state: EUppStates.anchored,
-              },
-              anchors: [],
-              verificationState: EUbirchVerificationStateKeys.VERIFICATION_FAILED,
-              firstAnchorTimestamp: '',
-            },
+            result: defaultResult,
           },
         ];
 
@@ -494,16 +472,7 @@ describe('Widget', () => {
             type: EUbirchMessageTypes.VERIFICATION_STATE,
             code: EUbirchVerificationStateKeys.VERIFICATION_FAILED,
             message: en['verification-state'].VERIFICATION_FAILED,
-            result: {
-              hash: '',
-              upp: {
-                upp: '',
-                state: EUppStates.anchored,
-              },
-              anchors: [],
-              verificationState: EUbirchVerificationStateKeys.VERIFICATION_FAILED,
-              firstAnchorTimestamp: '',
-            },
+            result: defaultResult,
           },
         ];
 
@@ -547,16 +516,7 @@ describe('Widget', () => {
             type: EUbirchMessageTypes.VERIFICATION_STATE,
             code: EUbirchVerificationStateKeys.VERIFICATION_FAILED,
             message: en['verification-state'].VERIFICATION_FAILED,
-            result: {
-              hash: '',
-              upp: {
-                upp: '',
-                state: EUppStates.anchored,
-              },
-              anchors: [],
-              verificationState: EUbirchVerificationStateKeys.VERIFICATION_FAILED,
-              firstAnchorTimestamp: '',
-            },
+            result: defaultResult,
           },
         ];
 
