@@ -55,13 +55,13 @@
     "ts-loader": "^8.0.17",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.5",
-    "webpack": "^5.22.0",
-    "webpack-cli": "^4.5.0",
-    "webpack-dev-server": "^4.5.0",
+    "webpack": "^5.66.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.7.3",
     "webpack-merge": "^5.7.3"
   },
   "dependencies": {
-    "@ubirch/ubirch-protocol-verifier": "0.0.6",
+    "@ubirch/ubirch-protocol-verifier": "^0.0.7",
     "i18next": "^20.2.1",
     "js-sha256": "^0.9.0",
     "js-sha512": "^0.8.0",
