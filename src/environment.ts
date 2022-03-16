@@ -24,7 +24,7 @@ export default {
     demo: 'https://api.console.demo.ubirch.com/ubirch-web-ui/api/v1/devices/',
     prod: 'https://api.console.prod.ubirch.com/ubirch-web-ui/api/v1/devices/',
   },
-  assets_url_prefix: 'https://console.dev.ubirch.com/libs/verification/',
+  assets_url_prefix: 'https://console.prod.ubirch.com/libs/verification/',
   //  verify_api_path: '/api/upp/verify/anchor?blockchain_info=ext',
   verify_api_path: '/upp/verify/record?response_form=anchors_with_path&blockchain_info=ext',
   console_verify_path: '/verification',
