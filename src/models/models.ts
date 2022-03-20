@@ -48,6 +48,7 @@ export enum EInfo {
   BLXTXS_FOUND_SUCCESS = 'BLXTXS_FOUND_SUCCESS',
   VERIFICATION_SUCCESSFUL_INFO = 'VERIFICATION_SUCCESSFUL_INFO',
   SIGNATURE_VERIFICATION_SUCCESSFULLY = 'SIGNATURE_VERIFICATION_SUCCESSFULLY',
+  BLOCKCHAIN_SETTINGS_INCOMPLETE = 'BLOCKCHAIN_SETTINGS_INCOMPLETE',
 }
 
 export enum EError {
@@ -184,6 +185,7 @@ export interface IUbirchBlockchainAnchorProperties {
   status: string;
   timestamp: string;
   txid: string;
+  version?: string;
 }
 
 export interface IUbirchVerificationResult {
@@ -212,6 +214,7 @@ export interface IUbirchBlockchainAnchor {
   iconUrl: string;
   blxTxExplorerUrl: string;
   label: string;
+  version?: string;
 }
 
 export interface IUbirchBlockchain {
@@ -239,10 +242,18 @@ export interface IUbirchVerificationTreeNodeProperties {
   signature?: string;
 }
 
-export interface IUbirchBlockhainTransidCheckUrl {
+export interface IUbirchBlockhainTransidCheckUrlBase {
   bdr?: IUbirchBlockchainNet;
   testnet?: IUbirchBlockchainNet;
   mainnet?: IUbirchBlockchainNet;
+}
+
+export interface IUbirchBlockhainTransidCheckUrl extends IUbirchBlockhainTransidCheckUrlBase {
+  version?: IUbirchBlockChainVersion[];
+}
+
+export interface IUbirchBlockChainVersion extends IUbirchBlockhainTransidCheckUrlBase{
+  versionNum: string;
 }
 
 export interface IUbirchBlockchainNet {

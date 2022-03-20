@@ -31,6 +31,20 @@
     "iota": {
       "nodeIcon": "IOTA_verify_right.png",
       "explorerUrl": {
+        "version": [
+          {
+            "versionNum": "1.0.0",
+            "mainnet": {
+              "url": "https://explorer.iota.org/legacy-mainnet/transaction/"
+            }
+          },
+          {
+            "versionNum": "1.5.0",
+            "mainnet": {
+              "url": "https://explorer.iota.org/mainnet/message/"
+            }
+          }
+        ],
         "testnet": {
           "url": "https://comnet.thetangle.org/transaction/"
         },

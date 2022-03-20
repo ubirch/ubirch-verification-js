@@ -9,7 +9,9 @@
     "BLXTXS_FOUND_SUCCESS": "Es wurden Blockchain Verankerungen gefunden",
     "RESPONSE_JSON_PARSED_SUCCESSFULY": "Die Antwort der Verifikationsanfrage konnte erfolgreich in das interne Datenformat geparst werden",
     "NO_BLXTX_FOUND": "Die Daten wurden noch nicht in Blockchains verankert",
-    "VERIFICATION_SUCCESSFUL_INFO": "Für zusätzliche Informationen zur Verankerung klicken Sie auf das ubirch Icon um die Details der Verifikation in der \n ubirch Konsole anzuzeigen oder auf die Blockchain Icons um den jeweiligen Blockchain-Explorer zu öffnen"
+    "SIGNATURE_VERIFICATION_SUCCESSFULLY": "Upp Signatur erfolgreich verifiziert",
+    "VERIFICATION_SUCCESSFUL_INFO": "Für zusätzliche Informationen zur Verankerung klicken Sie auf das ubirch Icon um die Details der Verifikation in der \n ubirch Konsole anzuzeigen oder auf die Blockchain Icons um den jeweiligen Blockchain-Explorer zu öffnen",
+    "BLOCKCHAIN_SETTINGS_INCOMPLETE": "In den Blockchain Settings fehlen Einstellungen; es können nicht alle BLockchain Anchor aufgelöst werden."
   },
   "error": {
     "CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE": "403 - nicht authorisiert",

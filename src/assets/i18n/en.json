@@ -9,7 +9,9 @@
     "BLXTXS_FOUND_SUCCESS": "Blockchain anchors found successfully",
     "RESPONSE_JSON_PARSED_SUCCESSFULY": "Verification response has been parsed successfully",
     "NO_BLXTX_FOUND": "The data has not been anchored in any blockchain yet",
-    "VERIFICATION_SUCCESSFUL_INFO": "For more information about anchoring click the ubirch icon to open verification details in ubirch console \nor click the blockchain icons to open corresponding blockchain explorer"
+    "SIGNATURE_VERIFICATION_SUCCESSFULLY": "Upp signature successfully verified",
+    "VERIFICATION_SUCCESSFUL_INFO": "For more information about anchoring click the ubirch icon to open verification details in ubirch console \nor click the blockchain icons to open corresponding blockchain explorer",
+    "BLOCKCHAIN_SETTINGS_INCOMPLETE": "Settings are missing blockchain bettings; not all bLockchain anchor can be solved."
   },
 
   "error": {

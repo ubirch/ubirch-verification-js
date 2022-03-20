@@ -17,7 +17,7 @@ import {
   IUbirchBlockchain,
   IUbirchBlockchainAnchor,
   IUbirchBlockchainAnchorProperties,
-  IUbirchBlockchainAnchorRAW,
+  IUbirchBlockchainAnchorRAW, IUbirchBlockChainVersion,
   IUbirchError,
   IUbirchErrorDetails,
   IUbirchInfo,
@@ -402,20 +402,20 @@ export class UbirchVerification {
     const bloxTxProps: IUbirchBlockchainAnchorProperties = bloxTX.properties;
 
     const blockchain: string = bloxTxProps.blockchain;
-    const networkType: string = bloxTxProps.network_type;
-
     const bloxTxData: IUbirchBlockchain = BlockchainSettings.blockchainSettings[blockchain];
 
     if (!bloxTxData) {
       return undefined;
     }
 
-    if (!bloxTxData.explorerUrl[networkType] || !bloxTxProps.txid) {
+    const networkType: string = bloxTxProps.network_type;
+    const blxExplorerUrl: string = this.getBlxExplorerUrl(bloxTxProps, bloxTxData);
+
+    if (!blxExplorerUrl) {
       return undefined;
     }
 
     // add transactionId to url
-    const blxExplorerUrl: string = bloxTxData.explorerUrl[networkType].url + bloxTxProps.txid;
     const titleStr: string = bloxTxProps.network_info
       ? bloxTxProps.network_info
       : bloxTxProps.blockchain;
@@ -453,6 +453,42 @@ export class UbirchVerification {
 
   protected log(logInfo: UbirchMessage): void {
     this.messageSubject$.next(logInfo);
+  }
+
+  private getBlxExplorerUrl(bloxTxProps: IUbirchBlockchainAnchorProperties, bloxTxData: IUbirchBlockchain): string {
+
+    if (!bloxTxProps.txid) {
+      return undefined;
+    }
+
+    const networkType: string = bloxTxProps.network_type;
+    const blxVersion: string = bloxTxProps.version;
+
+    const explorerUrl = !blxVersion ? bloxTxData.explorerUrl[networkType] : this.getBlxExplorerUrlForVersion(bloxTxData, blxVersion, networkType);
+
+    if (!explorerUrl || !explorerUrl.url) {
+      return this.handleIncompleteBlockchainSettingsError();
+    }
+
+    return explorerUrl.url + bloxTxProps.txid;
+  }
+
+  private getBlxExplorerUrlForVersion(bloxTxDataP: IUbirchBlockchain, blxVersion: string, networkType: string) {
+    if (!bloxTxDataP.explorerUrl?.version) {
+      return this.handleIncompleteBlockchainSettingsError();
+    }
+    const found: IUbirchBlockChainVersion[] = bloxTxDataP.explorerUrl?.version.filter(version => version.versionNum === blxVersion);
+    if (found?.length < 1) {
+      return this.handleIncompleteBlockchainSettingsError();
+    }
+    if (!found[0][networkType]) {
+      return this.handleIncompleteBlockchainSettingsError();
+    }
+    return found[0][networkType]
+  }
+  private handleIncompleteBlockchainSettingsError() {
+    this.handleInfo(EInfo.BLOCKCHAIN_SETTINGS_INCOMPLETE);
+    return undefined;
   }
 }
 
