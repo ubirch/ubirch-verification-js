@@ -364,6 +364,7 @@ describe('Verification', () => {
         EInfo.START_CHECKING_RESPONSE,
         EInfo.UPP_HAS_BEEN_FOUND,
         EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY,
+        EInfo.BLOCKCHAIN_SETTINGS_INCOMPLETE,
         EInfo.NO_BLXTX_FOUND,
         EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL,
       ];

@@ -77,14 +77,16 @@ export class UbirchVerification {
       // const deviceName = await this.getDeviceName(hwDeviceId);
 
       const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(verificationResponse);
-      const firstAnchorTimestamp = this.findFirstAnchorTimestamp(blxAnchors);
-      const creationTimestamp = this.getCreationTimestamp(verificationResponse);
 
       if (blxAnchors.length > 0) {
+        const firstAnchorTimestamp = this.findFirstAnchorTimestamp(blxAnchors);
+        const creationTimestamp = this.getCreationTimestamp(verificationResponse);
+
         if (verbose) {
           verificationResult.rawData = verificationResponse;
           verificationResult.lowerAnchors = this.checkBlockchainTXs(verificationResponse, EBlxAnchors.lower_blockchains);
         }
+
         verificationResult.anchors = blxAnchors;
         verificationResult.creationTimestamp = creationTimestamp;
         verificationResult.firstAnchorTimestamp = firstAnchorTimestamp;
@@ -352,8 +354,10 @@ export class UbirchVerification {
     }
 
     const ubirchBlxTxAnchors: IUbirchBlockchainAnchor[] = blxTXs
-      .map((rawAnchor: IUbirchBlockchainAnchorRAW) => this.createBlockchainAnchor(rawAnchor))
-      .filter((probablyAnchor: IUbirchBlockchainAnchor) => probablyAnchor !== undefined);
+      .map((rawAnchor: IUbirchBlockchainAnchorRAW) =>
+        this.createBlockchainAnchor(rawAnchor))
+      .filter((probablyAnchor: IUbirchBlockchainAnchor) =>
+        probablyAnchor !== undefined);
 
     return ubirchBlxTxAnchors;
   }

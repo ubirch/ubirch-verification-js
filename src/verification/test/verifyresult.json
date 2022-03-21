@@ -67,53 +67,21 @@
     ],
     "upper_blockchains": [
       {
+        "id": "82007396368",
         "label": "PUBLIC_CHAIN",
         "properties": {
-          "timestamp": "2021-02-28T23:42:53.198Z",
-          "network_info": "Ethererum Classic Kotti Testnet Network",
-          "network_type": "testnet",
-          "txid": "0xb225b88c5a402cdafae52c0b3aac1306fb76d55cad412db7b0390d9dd9995790",
-          "hash": "0xb225b88c5a402cdafae52c0b3aac1306fb76d55cad412db7b0390d9dd9995790",
-          "status": "added",
-          "public_chain": "ETHEREUM-CLASSIC_TESTNET_ETHERERUM_CLASSIC_KOTTI_TESTNET_NETWORK",
-          "blockchain": "ethereum-classic",
-          "message": "42cda58bed2ff39b7db5340dc5be8e93e13ab09686127fa60a2290ff968b14484eada600e850634ce945bdb0a16c6a5bc8f5a05d1da76ed45b0d79a6ea1d55b5",
-          "prev_hash": "42cda58bed2ff39b7db5340dc5be8e93e13ab09686127fa60a2290ff968b14484eada600e850634ce945bdb0a16c6a5bc8f5a05d1da76ed45b0d79a6ea1d55b5",
-          "created": "2021-02-28T23:42:52.192Z"
-        }
-      },
-      {
-        "label": "PUBLIC_CHAIN",
-        "properties": {
-          "timestamp": "2021-02-28T23:41:45.784Z",
+          "timestamp": "2020-10-21T10:13:16.548Z",
           "network_info": "IOTA Mainnet Network",
           "network_type": "mainnet",
-          "txid": "DERWCJATHUNXBUZUKEOAFVFRHWAQDRWTLBBXU9IVVTKBCTKHHLEJGMNKVY99HGVJSW9SQLNU9JWMA9999",
-          "version": "1.0.0",
-          "hash": "DERWCJATHUNXBUZUKEOAFVFRHWAQDRWTLBBXU9IVVTKBCTKHHLEJGMNKVY99HGVJSW9SQLNU9JWMA9999",
+          "txid": "GAES9AETXTSURXVNPKOTJICGADOLHPOWOYXCHIAQKPEKPLJKTNGNUJV9DCTKUZJOVOZZPSRWM9KFA9999",
+          "hash": "GAES9AETXTSURXVNPKOTJICGADOLHPOWOYXCHIAQKPEKPLJKTNGNUJV9DCTKUZJOVOZZPSRWM9KFA9999",
           "status": "added",
           "public_chain": "IOTA_MAINNET_IOTA_MAINNET_NETWORK",
           "blockchain": "iota",
-          "message": "eb5d8daa5cf60c976bb8e2747f23336fd70a4562701a9fd9f61deae833546df414b774ae4c18b67001e1f036efb4752f8b7332936caab7b07a8dd3dc70cbc5d4",
-          "prev_hash": "eb5d8daa5cf60c976bb8e2747f23336fd70a4562701a9fd9f61deae833546df414b774ae4c18b67001e1f036efb4752f8b7332936caab7b07a8dd3dc70cbc5d4",
-          "created": "2021-02-28T23:41:44.780Z"
-        }
-      },
-      {
-        "label": "PUBLIC_CHAIN",
-        "properties": {
-          "timestamp": "2022-02-17T09:44:33.303Z",
-          "network_info": "IOTA Mainnet Network",
-          "network_type": "mainnet",
-          "txid": "13ef96d27f199dc73c6614da1f41907a60d42d5ec51f9332535f7d74240a8f76",
-          "version": "1.5.0",
-          "hash": "13ef96d27f199dc73c6614da1f41907a60d42d5ec51f9332535f7d74240a8f76",
-          "status": "added",
-          "public_chain": "IOTA_MAINNET_IOTA_MAINNET_NETWORK",
-          "blockchain": "iota",
-          "message": "2f143a23ddc7b9f856b6580e19569430e3e9afefe2e7d083c88a61d94190566228b45c0468e4e222093073d0dd54bbe32fabd722e71e397709a53e7252e8e2c0",
-          "prev_hash": "2f143a23ddc7b9f856b6580e19569430e3e9afefe2e7d083c88a61d94190566228b45c0468e4e222093073d0dd54bbe32fabd722e71e397709a53e7252e8e2c0",
-          "created": "2022-02-17T09:44:32.297Z"
+          "message": "cab7761298e3b894d0be98e72910cfd3d9f6965e6f395ae54a41ce99493ebb255f33474bb3545aa716c394cf39bc79e7456ae2b41016b44ad4a1fa44e08b1410",
+          "prev_hash": "cab7761298e3b894d0be98e72910cfd3d9f6965e6f395ae54a41ce99493ebb255f33474bb3545aa716c394cf39bc79e7456ae2b41016b44ad4a1fa44e08b1410",
+          "created": "2020-10-21T10:13:15.542Z",
+          "version": "1.0.0"
         }
       },
       {
