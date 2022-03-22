@@ -366,17 +366,9 @@ export class UbirchVerification {
 
     const upperPath: IUbirchVerificationTreeNode[] = resultObj.anchors?.upper_path;
 
-    if (!upperPath || !upperPath.length) {
-      return undefined;
-    }
+    const uppData: IUbirchVerificationTreeNode = upperPath?.length > 0 ? upperPath[0] : undefined;
 
-    const uppData: IUbirchVerificationTreeNode = upperPath[0];
-
-    if (!uppData || uppData.label !== EUbirchVerificationTreeNodeType.UPP) {
-      return undefined;
-    }
-
-    return  uppData.properties?.timestamp;
+    return (uppData && uppData.label === EUbirchVerificationTreeNodeType.UPP) ? uppData.properties?.timestamp : undefined;
   }
 
   protected findFirstAnchorTimestamp(ubirchBlxTxAnchors: IUbirchBlockchainAnchor[]): string | null {
