@@ -477,7 +477,7 @@ export class UbirchVerification {
     return explorerUrl.url + bloxTxProps.txid;
   }
 
-  private getBlxExplorerUrlForVersion(bloxTxDataP: IUbirchBlockchain, blxVersion: string, networkType: string) {
+  protected getBlxExplorerUrlForVersion(bloxTxDataP: IUbirchBlockchain, blxVersion: string, networkType: string) {
     if (!bloxTxDataP.explorerUrl?.version) {
       return this.handleIncompleteBlockchainSettingsError();
     }
@@ -490,6 +490,7 @@ export class UbirchVerification {
     }
     return found[0][networkType]
   }
+
   private handleIncompleteBlockchainSettingsError() {
     this.handleInfo(EInfo.BLOCKCHAIN_SETTINGS_INCOMPLETE);
     return undefined;

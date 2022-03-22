@@ -4,7 +4,6 @@
   "anchors": {
     "upper_path": [
       {
-        "id": "204843122776",
         "label": "UPP",
         "properties": {
           "timestamp": "2020-10-21T10:11:02.397Z",
@@ -15,7 +14,6 @@
         }
       },
       {
-        "id": "82007384080",
         "label": "FOUNDATION_TREE",
         "properties": {
           "hash": "2e77cb7a30272bad9218406619f48e841e23b04a884f9a8eed98290590ccf83c39246ccf62ea2f1b1fc83ecaaa3127fa4bf37b5ffe4b13d974f8bd44ba9166c1",
@@ -25,7 +23,6 @@
         }
       },
       {
-        "id": "122965565456",
         "label": "MASTER_TREE",
         "properties": {
           "hash": "e535376c51fe20d9a4316713d98b7a188fe33654684eb33370a74dbbe110d2fa15e2b98588afe03029b047ee587f5c04e8be371c9021a358b581af2cc584ff82",
@@ -35,7 +32,6 @@
         }
       },
       {
-        "id": "81990295728",
         "label": "MASTER_TREE",
         "properties": {
           "hash": "cab7761298e3b894d0be98e72910cfd3d9f6965e6f395ae54a41ce99493ebb255f33474bb3545aa716c394cf39bc79e7456ae2b41016b44ad4a1fa44e08b1410",
@@ -45,7 +41,6 @@
         }
       },
       {
-        "id": "81990299824",
         "label": "MASTER_TREE",
         "properties": {
           "hash": "b98d7c5de3866bc9588162e10dc6b9fbae98e8943df98f504bf2edc01afdeb2744f1c2d0a10c740ed007e8832eda898fc9f50179e2a7ebca9bda93de9bfe532c",
@@ -55,7 +50,6 @@
         }
       },
       {
-        "id": "41091830008",
         "label": "MASTER_TREE",
         "properties": {
           "hash": "363371dd90878d924b1a6810a7198931fbb20c761d2890a8e031316caa268ca9f18df71ba9f560f06ecaa90bf231b98dba64a176d24e8072da125d2c368d91ba",
@@ -67,7 +61,6 @@
     ],
     "upper_blockchains": [
       {
-        "id": "82007396368",
         "label": "PUBLIC_CHAIN",
         "properties": {
           "timestamp": "2020-10-21T10:13:16.548Z",
@@ -85,7 +78,6 @@
         }
       },
       {
-        "id": "122951332056",
         "label": "PUBLIC_CHAIN",
         "properties": {
           "timestamp": "2020-10-21T10:13:24.467Z",
@@ -102,7 +94,6 @@
         }
       },
       {
-        "id": "122965573648",
         "label": "PUBLIC_CHAIN",
         "properties": {
           "timestamp": "2020-10-21T10:13:27.453Z",
@@ -121,7 +112,6 @@
     ],
     "lower_path": [
       {
-        "id": "122965565456",
         "label": "MASTER_TREE",
         "properties": {
           "hash": "e535376c51fe20d9a4316713d98b7a188fe33654684eb33370a74dbbe110d2fa15e2b98588afe03029b047ee587f5c04e8be371c9021a358b581af2cc584ff82",
@@ -131,7 +121,6 @@
         }
       },
       {
-        "id": "122951323864",
         "label": "MASTER_TREE",
         "properties": {
           "hash": "5e3b22dfbeba9a6cae4f0036b05a3a1a1b64cfedbaf1132d026967aee896d6ce15519ffc3e39e2a3ecb8c6eaae7c8857fea320d070d828b4391be77cfd703956",
@@ -141,7 +130,6 @@
         }
       },
       {
-        "id": "245804523608",
         "label": "MASTER_TREE",
         "properties": {
           "hash": "034318fdc114fa871557f5e0c023eb3f2c751e1668795aa222f972b8691296181319e878c8276db43e86210c27769081306f58a66fd1985d834ff6efcbf437e0",
@@ -151,7 +139,6 @@
         }
       },
       {
-        "id": "163909939312",
         "label": "MASTER_TREE",
         "properties": {
           "hash": "f8ced50f4bce75cbbbe87a2aa0cffa52e2967f9364f5d985382421a631775540a679ab7dc5f89789f2a64b8a106920bb3b1f673bc2ddb572abf6ea52af4b7d1b",
@@ -161,7 +148,6 @@
         }
       },
       {
-        "id": "82007375888",
         "label": "MASTER_TREE",
         "properties": {
           "hash": "cb5fa684cd89d4f7d97689656025edd1924409f50ab50bcfee6eae561ab27c56178ce859be4ead4651b50cfab2b42a87e46e59012db89ed23f6d952e3b79f51e",
@@ -171,7 +157,6 @@
         }
       },
       {
-        "id": "163909935216",
         "label": "MASTER_TREE",
         "properties": {
           "hash": "fe68ebab6e3c5aa07ebff31590bb1c91869871ade7bfd34eed0c35666996d350b585328afff527b2d0170453179bb96327e642614e46792367ec91457263de1f",
@@ -181,7 +166,6 @@
         }
       },
       {
-        "id": "163909939312",
         "label": "MASTER_TREE",
         "properties": {
           "hash": "f8ced50f4bce75cbbbe87a2aa0cffa52e2967f9364f5d985382421a631775540a679ab7dc5f89789f2a64b8a106920bb3b1f673bc2ddb572abf6ea52af4b7d1b",
@@ -191,7 +175,6 @@
         }
       },
       {
-        "id": "82007375888",
         "label": "MASTER_TREE",
         "properties": {
           "hash": "cb5fa684cd89d4f7d97689656025edd1924409f50ab50bcfee6eae561ab27c56178ce859be4ead4651b50cfab2b42a87e46e59012db89ed23f6d952e3b79f51e",
@@ -201,7 +184,6 @@
         }
       },
       {
-        "id": "163909935216",
         "label": "MASTER_TREE",
         "properties": {
           "hash": "fe68ebab6e3c5aa07ebff31590bb1c91869871ade7bfd34eed0c35666996d350b585328afff527b2d0170453179bb96327e642614e46792367ec91457263de1f",
@@ -213,7 +195,6 @@
     ],
     "lower_blockchains": [
       {
-        "id": "81990287536",
         "label": "PUBLIC_CHAIN",
         "properties": {
           "timestamp": "2020-10-21T10:10:19.152Z",
@@ -230,7 +211,6 @@
         }
       },
       {
-        "id": "41003860008",
         "label": "PUBLIC_CHAIN",
         "properties": {
           "timestamp": "2020-10-21T10:09:42.357Z",
@@ -247,7 +227,6 @@
         }
       },
       {
-        "id": "41091817720",
         "label": "PUBLIC_CHAIN",
         "properties": {
           "timestamp": "2020-10-21T10:09:27.404Z",

@@ -1,4 +1,5 @@
 import * as verifyResult from './verifyresult.json';
+import * as blxProps from './blxProps.json';
 import * as keyServiceResult from './keyService.json';
 import UbirchProtocol from '@ubirch/ubirch-protocol-verifier/src/verify';
 import {
@@ -286,6 +287,297 @@ describe('Verification', () => {
           expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
           expect(response.failReason).toBe(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
         });
+    });
+
+    test('should handle bockchain anchor with ot without version property', (done) => {
+      const response = deepCopy(verifyResult);
+      response.anchors.upper_blockchains = deepCopy(blxProps).upper_blockchains;
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
+
+      const infoReceived = [];
+      const infoChain = [
+        EUbirchVerificationStateKeys.VERIFICATION_PENDING,
+        EInfo.START_VERIFICATION_CALL,
+        EInfo.START_CHECKING_RESPONSE,
+        EInfo.UPP_HAS_BEEN_FOUND,
+        EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY,
+        EInfo.BLXTXS_FOUND_SUCCESS,
+        EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL,
+      ];
+
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
+        if (message !== null) {
+          infoReceived.push(message.code);
+        }
+      });
+
+      return verifier
+        .verifyHash(testhash_verifiable)
+        .then((result: IUbirchVerificationResult) => {
+          expect(result).toBeDefined();
+          expect(result.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL);
+          expect(infoReceived).toEqual(infoChain);
+          expect(result.anchors).toBeDefined();
+          expect(result.anchors.length).toEqual(3);
+          subscription.unsubscribe();
+          done();
+        });
+
+    });
+
+    test('should handle bockchain anchor without version property (first anchor in example)', (done) => {
+      const response = deepCopy(verifyResult);
+      // use etherium-classic anchor -> no versions
+      response.anchors.upper_blockchains = [ deepCopy(blxProps).upper_blockchains[0] ];
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
+
+      return verifier
+        .verifyHash(testhash_verifiable)
+        .then((result: IUbirchVerificationResult) => {
+          expect(result).toBeDefined();
+          expect(result.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL);
+          expect(result.anchors).toBeDefined();
+          expect(result.anchors.length).toEqual(1);
+          const anchor = result.anchors[0];
+          expect(anchor).toBeDefined();
+          expect(anchor.iconUrl).toBeDefined();
+          expect(anchor.iconUrl).toEqual("Ethereum-Classic_verify_right.png");
+          expect(anchor.blxTxExplorerUrl).toBeDefined();
+          expect(anchor.blxTxExplorerUrl).toContain("https://kottiexplorer.ethernode.io/search?q=");
+          done();
+        });
+
+    });
+
+    test('should handle IOTA bockchain anchor with version 1.0.0 (second anchor in example)', (done) => {
+      const response = deepCopy(verifyResult);
+      // use IOTA anchor with version 1.0.0
+      response.anchors.upper_blockchains = [ deepCopy(blxProps).upper_blockchains[1] ];
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
+
+      return verifier
+        .verifyHash(testhash_verifiable)
+        .then((result: IUbirchVerificationResult) => {
+          expect(result).toBeDefined();
+          expect(result.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL);
+          expect(result.anchors).toBeDefined();
+          expect(result.anchors.length).toEqual(1);
+          const anchor = result.anchors[0];
+          expect(anchor).toBeDefined();
+          expect(anchor.iconUrl).toBeDefined();
+          expect(anchor.iconUrl).toEqual("IOTA_verify_right.png");
+          expect(anchor.blxTxExplorerUrl).toBeDefined();
+          expect(anchor.blxTxExplorerUrl).toContain("https://explorer.iota.org/legacy-mainnet/transaction/");
+          done();
+        });
+
+    });
+
+    test('should handle IOTA bockchain anchor with version 1.5.0 (third anchor in example)', (done) => {
+      const response = deepCopy(verifyResult);
+      // use IOTA anchor with version 1.5.0
+      response.anchors.upper_blockchains = [ deepCopy(blxProps).upper_blockchains[2] ];
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
+
+      return verifier
+        .verifyHash(testhash_verifiable)
+        .then((result: IUbirchVerificationResult) => {
+          expect(result).toBeDefined();
+          expect(result.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL);
+          expect(result.anchors).toBeDefined();
+          expect(result.anchors.length).toEqual(1);
+          const anchor = result.anchors[0];
+          expect(anchor).toBeDefined();
+          expect(anchor.iconUrl).toBeDefined();
+          expect(anchor.iconUrl).toEqual("IOTA_verify_right.png");
+          expect(anchor.blxTxExplorerUrl).toBeDefined();
+          expect(anchor.blxTxExplorerUrl).toContain("https://explorer.iota.org/mainnet/message/");
+          done();
+        });
+
+    });
+
+    test('should fail on handling bockchain anchor with not existing versions', (done) => {
+      const response = deepCopy(verifyResult);
+      // use IOTA anchor with not defined version in blockchain-settings
+      response.anchors.upper_blockchains = [ deepCopy(blxProps).upper_blockchains[2] ];
+      response.anchors.upper_blockchains[0].properties.version = "undefined";
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
+
+      const infoReceived = [];
+      const infoChain = [
+        EUbirchVerificationStateKeys.VERIFICATION_PENDING,
+        EInfo.START_VERIFICATION_CALL,
+        EInfo.START_CHECKING_RESPONSE,
+        EInfo.UPP_HAS_BEEN_FOUND,
+        EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY,
+        EInfo.BLOCKCHAIN_SETTINGS_INCOMPLETE,
+        EInfo.BLOCKCHAIN_SETTINGS_INCOMPLETE,
+        EInfo.NO_BLXTX_FOUND,
+        EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL,
+      ];
+
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
+        if (message !== null) {
+          infoReceived.push(message.code);
+        }
+      });
+
+      return verifier
+        .verifyHash(testhash_verifiable)
+        .then((result: IUbirchVerificationResult) => {
+          expect(result).toBeDefined();
+          expect(result.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL);
+          expect(infoReceived).toEqual(infoChain);
+          expect(result.anchors).toBeDefined();
+          expect(result.anchors.length).toEqual(0);
+          subscription.unsubscribe();
+          done();
+        });
+
+    });
+
+    test('should handle missing version settings but version property set for that anchor', (done) => {
+      const response = deepCopy(verifyResult);
+      // use etherium-classic anchor and add version
+      response.anchors.upper_blockchains = [ deepCopy(blxProps).upper_blockchains[0] ];
+      response.anchors.upper_blockchains[0].properties.version = "1.0.0";
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
+
+      const infoReceived = [];
+      const infoChain = [
+        EUbirchVerificationStateKeys.VERIFICATION_PENDING,
+        EInfo.START_VERIFICATION_CALL,
+        EInfo.START_CHECKING_RESPONSE,
+        EInfo.UPP_HAS_BEEN_FOUND,
+        EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY,
+        EInfo.BLOCKCHAIN_SETTINGS_INCOMPLETE,
+        EInfo.BLOCKCHAIN_SETTINGS_INCOMPLETE,
+        EInfo.NO_BLXTX_FOUND,
+        EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL,
+      ];
+
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
+        if (message !== null) {
+          infoReceived.push(message.code);
+        }
+      });
+
+      return verifier
+        .verifyHash(testhash_verifiable)
+        .then((result: IUbirchVerificationResult) => {
+          expect(result).toBeDefined();
+          expect(result.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL);
+          expect(infoReceived).toEqual(infoChain);
+          expect(result.anchors).toBeDefined();
+          expect(result.anchors.length).toEqual(0);
+          subscription.unsubscribe();
+          done();
+        });
+
+    });
+
+    test('should handle missing network tyoe on version settings', (done) => {
+      const response = deepCopy(verifyResult);
+      // use IOTA anchor with version 1.5.0 and remove mainnet settings for that version
+      response.anchors.upper_blockchains = [ deepCopy(blxProps).upper_blockchains[2] ];
+      response.anchors.upper_blockchains[0].properties.network_type = "undefined";
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => response,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
+
+      const infoReceived = [];
+      const infoChain = [
+        EUbirchVerificationStateKeys.VERIFICATION_PENDING,
+        EInfo.START_VERIFICATION_CALL,
+        EInfo.START_CHECKING_RESPONSE,
+        EInfo.UPP_HAS_BEEN_FOUND,
+        EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY,
+        EInfo.BLOCKCHAIN_SETTINGS_INCOMPLETE,
+        EInfo.BLOCKCHAIN_SETTINGS_INCOMPLETE,
+        EInfo.NO_BLXTX_FOUND,
+        EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL,
+      ];
+
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
+        if (message !== null) {
+          infoReceived.push(message.code);
+        }
+      });
+
+      return verifier
+        .verifyHash(testhash_verifiable)
+        .then((result: IUbirchVerificationResult) => {
+          expect(result).toBeDefined();
+          expect(result.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL);
+          expect(infoReceived).toEqual(infoChain);
+          expect(result.anchors).toBeDefined();
+          expect(result.anchors.length).toEqual(0);
+          subscription.unsubscribe();
+          done();
+        });
+
     });
 
     test('should warn with WARNING_EMPTY_BLXTX_FOUND if no blockchain or network type is specified', (done) => {
