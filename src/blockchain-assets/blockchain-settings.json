@@ -7,7 +7,7 @@
   "assetPath": "blockchain-assets/blockchain-icons/",
   "blockchainSettings": {
     "ethereum-classic": {
-      "nodeIcon": "Ethereum-Classic_verify_right.png",
+      "nodeIcon": "Ethereum_Classic_verify_right.png",
       "explorerUrl": {
         "testnet": {
           "url": "https://kottiexplorer.ethernode.io/search?q="
