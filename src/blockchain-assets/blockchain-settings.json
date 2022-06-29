@@ -20,6 +20,9 @@
     "ethereum": {
       "nodeIcon": "Ethereum_verify_right.png",
       "explorerUrl": {
+        "devnet": {
+          "url": "https://ropsten.etherscan.io/tx/"
+        },
         "testnet": {
           "url": "https://rinkeby.etherscan.io/tx/"
         },

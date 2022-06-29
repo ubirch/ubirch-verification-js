@@ -1,4 +1,4 @@
-import UbirchProtocol from '@ubirch/ubirch-protocol-verifier/src/verify';
+import UbirchProtocol from '@ubirch/ubirch-protocol-verifier/src/upp';
 import { sha256 } from 'js-sha256';
 import { sha512 } from 'js-sha512';
 import { BehaviorSubject, Observable } from 'rxjs';

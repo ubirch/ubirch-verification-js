@@ -13,6 +13,10 @@ The UbirchVerification package consists of three parts:
 
 A working example can be found in the Repository [ubirch-verify-widget](https://github.com/ubirch/ubirch-verify-widget)
 
+## What's New?
+
+Since Version 1.5.2 ubirch-verification-js supports ECDSA and (new) EDDSA public keys for signature verification.
+
 ## Usage
 
 ### From NPM registry
