@@ -236,7 +236,7 @@ const ubirchVerification = new UbirchVerification({
 | ------------------------ | ------- | -----------  | -----------   | -------------------------------------------------------------- |
 | <code>accessToken</code> | string  |              | **REQUIRED** | is a UBIRCH verification token. You can create verification tokens for your things in the [ubirch-console](https://console.prod.ubirch.com). If you anchored data through one of your things you need to add the token created for verification of this thing to the UbirchVerification here.                                       |
 | <code>algorithm</code>   | String  | 'sha256', 'sha512' | 'sha256' | hashing algorithm used during anchoring of your data          |
-| <code>stage</code>       | String  | 'dev, demo, 'qa', 'prod' | 'prod'  |optional param to set UBRICH stage against which UbirchVerification tries to verify |
+| <code>stage</code>       | String  | 'dev, demo, 'qa', 'prod' | 'prod'  |optional param to set UBIRCH stage against which UbirchVerification tries to verify |
 | <code>language</code>    | String  | 'de', 'en'  | 'de' | optional param to set language of widget strings                               |
 
 #### Verify hash: `verifyHash(hash: string, verbose = false): Promise<IUbirchVerificationResult>`
@@ -435,7 +435,7 @@ const ubirchVerificationWidget = new ubirchVerificationWidget({
 | <code>accessToken</code> | string  |              | **REQUIRED**  | is a UBIRCH verification token. You can create verification tokens for your things in the [ubirch-console](https://console.prod.ubirch.com). If you anchored data through one of your things you need to add the token created for verification of this thing to the UbirchVerification here.                                       |
 | <code>hostSelector</code> | String  | '#<DIV_ID>' | **REQUIRED**  | id of the `DIV` DOM element, in which the Widget will be inserted; starting with an `#` |
 | <code>algorithm</code>   | String  | 'sha256', 'sha512' | 'sha256' | hashing algorithm used during anchoring of your data          |
-| <code>stage</code>       | String  | 'dev, demo, 'qa', 'prod' | 'prod' |optional param to set UBRICH stage against which UbirchVerification tries to verify |
+| <code>stage</code>       | String  | 'dev, demo, 'qa', 'prod' | 'prod' |optional param to set UBIRCH stage against which UbirchVerification tries to verify |
 | <code>language</code>    | String  | 'de', 'en'   | 'de'          | optional param to set language of widget strings                               |
 | <code>linkToConsole</code> | boolean |            | <code>false</code> | optional param to activate the link from ubirch seal icon to ubirch console verification page with detailed information about verification |
 | <code>openConsoleInSameTarget</code> | boolean |  | <code>false</code> | optional param - only relevant if `linkToConsole` is `true`. If both parameters are set to `true` the ubirch console verification page is opened in the same browser tab |
