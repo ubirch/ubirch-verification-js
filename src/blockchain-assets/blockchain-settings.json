@@ -10,7 +10,7 @@
       "nodeIcon": "Ethereum_Classic_verify_right.png",
       "explorerUrl": {
         "testnet": {
-          "url": "https://kottiexplorer.ethernode.io/search?q="
+          "url": "https://blockscout.com/etc/kotti/search?q="
         },
         "mainnet": {
           "url": "https://blockscout.com/etc/mainnet/search?q="
