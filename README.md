@@ -37,7 +37,7 @@ The UbirchVerification package consists of three parts:
 
 `npm install`
 
-`npm run serve:local`
+`npm start`
 
 Open simple test page here:
 
@@ -46,7 +46,7 @@ Open simple test page here:
 ## Copyright
 
 ```fundamental
-Copyright (c) 2021 ubirch GmbH
+Copyright (c) 2022 ubirch GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
