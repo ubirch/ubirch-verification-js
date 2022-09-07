@@ -10,7 +10,7 @@
       "nodeIcon": "Ethereum_Classic_verify_right.png",
       "explorerUrl": {
         "testnet": {
-          "url": "https://kottiexplorer.ethernode.io/search?q="
+          "url": "https://blockscout.com/etc/kotti/search?q="
         },
         "mainnet": {
           "url": "https://blockscout.com/etc/mainnet/search?q="
@@ -48,11 +48,8 @@
             }
           }
         ],
-        "testnet": {
-          "url": "https://comnet.thetangle.org/transaction/"
-        },
         "mainnet": {
-          "url": "https://thetangle.org/transaction/"
+          "url": "https://explorer.iota.org/legacy-mainnet/transaction/"
         }
       }
     },
