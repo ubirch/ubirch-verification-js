@@ -13,9 +13,28 @@ The UbirchVerification package consists of three parts:
 
 A working example can be found in the Repository [ubirch-verify-widget](https://github.com/ubirch/ubirch-verify-widget)
 
+Reference implementation of UPP certificate creation and verification:
+[ubirch-certificate-js-reference](https://github.com/ubirch/ubirch-certificate-js-reference)
+
+
 ## What's New?
 
-Since Version 1.5.2 ubirch-verification-js supports ECDSA and (new) EDDSA public keys for signature verification.
+* Since Version 2.0.0 ubirch-verification-js supports SIGNED UPPs that are not anchored in the blockchain.
+  * Breaking Changes:
+  In version 2.0.0 the error result in the IUbirchVerificationResult changed from
+
+  ```
+    failReason?: EError;
+  ```
+  to
+  ```
+    failed?: {
+      code: EError;
+      errorBECodes?: string[];
+      message?: string;
+    }
+  ```
+* Since Version 1.5.2 ubirch-verification-js supports ECDSA and (new) EDDSA public keys for signature verification.
 
 ## Usage
 
@@ -239,9 +258,13 @@ const ubirchVerification = new UbirchVerification({
 | <code>stage</code>       | String  | 'dev, demo, 'qa', 'prod' | 'prod'  |optional param to set UBIRCH stage against which UbirchVerification tries to verify |
 | <code>language</code>    | String  | 'de', 'en'  | 'de' | optional param to set language of widget strings                               |
 
-#### Verify hash: `verifyHash(hash: string, verbose = false): Promise<IUbirchVerificationResult>`
+#### Verify hash: `verifyHash(hash: string, verbose = false): Promise<IUbirchVerificationBaseResult>`
 
 You can verify a hash (hashed JSON data) against the UBIRCH system.
+
+#### Verify SIGNED/CHAINED UPP: `verifyUPP(packedSignedUpp: string, uppType: EUppTypes = EUppTypes.SIGNED): Promise<IUbirchVerificationBaseResult>`
+
+You can verify a SIGNED (CHAINED is not yet implemented) UPP against the UBIRCH system and extract the data stored in the UPP.
 
 
 ```ts
@@ -268,25 +291,47 @@ The response will be a `Promise` in this structure:
 
 ```ts
 interface IUbirchVerificationResult {
-  hash: string;
-  upp: {
+  verificationState: 'VERIFICATION_PENDING' | 'VERIFICATION_FAILED' | 'VERIFICATION_PARTLY_SUCCESSFUL' | 'VERIFICATION_SUCCESSFUL';
+  hash?: string;
+  upp?: {
     upp: string;
     state: 'created' | 'anchored';
   };
-  anchors: IUbirchBlockchainAnchor[];
-  firstAnchorTimestamp: string | null;
-  creationTimestamp: string;
-  verificationState: 'VERIFICATION_PENDING' | 'VERIFICATION_FAILED' | 'VERIFICATION_PARTLY_SUCCESSFUL' | 'VERIFICATION_SUCCESSFUL';
-  rawData?: any;
+  anchors?: IUbirchBlockchainAnchor[];
+  firstAnchorTimestamp?: string | null;
+  creationTimestamp?: string;
   lowerAnchors?: IUbirchBlockchainAnchor[];
-  failReason?: EError;
+  rawData?: any;
+  certData?: any;
+  failed?: {
+    code: EError;
+    errorBECodes?: string[];
+    message?: string;
+  }
 }
 ```
-* `creationTimestamp` constains the timestamp when the UPP has been created in the UBIRCH system
-* `firstAnchorTimestamp` constains the timestamp when the UPP has been anchored in a blockchain the first time; will be null before first blockchain anchoring
-* `rawData` is an optional parameter that will be present only available if verbose flag is set; contains the raw JSON response from verification API
+
+Which field in IUbirchVerificationResult are filled depends on the verification type.
+
+The following properties belong to all types:
+* `verificationState` contains the current state of the verification
+* `hash` contains the hash that is checked against the UBIRCH system
+* `upp` contains the upp as string and if it's created or anchored
+* `failed` (breaking change in version 2.0.0!) is an optional parameter that will be present if an error occurred, containing
+  * an error code indicating which error has happened
+  * an array of error codes from backend
+  * a message containing details about the error for debugging purpose - please do never present these messages to the user!
+
+The following properties belong to a signed UPP (A signed UPP is not anchored in any blockchains):
+* `certData` contains the original data as JSON
+
+The following properties belong to a chained, blockchain anchored UPP:
+
+* `anchors` contains the list of upper blockchain anchors, in with this hash/UPP has been anchored
 * `lowerAnchors` is an optional parameter that will be present only available if verbose flag is set; contains the predecessor blockchain anchors in the trust chain
-* `failReason` is an optional parameter that will be present if an error occurred, containing an error key indicating which error has happened. 
+* `creationTimestamp` contains the timestamp when the UPP has been created in the UBIRCH system
+* `firstAnchorTimestamp` contains the timestamp when the UPP has been anchored in a blockchain the first time; will be null before first blockchain anchoring
+* `rawData` is an optional parameter that will be present only available if verbose flag is set; contains the raw JSON response from verification API
 
 The anchors will be in the following structure:
 

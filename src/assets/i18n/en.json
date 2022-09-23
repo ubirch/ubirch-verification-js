@@ -38,7 +38,9 @@
     "VERIFICATION_NOT_POSSIBLE": "Errors in given data found - verification not possible",
     "VERIFICATION_FAILED_EMPTY_RESPONSE": "Verification Failed! Empty certificate or missing seal",
     "VERIFICATION_FAILED_CANNOT_DECODE_HWDEVICEID_FROM_UPP": "The Thing through which the data has been anchored cannot be identified (Decoding hwDeviceId from UPP failed)",
-    "VERIFICATION_FAILED_DEVICE_PUBKEY_CANNOT_BE_VERIFIED": "Something is wrong with the encryption of the data (Verification of thing with UPP failed)"
+    "VERIFICATION_FAILED_DEVICE_PUBKEY_CANNOT_BE_VERIFIED": "Something is wrong with the encryption of the data (Verification of thing with UPP failed)",
+    "VERIFICATION_FAILED_WRONG_TYPE_PREFIX": "Verification Failed!! Wrong Prefix for type",
+    "NOT_YET_IMPLEMENTED": "This function is not yet implemented"
   },
   "verification-state": {
     "VERIFICATION_PENDING": "Verification pending...",

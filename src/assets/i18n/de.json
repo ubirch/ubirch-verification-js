@@ -37,7 +37,9 @@
     "VERIFICATION_NOT_POSSIBLE": "Die eingegebenen Daten sind fehlerhaft und konnten nicht verifiziert werden",
     "VERIFICATION_FAILED_EMPTY_RESPONSE": "Verifikation fehlgeschlagen! Zertifikat ist leer oder enthält kein Siegel",
     "VERIFICATION_FAILED_CANNOT_DECODE_HWDEVICEID_FROM_UPP": "Das Thing, mit dem der Datensatz verankert wurde, konnte nicht ermittelt werden (Dekodieren der hwDeviceId aus dem UPP ist nicht möglich)",
-    "VERIFICATION_FAILED_DEVICE_PUBKEY_CANNOT_BE_VERIFIED": "Mit der Verschlüsselung der Daten stimmt etwas nicht (Verifizierung des Things und UPPs ist fehlgeschlagen)"
+    "VERIFICATION_FAILED_DEVICE_PUBKEY_CANNOT_BE_VERIFIED": "Mit der Verschlüsselung der Daten stimmt etwas nicht (Verifizierung des Things und UPPs ist fehlgeschlagen)",
+    "VERIFICATION_FAILED_WRONG_TYPE_PREFIX": "Verifikation fehlgeschlagen! Zertifikat hat nicht den richtigen Prefix für den UPP Typ",
+    "NOT_YET_IMPLEMENTED": "Diese Funktion ist noch nicht implementiert"
   },
   "verification-state": {
     "VERIFICATION_PENDING": "Verifikation wird durchgeführt...",

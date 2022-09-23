@@ -1,20 +1,21 @@
-import * as verifyResult from './verifyresult.json';
-import * as blxProps from './blxProps.json';
-import * as keyServiceResult from './keyService.json';
 import UbirchProtocol from '@ubirch/ubirch-protocol-verifier/src/verify';
 import {
   EError,
-  EUbirchHashAlgorithms,
   EInfo,
+  EUbirchHashAlgorithms,
   EUbirchStages,
-  EUppStates,
   EUbirchVerificationStateKeys,
-  UbirchMessage,
+  EUbirchVerificationTreeNodeType,
+  EUppStates,
   IUbirchBlockchainAnchor,
-  IUbirchVerificationConfig,
-  IUbirchVerificationResult, EUbirchVerificationTreeNodeType,
+  IUbirchVerificationConfig, IUbirchVerificationResult,
+  UbirchMessage,
 } from '../../models/models';
 import { UbirchVerification } from '../verification';
+import * as blxProps from './blxProps.json';
+import * as keyServiceResult from './keyService.json';
+import * as verifyResult from './verifyresult.json';
+import * as verifySignedUppResult from './verifySignedUppResult.json';
 
 global.fetch = jest.fn();
 
@@ -52,12 +53,75 @@ class UbirchVerificationMock extends UbirchVerification {
   }
 }
 
+let test_signed_upp;
 let testhash_verifiable;
 let testhash_from_complicated_device;
 let verifier: UbirchVerificationMock;
 let prodVerifier: UbirchVerificationMock;
 
 const deepCopy = <T>(obj: T) => JSON.parse(JSON.stringify(obj)) as T;
+
+describe('SIGNED UPP Verification', () => {
+  beforeEach(() => {
+    (global.fetch as jest.Mock).mockClear().mockReset();
+    test_signed_upp = "C01:6BFPUJJVE374$6Q1W54L50NJ- 2FT1H1K-AC2IJL:8N.II$2F0L$966469UBLIAFDITQ6D28A MHC9/JCRQTMDTD.T$+O5W0EAL.04SP0$FBUQIEN9QJAUKHL5J 43STJTNFVI6:R02TBHZI8/BASI6N0%OF8$2:NTJII0 JASI KIM92FT14+E/95VY9.V57OL0/BA2CRCII5J/U3+Z5O91Z:BP7JS-0C26.S0XAB52K.8B6LJ-B2*$GAO6LQ6FLDP8E%7BMZBM:FFI97DA5KHKMIE/38ID1$R:G1AGJK733IO.Z88IF1D73-OK$8CHR$I50L0E8PTHME25Y8H52AQ*EQ1QRNF+ 3.:UTKJ XTB.84I8XN1SZ8L:FPT9$97PA6F%BHYV71I2G1A 8XSFHLE53W6AULQU7*DJ5B*VNTGJ8MBO0GLR9*40TT6.0";
+    verifier = new UbirchVerificationMock(defaultSettings);
+    verifier.log(null);
+  });
+
+  describe('Successful Signed UPP Verification', () => {
+    test("should verify with correct type prefix", (done) => {
+      const uppExpected = "lSLEEFjc3bREqFSCqXOVVBOUwLoAxCDS/vfhAYh2IRmRF3w9BSv13HWpuxmdIm8JyqZGcLFl2sRADHd7gzzHfymMRidmHGvXOjJ9Ej4AeHKi+EiWBMlYkScQS9BsKiQHOGlHWyNQP5r3OF9/hturj0YWNEE6LfB5ZQ==";
+      const jsonPayloadStr = '{"id":"0001","type":"donut","name":"Cake","ppu":0.55,"batters":{"batter":[{"id":1001,"type":"Regular"},{"id":1002,"type":"Chocolate"},{"id":1003,"type":"Blueberry"}]},"topping":[{"id":5001,"type":"None"},{"id":5002,"type":"Glazed"},{"id":5005,"type":"Sugar"},{"id":5007,"type":"Powdered Sugar"},{"id":5006,"type":"Chocolate with Sprinkles"},{"id":5003,"type":"Chocolate"},{"id":5004,"type":"Maple"}]}';
+      const initialData = JSON.parse(jsonPayloadStr);
+
+      (global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => verifySignedUppResult,
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => keyServiceResult,
+        });
+
+
+      const infoReceived = [];
+      const infoChain = [
+        EUbirchVerificationStateKeys.VERIFICATION_PENDING,
+        EInfo.START_CHECKING_TYPE,
+        EUbirchVerificationStateKeys.VERIFICATION_PENDING,
+        EInfo.START_VERIFICATION_CALL,
+        EInfo.START_CHECKING_RESPONSE,
+        EInfo.UPP_HAS_BEEN_FOUND,
+        EInfo.SIGNATURE_VERIFICATION_SUCCESSFULLY,
+        EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL,
+        EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL,
+      ];
+
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
+        if (message !== null) {
+          infoReceived.push(message.code);
+        }
+      });
+      return verifier
+        .verifyUPP(test_signed_upp)
+        .then((result: IUbirchVerificationResult) => {
+            expect(result).toBeDefined();
+            expect(result.verificationState).toBeDefined();
+            expect(result.verificationState).toEqual(EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL);
+            expect(result.upp).toBeDefined();
+            expect(result.upp.upp).toEqual(uppExpected);
+            expect(result['certdata']).toBeDefined();
+            expect(JSON.stringify(result['certdata'])).toEqual(JSON.stringify(initialData))
+            expect(infoReceived).toEqual(infoChain);
+            subscription.unsubscribe();
+            done();
+        });
+    });
+  });
+
+});
 
 describe('Verification', () => {
   beforeEach(() => {
@@ -160,7 +224,7 @@ describe('Verification', () => {
     expect(firstAnchor.timestamp).toBeDefined();
     expect(firstAnchor.txid).toBeDefined();
 
-    expect(response.failReason).toBeUndefined();
+    expect(response.failed).toBeUndefined();
   }
 
   describe('createHash', () => {
@@ -194,7 +258,7 @@ describe('Verification', () => {
   });
 
   describe('sendVerificationRequest', () => {
-    test('should send the hash successfully and return a VERIFICATION_PARTLY_SUCCESSFUL response', () => {
+    test('should send the hash successfully and return a VERIFICATION_PARTLY_SUCCESSFUL response but fail because VERIFICATION_FAILED_CANNOT_DECODE_HWDEVICEID_FROM_UPP', (done) => {
       const responseJSON: string =
         '{"anchors":{"upper_blockchains":[]},"prev":"","upp":"upp-must-not-be-null"}';
 
@@ -208,16 +272,35 @@ describe('Verification', () => {
           json: () => keyServiceResult,
         });
 
+      const infoReceived = [];
+      const infoChain = [
+        EUbirchVerificationStateKeys.VERIFICATION_PENDING,
+        EInfo.START_VERIFICATION_CALL,
+        EInfo.START_CHECKING_RESPONSE,
+        EInfo.UPP_HAS_BEEN_FOUND,
+        EError.VERIFICATION_FAILED_CANNOT_DECODE_HWDEVICEID_FROM_UPP,
+        EUbirchVerificationStateKeys.VERIFICATION_FAILED,
+      ];
+
+      const subscription = verifier.messenger.subscribe((message: UbirchMessage) => {
+        if (message !== null) {
+          infoReceived.push(message.code);
+        }
+      });
+
       return verifier
         .verifyHash(testhash_verifiable)
-        .then((response: IUbirchVerificationResult) => {
-          expect(response).toBeDefined();
-          expect(response.upp).toBeDefined();
-          expect(response.upp.state).toBe(EUppStates.created);
-          expect(response.verificationState).toBe(
-            EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL
-          );
-          expect(response.failReason).toBeUndefined();
+        .then((result: IUbirchVerificationResult) => {
+          expect(result).toBeDefined();
+          expect(result.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
+          expect(result.upp).toBeDefined();
+          expect(result.upp.state).toBe(EUppStates.created);
+          expect(result.anchors).toBeUndefined();
+          expect(result.failed).toBeDefined();
+          expect(result.failed.code).toEqual(EError.VERIFICATION_FAILED_CANNOT_DECODE_HWDEVICEID_FROM_UPP);
+          expect(infoReceived).toEqual(infoChain);
+          subscription.unsubscribe();
+          done();
         });
     });
 
@@ -231,7 +314,7 @@ describe('Verification', () => {
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
           expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
-          expect(response.failReason).toBe(EError.CERTIFICATE_ID_CANNOT_BE_FOUND);
+          expect(response.failed.code).toBe(EError.CERTIFICATE_ID_CANNOT_BE_FOUND);
         });
     });
 
@@ -245,7 +328,7 @@ describe('Verification', () => {
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
           expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
-          expect(response.failReason).toBe(EError.INTERNAL_SERVER_ERROR);
+          expect(response.failed.code).toBe(EError.INTERNAL_SERVER_ERROR);
         });
     });
 
@@ -259,7 +342,7 @@ describe('Verification', () => {
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
           expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
-          expect(response.failReason).toBe(EError.UNKNOWN_ERROR);
+          expect(response.failed.code).toBe(EError.UNKNOWN_ERROR);
         });
     });
 
@@ -271,7 +354,7 @@ describe('Verification', () => {
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
           expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
-          expect(response.failReason).toBe(EError.VERIFICATION_UNAVAILABLE);
+          expect(response.failed.code).toBe(EError.VERIFICATION_UNAVAILABLE);
         });
     });
 
@@ -285,7 +368,7 @@ describe('Verification', () => {
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
           expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
-          expect(response.failReason).toBe(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
+          expect(response.failed.code).toBe(EError.CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE);
         });
     });
 
@@ -359,9 +442,9 @@ describe('Verification', () => {
           const anchor = result.anchors[0];
           expect(anchor).toBeDefined();
           expect(anchor.iconUrl).toBeDefined();
-          expect(anchor.iconUrl).toEqual("Ethereum-Classic_verify_right.png");
+          expect(anchor.iconUrl).toEqual("Ethereum_Classic_verify_right.png");
           expect(anchor.blxTxExplorerUrl).toBeDefined();
-          expect(anchor.blxTxExplorerUrl).toContain("https://kottiexplorer.ethernode.io/search?q=");
+          expect(anchor.blxTxExplorerUrl).toContain("https://blockscout.com/etc/kotti/search?q=");
           done();
         });
 
@@ -433,7 +516,7 @@ describe('Verification', () => {
 
     });
 
-    test('should fail on handling bockchain anchor with not existing versions', (done) => {
+    test('should fail on handling blockchain anchor with not existing versions', (done) => {
       const response = deepCopy(verifyResult);
       // use IOTA anchor with not defined version in blockchain-settings
       response.anchors.upper_blockchains = [ deepCopy(blxProps).upper_blockchains[2] ];
@@ -474,8 +557,7 @@ describe('Verification', () => {
           expect(result).toBeDefined();
           expect(result.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL);
           expect(infoReceived).toEqual(infoChain);
-          expect(result.anchors).toBeDefined();
-          expect(result.anchors.length).toEqual(0);
+          expect(result.anchors).toBeUndefined();
           subscription.unsubscribe();
           done();
         });
@@ -523,8 +605,7 @@ describe('Verification', () => {
           expect(result).toBeDefined();
           expect(result.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL);
           expect(infoReceived).toEqual(infoChain);
-          expect(result.anchors).toBeDefined();
-          expect(result.anchors.length).toEqual(0);
+          expect(result.anchors).toBeUndefined();
           subscription.unsubscribe();
           done();
         });
@@ -572,8 +653,7 @@ describe('Verification', () => {
           expect(result).toBeDefined();
           expect(result.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL);
           expect(infoReceived).toEqual(infoChain);
-          expect(result.anchors).toBeDefined();
-          expect(result.anchors.length).toEqual(0);
+          expect(result.anchors).toBeUndefined();
           subscription.unsubscribe();
           done();
         });
@@ -742,7 +822,7 @@ describe('Verification', () => {
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
           expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
-          expect(response.failReason).toBe(EError.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE);
+          expect(response.failed.code).toBe(EError.VERIFICATION_FAILED_MISSING_SEAL_IN_RESPONSE);
         });
     });
 
@@ -762,7 +842,7 @@ describe('Verification', () => {
         .then((response: IUbirchVerificationResult) => {
           expect(response).toBeDefined();
           expect(response.verificationState).toBe(EUbirchVerificationStateKeys.VERIFICATION_FAILED);
-          expect(response.failReason).toBe(EError.UNKNOWN_ERROR);
+          expect(response.failed.code).toBe(EError.UNKNOWN_ERROR);
         });
     });
 
@@ -858,7 +938,7 @@ describe('Verification', () => {
           expect(firstAnchor.timestamp).toBeDefined();
           expect(firstAnchor.txid).toBeDefined();
 
-          expect(response.failReason).toBeUndefined();
+          expect(response.failed).toBeUndefined();
         });
     });
 

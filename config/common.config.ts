@@ -1,3 +1,5 @@
+import webpack = require('webpack');
+
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -17,9 +19,15 @@ module.exports = {
       crypto: require.resolve('crypto-browserify'),
       buffer: require.resolve('buffer/'),
       stream: require.resolve('stream-browserify'),
+      zlib: require.resolve('browserify-zlib'),
+      assert: require.resolve("assert/"),
+      util: require.resolve("util/")
     },
   },
   plugins: [
+    new webpack.ProvidePlugin({
+      process: 'process',
+    }),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.resolve(__dirname, '../demo/index.html'),
