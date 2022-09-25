@@ -5,6 +5,12 @@ export enum EUbirchHashAlgorithms {
   SHA512 = 'sha512',
 }
 
+export enum EUppTypes {
+  CHAINED = 'CHAINED',
+  SIGNED = 'SIGNED',
+//  PLAIN = 'PLAIN'
+}
+
 export enum EUbirchLanguages {
   de = 'de',
   en = 'en',
@@ -38,6 +44,7 @@ export enum EBlxAnchors {
 export enum EInfo {
   URL_PARAMS_PARSED_SUCCESS = 'URL_PARAMS_PARSED_SUCCESS',
   URL_PARAMS_FORMFILL_SUCCESS = 'URL_PARAMS_FORMFILL_SUCCESS',
+  START_CHECKING_TYPE = "START_CHECKING_TYPE",
   START_VERIFICATION_CALL = 'START_VERIFICATION_CALL',
   START_CHECKING_RESPONSE = 'START_CHECKING_RESPONSE',
   UPP_HAS_BEEN_FOUND = 'UPP_HAS_BEEN_FOUND',
@@ -62,6 +69,7 @@ export enum EError {
   VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED = 'VERIFICATION_FAILED_SIGNATURE_CANNOT_BE_VERIFIED',
   CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE = 'CERTIFICATE_ANCHORED_BY_NOT_AUTHORIZED_DEVICE',
   INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
+  NOT_YET_IMPLEMENTED = 'NOT_YET_IMPLEMENTED',
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 
   URL_PARAMS_CORRUPT = 'URL_PARAMS_CORRUPT',
@@ -80,6 +88,7 @@ export enum EError {
   VERIFICATION_NOT_POSSIBLE = 'VERIFICATION_NOT_POSSIBLE',
   VERIFICATION_FAILED_EMPTY_RESPONSE = 'VERIFICATION_FAILED_EMPTY_RESPONSE',
   VERIFICATION_FAILED = 'VERIFICATION_FAILED',
+  VERIFICATION_FAILED_WRONG_TYPE_PREFIX = 'VERIFICATION_FAILED_WRONG_TYPE_PREFIX',
   NO_ERROR = 'NO_ERROR',
 }
 
@@ -111,6 +120,7 @@ export interface IUbirchError {
   type: EUbirchMessageTypes.ERROR;
   message: string;
   code: EError;
+  errorBECodes?: string[];
   errorDetails?: IUbirchErrorDetails;
 }
 
@@ -118,7 +128,7 @@ export interface IUbirchVerificationState {
   type: EUbirchMessageTypes.VERIFICATION_STATE;
   message: string;
   code: EUbirchVerificationStateKeys;
-  result?: IUbirchVerificationResult;
+  result?: any;
 }
 
 export type UbirchMessage = IUbirchInfo | IUbirchError | IUbirchVerificationState;
@@ -189,20 +199,26 @@ export interface IUbirchBlockchainAnchorProperties {
 }
 
 export interface IUbirchVerificationResult {
-  hash: string;
-  upp: IUbirchUpp;
-  anchors: IUbirchBlockchainAnchor[];
-  creationTimestamp: string;
-  firstAnchorTimestamp: string | null;
   verificationState: EUbirchVerificationStateKeys;
+  hash?: string;
+  upp?: IUbirchUpp;
+  anchors?: IUbirchBlockchainAnchor[];
+  creationTimestamp?: string;
+  firstAnchorTimestamp?: string | null;
   lowerAnchors?: IUbirchBlockchainAnchor[];
+  certData?: any;
   rawData?: IUbirchVerificationResponse;
-  failReason?: EError;
+  failed?: {
+    code: EError;
+    errorBECodes?: string[];
+    message?: string;
+  }
 }
 
 export interface IUbirchUpp {
   upp: string;
   state: EUppStates;
+  type: EUppTypes;
 }
 
 export interface IUbirchBlockchainAnchor {

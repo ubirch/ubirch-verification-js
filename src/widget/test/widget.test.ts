@@ -7,11 +7,12 @@ import {
   EUbirchLanguages,
   EUbirchMessageTypes,
   EUbirchStages,
-  EUppStates,
   EUbirchVerificationStateKeys,
+  EUppStates,
+  EUppTypes,
   IUbirchError,
-  IUbirchErrorDetails,
-  IUbirchVerificationResult, IUbirchVerificationWidgetConfig,
+  IUbirchErrorDetails, IUbirchVerificationResult,
+  IUbirchVerificationWidgetConfig,
   UbirchMessage,
 } from '../../models/models';
 import i18n from '../../utils/translations';
@@ -56,6 +57,7 @@ const successVerificationMessage: UbirchMessage = {
     upp: {
       upp:
         'liPEEM+T+e6L9EzBtxV79B2I5hbEQLKeDjxuX6RTp6/kKnsJR+cd3exsAqA/8oJXdYjzVvfWG3I3QXeqzTdAgJj8No6sL0ltaSGWjzEwBAy+fx+ZdCkAxCB8OqIKiOGsBRJoM8hSLnaawKFfIHdVFYVYBP5XRaEWJMRAPYfV3BJ4goY6HUxSNcB6Wu48Y+5iRqsuRdUT4dlidzaD9bjub7DxN75sXzf5uOgn26lZ1asuPsfKPWaYuciXTQ==',
+      type: EUppTypes.CHAINED,
       state: EUppStates.anchored,
     },
     anchors: testAnchors,
@@ -69,6 +71,7 @@ const defaultResult = {
   hash: '',
   upp: {
     upp: '',
+    type: EUppTypes.CHAINED,
     state: EUppStates.anchored,
   },
   anchors: [],
@@ -271,6 +274,7 @@ describe('Widget', () => {
               hash: '',
               upp: {
                 upp: '',
+                type: EUppTypes.CHAINED,
                 state: EUppStates.anchored,
               },
               anchors: [],
@@ -567,7 +571,7 @@ describe('Widget', () => {
       const iconsEl = root.querySelector('#ubirch-verification-anchor-icons');
       const icons = iconsEl.children;
 
-      const firstAnchor = successVerificationMessage.result.anchors[0];
+      const firstAnchor = successVerificationMessage.result['anchors'][0];
       const firstIcon = icons[0];
       expect(firstIcon).toBeDefined();
       const firstIconImage = firstIcon.children[0];

@@ -12,20 +12,24 @@ import {
   EUbirchLanguages,
   EUbirchMessageTypes,
   EUbirchStages,
-  EUbirchVerificationStateKeys, EUbirchVerificationTreeNodeType,
+  EUbirchVerificationStateKeys,
+  EUbirchVerificationTreeNodeType,
   EUppStates,
+  EUppTypes,
   IUbirchBlockchain,
   IUbirchBlockchainAnchor,
   IUbirchBlockchainAnchorProperties,
-  IUbirchBlockchainAnchorRAW, IUbirchBlockChainVersion,
+  IUbirchBlockchainAnchorRAW,
+  IUbirchBlockChainVersion,
   IUbirchError,
   IUbirchErrorDetails,
   IUbirchInfo,
   IUbirchUpp,
+  IUbirchVerificationResult,
   IUbirchVerificationConfig,
   IUbirchVerificationResponse,
-  IUbirchVerificationResult,
-  IUbirchVerificationState, IUbirchVerificationTreeNode,
+  IUbirchVerificationState,
+  IUbirchVerificationTreeNode,
   UbirchMessage,
 } from '../models/models';
 import i18n from '../utils/translations';
@@ -33,6 +37,7 @@ import i18n from '../utils/translations';
 const API_VERSION = '/v2';
 
 export class UbirchVerification {
+
   protected stage: EUbirchStages = EUbirchStages.prod;
   protected algorithm: EUbirchHashAlgorithms = EUbirchHashAlgorithms.SHA256;
   protected accessToken: string;
@@ -51,7 +56,56 @@ export class UbirchVerification {
     this.language = config.language || this.language;
   }
 
-  public async verifyHash(hash: string, verbose = false): Promise<IUbirchVerificationResult> {
+  public async verifyUPP(packedSignedUpp: string, uppType: EUppTypes = EUppTypes.SIGNED): Promise<IUbirchVerificationResult> {
+    const verificationResult: IUbirchVerificationResult = this.createInitialUbirchVerificationResult();
+
+    this.handleVerificationState(EUbirchVerificationStateKeys.VERIFICATION_PENDING);
+    this.handleInfo(EInfo.START_CHECKING_TYPE);
+
+    try {
+      switch (uppType) {
+        case EUppTypes.SIGNED:
+
+          const msgPackUpp = UbirchProtocol.tools.unpackSignedUpp(packedSignedUpp);
+          const msgpackPayload = UbirchProtocol.tools.getMsgPackPayloadFromUpp(msgPackUpp);
+          const hash = UbirchProtocol.tools.getHashedPayload(msgpackPayload);
+          verificationResult.hash = hash;
+
+          const resp = await this.verifyHash(hash, false, uppType);
+
+          // TODO: extract and display verified data from msgPack payload
+          const data = UbirchProtocol.tools.getJSONFromMsgPackPayload(msgpackPayload);
+          // TODO: add data to result
+          verificationResult.upp = resp.upp;
+          verificationResult['certdata'] = data;
+          verificationResult.verificationState = resp.verificationState;
+          break;
+        case EUppTypes.CHAINED:
+        default:
+          verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_FAILED;
+          verificationResult.failed = {
+            code: EError.NOT_YET_IMPLEMENTED
+          };
+      }
+
+      this.handleVerificationState(verificationResult.verificationState, verificationResult);
+      return verificationResult;
+
+    } catch (err) {
+      verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_FAILED;
+      verificationResult.failed = {
+        code: err.code || EError.UNKNOWN_ERROR,
+        message: err.message,
+        errorBECodes: err.errorBECodes
+      };
+
+      this.handleVerificationState(verificationResult.verificationState, verificationResult);
+      return verificationResult;
+    }
+
+  }
+
+  public async verifyHash(hash: string, verbose = false, uppType: EUppTypes = EUppTypes.CHAINED): Promise<IUbirchVerificationResult> {
     const verificationResult: IUbirchVerificationResult = this.createInitialUbirchVerificationResult(
       hash
     );
@@ -64,7 +118,7 @@ export class UbirchVerification {
 
       this.handleInfo(EInfo.START_CHECKING_RESPONSE);
 
-      const ubirchUpp: IUbirchUpp = this.extractUpp(verificationResponse);
+      const ubirchUpp: IUbirchUpp = this.extractUpp(verificationResponse, uppType);
 
       verificationResult.upp = ubirchUpp;
       verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL;
@@ -76,36 +130,47 @@ export class UbirchVerification {
 
       // const deviceName = await this.getDeviceName(hwDeviceId);
 
-      const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(verificationResponse);
+      switch (uppType) {
+        case EUppTypes.SIGNED:
+          verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL;
+          break;
+        case EUppTypes.CHAINED:
+        default:
+          const blxAnchors: IUbirchBlockchainAnchor[] = this.checkBlockchainTXs(verificationResponse);
 
-      if (blxAnchors.length > 0) {
-        const firstAnchorTimestamp = this.findFirstAnchorTimestamp(blxAnchors);
-        const creationTimestamp = this.getCreationTimestamp(verificationResponse);
+          if (blxAnchors.length > 0) {
+            const firstAnchorTimestamp = this.findFirstAnchorTimestamp(blxAnchors);
+            const creationTimestamp = this.getCreationTimestamp(verificationResponse);
 
-        if (verbose) {
-          verificationResult.rawData = verificationResponse;
-          verificationResult.lowerAnchors = this.checkBlockchainTXs(verificationResponse, EBlxAnchors.lower_blockchains);
-        }
+            if (verbose) {
+              verificationResult.rawData = verificationResponse;
+              verificationResult.lowerAnchors = this.checkBlockchainTXs(verificationResponse, EBlxAnchors.lower_blockchains);
+            }
 
-        verificationResult.anchors = blxAnchors;
-        verificationResult.creationTimestamp = creationTimestamp;
-        verificationResult.firstAnchorTimestamp = firstAnchorTimestamp;
-        verificationResult.upp.state = EUppStates.anchored;
-        verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL;
+            verificationResult.anchors = blxAnchors;
+            verificationResult.creationTimestamp = creationTimestamp;
+            verificationResult.firstAnchorTimestamp = firstAnchorTimestamp;
+            verificationResult.upp.state = EUppStates.anchored;
 
-        this.handleInfo(EInfo.BLXTXS_FOUND_SUCCESS);
-      } else {
-        verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL;
+            verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_SUCCESSFUL;
+            this.handleInfo(EInfo.BLXTXS_FOUND_SUCCESS);
+          } else {
 
-        this.handleInfo(EInfo.NO_BLXTX_FOUND);
+            verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_PARTLY_SUCCESSFUL;
+            this.handleInfo(EInfo.NO_BLXTX_FOUND);
+          }
+
       }
 
       this.handleVerificationState(verificationResult.verificationState, verificationResult);
       return verificationResult;
     } catch (err) {
       verificationResult.verificationState = EUbirchVerificationStateKeys.VERIFICATION_FAILED;
-      verificationResult.failReason = err.code || EError.UNKNOWN_ERROR;
-
+      verificationResult.failed = {
+        code: err.code || EError.UNKNOWN_ERROR,
+        message: err.message,
+        errorBECodes: err.errorBECodes
+      };
       this.handleVerificationState(verificationResult.verificationState, verificationResult);
       return verificationResult;
     }
@@ -181,16 +246,24 @@ export class UbirchVerification {
     }
   }
 
-  protected handleError(code: EError, errorDetails?: IUbirchErrorDetails): void {
-    const errorMsg: string =
-      code === EError.VERIFICATION_UNAVAILABLE && errorDetails
+  protected handleError(code: EError, errorDetails?: IUbirchErrorDetails, errorCodeFromBE?: string[]): void {
+    let errorMsg: string = '';
+    if (errorCodeFromBE) {
+      errorCodeFromBE.forEach(code => {
+        const msg = this.verifiedLangStr(`default:error.${code}`);
+        errorMsg += errorMsg.length > 0 ? '\n' + msg : msg;
+      })
+    } else {
+      errorMsg = code === (EError.VERIFICATION_UNAVAILABLE) && errorDetails
         ? i18n.t(`default:error.${code}`, { message: errorDetails.errorMessage })
         : i18n.t(`default:error.${code}`);
+    }
 
     const err: IUbirchError = {
       type: EUbirchMessageTypes.ERROR,
-      message: errorMsg,
+      message: errorMsg.length > 0 ? errorMsg : undefined,
       code,
+      errorBECodes: errorCodeFromBE,
       errorDetails,
     };
 
@@ -315,20 +388,17 @@ export class UbirchVerification {
   //     .then((json) => json);
   // }
 
-  protected createInitialUbirchVerificationResult(hashP: string): IUbirchVerificationResult {
+  protected createInitialUbirchVerificationResult(hash?: string): IUbirchVerificationResult {
     const result: IUbirchVerificationResult = {
-      hash: hashP,
-      upp: undefined,
-      anchors: [],
-      creationTimestamp: undefined,
-      firstAnchorTimestamp: null,
       verificationState: EUbirchVerificationStateKeys.VERIFICATION_PENDING,
     };
-
+    if (hash) {
+      result.hash = hash;
+    }
     return result;
   }
 
-  protected extractUpp(resultObj: IUbirchVerificationResponse): IUbirchUpp {
+  protected extractUpp(resultObj: IUbirchVerificationResponse, uppType: EUppTypes = EUppTypes.CHAINED): IUbirchUpp {
     // Success IF
     // 2. Key Seal != ''
 
@@ -338,6 +408,7 @@ export class UbirchVerification {
 
     const ubirchUpp: IUbirchUpp = {
       upp: resultObj.upp,
+      type: uppType,
       state: EUppStates.created,
     };
 
@@ -486,6 +557,11 @@ export class UbirchVerification {
   private handleIncompleteBlockchainSettingsError() {
     this.handleInfo(EInfo.BLOCKCHAIN_SETTINGS_INCOMPLETE);
     return undefined;
+  }
+
+  private verifiedLangStr(key: string): string {
+    const val = i18n.t(key);
+    return val === key || 'default:' + val === key ? '' : val;
   }
 }
 

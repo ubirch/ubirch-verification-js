@@ -9,6 +9,22 @@ The UbirchVerification package consists of three parts:
 * **UbirchVerificationWidget** - a Widget, that can be included into your website, showing the result of the verification in a simple UI
 * **UbirchFormUtils** - helper tool to handle forms and URL query/fragment parameters to display the verified data easily
 
+## Breaking Changes
+
+In version 2.0.0 the error result in the IUbirchVerificationResult changed from
+
+```
+  failReason?: EError;
+```
+to
+```
+  failed?: {
+    code: EError;
+    errorBECodes?: string[];
+    message?: string;
+  }
+```
+
 ## Usage
 
 **NPM Package**:  [@ubirch/ubirch-verification-js NPM package](https://www.npmjs.com/package/@ubirch/ubirch-verification-js)
