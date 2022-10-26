@@ -247,7 +247,7 @@ export class UbirchVerification {
   }
 
   protected handleError(code: EError, errorDetails?: IUbirchErrorDetails, errorCodeFromBE?: string[]): void {
-    let errorMsg: string = '';
+    let errorMsg = '';
     if (errorCodeFromBE) {
       errorCodeFromBE.forEach(code => {
         const msg = this.verifiedLangStr(`default:error.${code}`);

@@ -20,6 +20,32 @@
     "ethereum": {
       "nodeIcon": "Ethereum_verify_right.png",
       "explorerUrl": {
+        "version": [
+          {
+            "versionNum": "1.0.0",
+            "devnet": {
+              "url": "https://ropsten.etherscan.io/tx/"
+            },
+            "testnet": {
+              "url": "https://rinkeby.etherscan.io/tx/"
+            },
+            "mainnet": {
+              "url": "https://etherscan.io/tx/"
+            }
+          },
+          {
+            "versionNum": "1.5.0",
+            "devnet": {
+              "url": "https://goerli.etherscan.io/tx/"
+            },
+            "testnet": {
+              "url": "https://sepolia.etherscan.io/tx/"
+            },
+            "mainnet": {
+              "url": "https://etherscan.io/tx/"
+            }
+          }
+        ],
         "devnet": {
           "url": "https://ropsten.etherscan.io/tx/"
         },
