@@ -528,7 +528,7 @@ export class UbirchVerification {
       return undefined;
     }
 
-    const networkType: string = bloxTxProps.network_type;
+    const networkType: string = bloxTxProps.public_chain.toLowerCase().includes('goerli') || bloxTxProps.public_chain.toLowerCase().includes('ropsten') ? 'devnet' : bloxTxProps.network_type;
     const blxVersion: string = bloxTxProps.version;
 
     const explorerUrl = !blxVersion ? bloxTxData.explorerUrl[networkType] : this.getBlxExplorerUrlForVersion(bloxTxData, blxVersion, networkType);

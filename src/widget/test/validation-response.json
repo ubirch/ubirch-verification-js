@@ -73,7 +73,8 @@
           "blockchain": "gov-digital",
           "message": "b819c83ef364cadd611c3903ac57780fb6d2181b5e3752f3e868206038dbde79358aa8e859e959137f00b33acfc6361ac38b02a9000ac714b4bf9b59a42702b8",
           "prev_hash": "b819c83ef364cadd611c3903ac57780fb6d2181b5e3752f3e868206038dbde79358aa8e859e959137f00b33acfc6361ac38b02a9000ac714b4bf9b59a42702b8",
-          "created": "2021-01-27T17:37:15.539Z"
+          "created": "2021-01-27T17:37:15.539Z",
+          "version": "1.5.0"
         }
       },
       {
@@ -105,7 +106,8 @@
           "blockchain": "ethereum",
           "message": "8668f429facbf1cf5f5090f0fa3c10c7f9d126355f8fd1d274d66a573d78bdc70a85fc2c0b2cf22c890a9f8999f8ffe47f6e0f2d8247d3cc9115da5cde79b7cb",
           "prev_hash": "8668f429facbf1cf5f5090f0fa3c10c7f9d126355f8fd1d274d66a573d78bdc70a85fc2c0b2cf22c890a9f8999f8ffe47f6e0f2d8247d3cc9115da5cde79b7cb",
-          "created": "2021-01-27T17:39:20.594Z"
+          "created": "2021-01-27T17:39:20.594Z",
+          "version": "1.5.0"
         }
       }
     ],
